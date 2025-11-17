@@ -20,6 +20,7 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Filament\Support\Assets\Css;
 use Filament\Support\Assets\Js;
+use App\Models\Empresa;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -29,6 +30,9 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
+            ->brandName(Empresa::first()?->nombre_empresa ?? 'Mi Ferretería')
+            ->brandLogo(fn() => Empresa::first()?->logo_empresa ? asset('storage/' . Empresa::first()->logo_empresa) : null)
+            ->brandLogoHeight('2.5rem')
             ->login()
             ->registration()
             ->profile()
