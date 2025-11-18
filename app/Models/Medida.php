@@ -10,7 +10,7 @@ class Medida extends Model
     //
     Use HasFactory;
 
-    protected $fillable = ['nombre_medida', 'descripcion_medida'];
+    protected $fillable = ['nombre_medida', 'descripcion_medida', 'tipo_medida'];
 
     public function detalleProducciones()
     {

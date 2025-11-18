@@ -18,6 +18,7 @@ use Carbon\Carbon;
 use App\Models\Producto;
 use Dom\Text;
 use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\Radio;
 
 
 trait HasCompraSections
@@ -132,6 +133,19 @@ trait HasCompraSections
                 ->columns(4)
                 ->columnSpan(1)
                 ->schema([
+                    Radio::make('categoria_compra')
+                    ->label('Categoría de Producto')
+                    ->inline()
+                    ->columnSpan(4)
+                    ->required()
+                    ->live()
+                    ->default('PRODUCTO_TERMINADO')
+                    ->options([
+                        'MATERIA_PRIMA' => 'Materia Prima',
+                        'PRODUCTO_TERMINADO' => 'Producto Terminado',
+                        'OTRO' => 'Otro',
+                    ]),
+
                     TextInput::make('factura')->columnSpan(1)->label('Factura')->required()->unique(),
 
                     Select::make('proveedor_id')
@@ -267,25 +281,23 @@ trait HasCompraSections
                             TableColumn::make('Acciones')->width('10px'),
                         ])
                         ->schema([
-                            //campo para mostrar el código del producto seleccionado (no se guarda en BD)
-                            /*TextInput::make('codigo_producto')
-                                ->label('Código')
-                                ->disabled()
-                                ->dehydrated(false) // evitar que se persista
-                                ->default(fn($get) => optional(Producto::find($get('producto_id')))->codigo_producto)
-                                ->columnSpan(1),*/
-
+                            
                             Select::make('producto_id')
                                 ->label('Producto')
                                 ->searchable()
                                 ->required()
                                 ->preload()
-                                // Opciones con "codigo - nombre"
-                                ->options(fn() => Producto::orderBy('nombre_producto')
-                                    ->get()
-                                    ->mapWithKeys(fn($p) => [$p->id => ($p->codigo_producto ? $p->codigo_producto . ' - ' : '') . $p->nombre_producto])
-                                    ->toArray()
-                                )
+                                // Opciones filtradas por categoria_compra
+                                ->options(function ($get) {
+                                    $categoriaCompra = $get('../../categoria_compra');
+                                    return Producto::when($categoriaCompra, function ($query, $categoria) {
+                                            return $query->where('categoria_producto', $categoria);
+                                        })
+                                        ->orderBy('nombre_producto')
+                                        ->get()
+                                        ->mapWithKeys(fn($p) => [$p->id => ($p->codigo_producto ? $p->codigo_producto . ' - ' : '') . $p->nombre_producto])
+                                        ->toArray();
+                                })
                                 ->reactive()
                                 ->afterStateHydrated(function ($state, $set) {
                                     // al hidratar fila (editar existente) rellenar código
@@ -542,6 +554,19 @@ trait HasCompraSections
         $producto = Producto::find($productoId);
         return $producto ? $producto->codigo_producto : '-';
     }
+
+    //del codigo del producto seleccionado me va a traer la medida_id y ese id lo va a buscar en la tabla de medidas y me va a traer el tipo_medida
+    /*private static function buscarTipoMedidaPorCodigoProducto(int $productoId): ?string
+    {
+        $producto = Producto::find($productoId);
+        if (! $producto) return null;
+
+        $medidaId = $producto->medida_id;
+        if (! $medidaId) return null;
+
+        $medida = \App\Models\Medida::find($medidaId);
+        return $medida ? $medida->tipo_medida : null;
+    }}*/
 
     private static function recalcularDesdePrecioManual(callable $set, callable $get): void
     {

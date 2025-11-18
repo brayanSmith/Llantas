@@ -23,7 +23,7 @@ class ProductoForm
     {
         return $schema
             ->components([
-                ToggleButtons::make('categoria_producto')
+                Radio::make('categoria_producto')
                     ->label('Categoría de Producto')
                     ->options([
                         'MATERIA_PRIMA' => 'Materia Prima',
@@ -31,7 +31,7 @@ class ProductoForm
                         'OTRO' => 'Otro',
                     ])
                     ->required()
-                    ->grouped()
+                    ->inline()
                     ->default('PRODUCTO_TERMINADO')
                     ->live(), // Hace que los cambios se reflejen inmediatamente
                 TextInput::make('codigo_producto')
