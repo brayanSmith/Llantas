@@ -26,6 +26,7 @@ class ProductoFactory extends Factory
             : null;
 
         return [
+            'categoria_producto' => $this->faker->randomElement(['MATERIA_PRIMA', 'PRODUCTO_TERMINADO', 'OTRO']),
             'codigo_producto' => strtoupper(Str::random(8)),
             'nombre_producto' => $this->faker->words(3, true),
             'descripcion_producto' => $this->faker->sentence(),
@@ -49,6 +50,8 @@ class ProductoFactory extends Factory
             'codigo_cliente' => strtoupper(Str::random(10)),
             'volumen_producto' => $this->faker->randomElement(['EXTRA_GRANDE', 'GRANDE', 'MEDIANO', 'PEQUEÑO', 'EXTRA_PEQUEÑO']),
             'iva_producto' => $this->faker->randomFloat(2, 0, 100),
+            'tipo_compra' => $this->faker->randomElement(['NACIONAL', 'IMPORTADO']),
+            'medida_id' => \App\Models\Medida::inRandomOrder()->value('id'),
         ];
     }
 }

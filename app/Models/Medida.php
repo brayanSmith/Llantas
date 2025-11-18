@@ -17,4 +17,9 @@ class Medida extends Model
         return $this->hasMany(DetalleProduccion::class);
     }
 
+    public function productos()
+    {
+        return $this->hasMany(Producto::class);
+    }
+
 }

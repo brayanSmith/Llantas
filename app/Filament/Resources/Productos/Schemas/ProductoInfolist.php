@@ -10,7 +10,8 @@ class ProductoInfolist
     public static function configure(Schema $schema): Schema
     {
         return $schema
-            ->components([
+            ->components([             
+                TextEntry::make('categoria_producto'),
                 TextEntry::make('codigo_producto'),
                 TextEntry::make('nombre_producto'),
                 TextEntry::make('descripcion_producto')
