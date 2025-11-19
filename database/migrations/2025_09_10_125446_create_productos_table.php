@@ -45,10 +45,10 @@ return new class extends Migration
             $table->string('codigo_producto')->unique();
             $table->string('nombre_producto');
             $table->string('descripcion_producto')->nullable();
-            $table->decimal('costo_producto', 10, 2);
-            $table->decimal('valor_detal_producto', 10, 2);
-            $table->decimal('valor_mayorista_producto', 10, 2);
-            $table->decimal('valor_ferretero_producto', 10, 2);
+            $table->decimal('costo_producto', 10, 2)->default(0);
+            $table->decimal('valor_detal_producto', 10, 2)->default(0);
+            $table->decimal('valor_mayorista_producto', 10, 2)->default(0);
+            $table->decimal('valor_ferretero_producto', 10, 2)->default(0);
             $table->string('imagen_producto')->nullable();
             $table->foreignId('medida_id')->constrained('medidas')->onDelete('cascade');
             $table->foreignId('bodega_id')->constrained('bodegas')->onDelete('cascade');

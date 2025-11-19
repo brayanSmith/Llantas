@@ -268,6 +268,7 @@ class POS extends Component
         return Producto::query()
             ->where('stock', '>', 0)
             ->where('activo', 1)
+            ->where('categoria_producto', 'PRODUCTO_TERMINADO')
             ->when(
                 $this->search,
                 fn($q) =>

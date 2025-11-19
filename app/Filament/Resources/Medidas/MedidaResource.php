@@ -15,6 +15,8 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Radio;
 use UnitEnum;
 
 class MedidaResource extends Resource
@@ -33,6 +35,17 @@ class MedidaResource extends Resource
                     ->required(),
                 TextInput::make('descripcion_medida')
                     ->default(null),
+                Radio::make('tipo_medida')
+                    ->label('Tipo de Medida')
+                    ->inline()
+                    ->options([
+                        'LONGITUD' => 'Longitud',
+                        'PESO' => 'Peso',
+                        'VOLUMEN' => 'Volumen',
+                        'CANTIDAD' => 'Cantidad',
+                    ])
+                    ->required()
+                    ->default('CANTIDAD'),
             ]);
     }
 
@@ -44,6 +57,8 @@ class MedidaResource extends Resource
                 TextColumn::make('nombre_medida')
                     ->searchable(),
                 TextColumn::make('descripcion_medida')
+                    ->searchable(),
+                TextColumn::make('tipo_medida')
                     ->searchable(),
                 TextColumn::make('created_at')
                     ->dateTime()
