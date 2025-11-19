@@ -10,11 +10,16 @@ class Medida extends Model
     //
     Use HasFactory;
 
-    protected $fillable = ['nombre_medida', 'descripcion_medida'];
+    protected $fillable = ['nombre_medida', 'descripcion_medida', 'tipo_medida'];
 
     public function detalleProducciones()
     {
         return $this->hasMany(DetalleProduccion::class);
+    }
+
+    public function productos()
+    {
+        return $this->hasMany(Producto::class);
     }
 
 }

@@ -10,6 +10,7 @@ class Producto extends Model
     //
     use HasFactory;
     protected $fillable = [
+        'categoria_producto',
         'codigo_producto',
         'nombre_producto',
         'descripcion_producto',
@@ -36,6 +37,7 @@ class Producto extends Model
         'volumen_producto',
         'iva_producto',
         'tipo_compra',
+        'medida_id',
     ];
     public function detalleCompras()
     {
@@ -46,7 +48,10 @@ class Producto extends Model
     {
         return $this->hasMany(DetallePedido::class);
     }
-
+    public function medida()
+    {
+        return $this->belongsTo(Medida::class, 'medida_id');
+    }
     public function enStock(float|int $cantidad): bool
     {
         // cantidad inválida

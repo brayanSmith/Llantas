@@ -13,6 +13,7 @@ use Filament\Forms\Components\ToggleButtons;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
+use Filament\Forms\Components\Radio;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 
 
@@ -22,6 +23,17 @@ class ProductoForm
     {
         return $schema
             ->components([
+                Radio::make('categoria_producto')
+                    ->label('Categoría de Producto')
+                    ->options([
+                        'MATERIA_PRIMA' => 'Materia Prima',
+                        'PRODUCTO_TERMINADO' => 'Producto Terminado',
+                        'OTRO' => 'Otro',
+                    ])
+                    ->required()
+                    ->inline()
+                    ->default('PRODUCTO_TERMINADO')
+                    ->live(), // Hace que los cambios se reflejen inmediatamente
                 TextInput::make('codigo_producto')
                     ->required()
                     ->unique(ignoreRecord: true)
@@ -32,6 +44,13 @@ class ProductoForm
                     ->placeholder('Ingrese el nombre del producto'),
                 TextArea::make('descripcion_producto')
                     ->default(null),
+
+                Select::make('medida_id')
+                    ->label('Medida')
+                    ->relationship('medida', 'nombre_medida')
+                    ->searchable()
+                    ->preload()
+                    ->required(),
 
                 // Padre: categoría
                 Select::make('categoria_id')
@@ -62,25 +81,29 @@ class ProductoForm
                     ->inputMode('decimal')
                     ->currencyMask(".", ",", 0)
                     ->prefix('$')
-                    ->numeric(),
+                    ->numeric()
+                    ->visible(fn(Get $get) => $get('categoria_producto') === 'PRODUCTO_TERMINADO'),
                 TextInput::make('valor_detal_producto')
                     ->required()
                     ->inputMode('decimal')
                     ->currencyMask(".", ",", 0)
                     ->prefix('$')
-                    ->numeric(),
+                    ->numeric()                    
+                    ->visible(fn(Get $get) => $get('categoria_producto') === 'PRODUCTO_TERMINADO'),
                 TextInput::make('valor_mayorista_producto')
                     ->required()
                     ->inputMode('decimal')
                     ->currencyMask(".", ",", 0)
                     ->prefix('$')
-                    ->numeric(),
+                    ->numeric()
+                    ->visible(fn(Get $get) => $get('categoria_producto') === 'PRODUCTO_TERMINADO'),
                 TextInput::make('valor_ferretero_producto')
                     ->required()
                     ->inputMode('decimal')
                     ->currencyMask(".", ",", 0)
                     ->prefix('$')
-                    ->numeric(),
+                    ->numeric()
+                    ->visible(fn(Get $get) => $get('categoria_producto') === 'PRODUCTO_TERMINADO'),
 
                 FileUpload::make('imagen_producto')
                     ->label('Seleccione una imagen')

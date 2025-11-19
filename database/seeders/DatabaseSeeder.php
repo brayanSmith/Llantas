@@ -25,8 +25,10 @@ class DatabaseSeeder extends Seeder
         BodegaSeeder::class,
         CategoriaSeeder::class,
         SubCategoriaSeeder::class,
+        MedidaSeeder::class,
         RutaSeeder::class,
         ProveedorSeeder::class,
+        EmpresaSeeder::class,
         ]);
 
         User::factory()->create([

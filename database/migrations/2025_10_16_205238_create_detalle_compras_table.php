@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('compra_id')->constrained('compras')->cascadeOnDelete();
             $table->foreignId('producto_id')->constrained('productos');
-            $table->integer('cantidad');
+            $table->decimal('cantidad', 12, 2);
             $table->decimal('precio_unitario', 12, 2); // snapshot del precio
             $table->decimal('iva', 12, 2)->default(0);
             $table->decimal('subtotal', 12, 2);
