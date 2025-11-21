@@ -301,7 +301,7 @@ trait HasCompraSections
                                 ->options(function ($get) {
                                     $tipoItem = $get('../../item_compra');
                                     if ($tipoItem === 'GASTO') {
-                                        return \App\Models\Gasto::orderBy('concatenar_subcuenta_concepto')->pluck('concatenar_subcuenta_concepto', 'id')->toArray();
+                                        return \App\Models\Puc::orderBy('concatenar_subcuenta_concepto')->pluck('concatenar_subcuenta_concepto', 'id')->toArray();
                                     } else {
                                         $categoriaCompra = $get('../../categoria_compra');
                                         return \App\Models\Producto::when($categoriaCompra, function ($query, $categoria) {
