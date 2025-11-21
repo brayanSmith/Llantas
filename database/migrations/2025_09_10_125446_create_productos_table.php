@@ -69,6 +69,7 @@ return new class extends Migration
             $table->enum('volumen_producto', ['EXTRA_GRANDE', 'GRANDE', 'MEDIANO', 'PEQUEÑO', 'EXTRA_PEQUEÑO'])->nullable();
             $table->float('iva_producto')->default(0);
             $table->enum('tipo_compra',['NACIONAL','IMPORTADO'])->nullable();
+            $table->string('concatenar_codigo_nombre')->nullable();
             $table->timestamps();
         });
 

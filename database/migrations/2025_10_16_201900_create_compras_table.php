@@ -14,6 +14,7 @@ return new class extends Migration
     {
         Schema::create('compras', function (Blueprint $table) {
             $table->id();
+            $table->enum('item_compra', ['PRODUCTO', 'SERVICIO'])->default('PRODUCTO');
             $table->string('factura')->unique();
             $table->enum('categoria_compra', ['MATERIA_PRIMA', 'PRODUCTO_TERMINADO', 'OTRO'])->default('PRODUCTO_TERMINADO');
             $table->foreignId('proveedor_id')->constrained('proveedors');

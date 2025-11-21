@@ -25,6 +25,7 @@ class Compra extends Model
         'descuento',
         'total_a_pagar',
         'categoria_compra',
+        'item_compra',
     ];
 
     public function proveedor()

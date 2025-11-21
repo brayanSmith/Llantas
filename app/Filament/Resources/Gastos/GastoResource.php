@@ -27,43 +27,47 @@ class GastoResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static ?string $recordTitleAttribute = 'codigo_gasto';
+    protected static ?string $recordTitleAttribute = 'sub_cuenta_gasto';
 
     public static function form(Schema $schema): Schema
     {
         return $schema
             ->components([
-                TextInput::make('codigo_gasto')
-                    ->required(),
-                TextInput::make('concepto_gasto')
-                    ->required(),
-                Textarea::make('descripcion_gasto')
-                    ->default(null)
-                    ->columnSpanFull(),
-                TextInput::make('monto_gasto')
-                    ->required()
-                    ->prefix('$')
-                    ->inputMode('decimal')
-                    ->currencyMask(".", ",", 0)
-                    ->numeric(),
-                DatePicker::make('fecha_gasto')
-                    ->required(),
                 TextInput::make('cuenta_gasto')
-                    ->required(),
+                    ->required()
+                    ->live(onBlur: true)
+                    ->afterStateUpdated(function ($set, $get) {
+                        // actualizar el campo concatenado
+                        $cuenta = $get('cuenta_gasto');                        
+                        $set('subcuenta_gasto', $cuenta);
+                    }),
                 TextInput::make('subcuenta_gasto')
-                    ->default(null),                
-
-                FileUpload::make('comprobante_gasto')
-                    ->label('Seleccione una imagen')
-                    ->image()
-                    ->directory('comprobantes_gastos')
-                    ->disk('public')
-                    ->imageEditor()
-                    ->downloadable()
-                    ->openable()
-                    ->nullable()
-                    ->maxSize(1024) // 1MB
-                    ->default(null),
+                    ->required()
+                    ->live(onBlur: true)
+                    ->unique(ignoreRecord: true)
+                    //->reactive()
+                    ->afterStateUpdated(function ($set, $get) {
+                        // actualizar el campo concatenado
+                        $concatenado = $get('subcuenta_gasto') . ' - ' . $get('concepto_gasto');
+                        $set('concatenar_subcuenta_concepto', $concatenado);
+                    }),
+                TextInput::make('concepto_gasto')
+                    ->live(onBlur: true)
+                    ->required()
+                    //->reactive()
+                    ->afterStateUpdated(function ($set, $get) {
+                        // actualizar el campo concatenado
+                        $concatenado = $get('subcuenta_gasto') . ' - ' . $get('concepto_gasto');
+                        $set('concatenar_subcuenta_concepto', $concatenado);
+                    }),
+                Textarea::make('descripcion_gasto')
+                    ->rows(3),
+                TextInput::make('concatenar_subcuenta_concepto')
+                    //el valor se genera concatenando subcuenta y concepto
+                    //->disabled()
+                    //->value(fn (callable $get) => $get('subcuenta_gasto') . ' - ' . $get('concepto_gasto'))
+                    ->required(),
+                
             ]);
     }
 
@@ -72,30 +76,11 @@ class GastoResource extends Resource
         return $table
             ->recordTitleAttribute('codigo_gasto')
             ->columns([
-                ImageColumn::make('comprobante_gasto'),
-                    
-                TextColumn::make('codigo_gasto')
-                    ->searchable(),
-                TextColumn::make('concepto_gasto')
-                    ->searchable(),
-                TextColumn::make('monto_gasto')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('fecha_gasto')
-                    ->date()
-                    ->sortable(),
-                TextColumn::make('cuenta_gasto')
-                    ->searchable(),
-                TextColumn::make('subcuenta_gasto')
-                    ->searchable(),
-                TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('cuenta_gasto')->label('Cuenta de Gasto')->sortable()->searchable(),
+                TextColumn::make('subcuenta_gasto')->label('Subcuenta de Gasto')->sortable()->searchable(),
+                TextColumn::make('concepto_gasto')->label('Concepto de Gasto')->sortable()->searchable(),
+                TextColumn::make('descripcion_gasto')->label('Descripción del Gasto')->sortable()->searchable(),
+                TextColumn::make('concatenar_subcuenta_concepto')->label('Subcuenta - Concepto')->sortable()->searchable(),
             ])
             ->filters([
                 //

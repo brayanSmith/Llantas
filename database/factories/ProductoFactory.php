@@ -52,6 +52,9 @@ class ProductoFactory extends Factory
             'iva_producto' => $this->faker->randomFloat(2, 0, 100),
             'tipo_compra' => $this->faker->randomElement(['NACIONAL', 'IMPORTADO']),
             'medida_id' => \App\Models\Medida::inRandomOrder()->value('id'),
+            'concatenar_codigo_nombre' => function (array $attributes) {
+                return "{$attributes['codigo_producto']} - {$attributes['nombre_producto']}";
+            },
         ];
     }
 }

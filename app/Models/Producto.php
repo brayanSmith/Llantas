@@ -38,11 +38,13 @@ class Producto extends Model
         'iva_producto',
         'tipo_compra',
         'medida_id',
+        'concatenar_codigo_nombre',
+
     ];
-    public function detalleCompras()
+    /*public function detalleCompras()
     {
         return $this->hasMany(DetalleCompra::class);
-    }
+    }*/
 
     public function detallePedidos()
     {
@@ -98,4 +100,24 @@ class Producto extends Model
             default     => $this->valor_detal_producto ?? 0,
         };
     }
+
+    
+    /**
+     * The "booted" method of the model.
+     */
+    /*protected static function booted(): void
+    {
+        // Evento que se ejecuta antes de crear un producto
+        static::creating(function (Producto $producto) {
+            $producto->concatenar_codigo_nombre = "{$producto->codigo_producto} - {$producto->nombre_producto}";
+        });
+
+        // Evento que se ejecuta antes de actualizar un producto
+        static::updating(function (Producto $producto) {
+            // Solo actualizar si cambió el código o el nombre
+            if ($producto->isDirty(['codigo_producto', 'nombre_producto'])) {
+                $producto->concatenar_codigo_nombre = "{$producto->codigo_producto} - {$producto->nombre_producto}";
+            }
+        });
+    }*/
 }
