@@ -42,6 +42,32 @@ return [
             'synchronous' => null,
         ],
 
+
+        'mysql_icferreteria' => [
+    'driver' => 'mysql',
+    'host' => env('DB_HOST'),
+    'database' => 'db_icferreteria',
+    'username' => env('DB_USERNAME'),
+    'password' => env('DB_PASSWORD'),
+],
+
+'mysql_ferrepint' => [
+    'driver' => 'mysql',
+    'host' => env('DB_HOST'),
+    'database' => 'db_ferrepint',
+    'username' => env('DB_USERNAME'),
+    'password' => env('DB_PASSWORD'),
+],
+
+'mysql_ferredistri' => [
+    'driver' => 'mysql',
+    'host' => env('DB_HOST'),
+    'database' => 'db_ferredistri',
+    'username' => env('DB_USERNAME'),
+    'password' => env('DB_PASSWORD'),
+],
+
+
         'mysql' => [
             'driver' => 'mysql',
             'url' => env('DB_URL'),
