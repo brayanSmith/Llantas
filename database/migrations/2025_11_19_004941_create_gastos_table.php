@@ -13,14 +13,11 @@ return new class extends Migration
     {
         Schema::create('gastos', function (Blueprint $table) {
             $table->id();
-            $table->string('codigo_gasto')->unique();
-            $table->string('concepto_gasto');
-            $table->text('descripcion_gasto')->nullable();
-            $table->decimal('monto_gasto', 15, 2);
-            $table->date('fecha_gasto');
             $table->string('cuenta_gasto');
-            $table->string('subcuenta_gasto')->nullable();
-            $table->string('comprobante_gasto')->nullable();
+            $table->string('subcuenta_gasto')->unique();
+            $table->string('concepto_gasto');  
+            $table->string('descripcion_gasto')->nullable();
+            $table->string('concatenar_subcuenta_concepto')->default('');
             $table->timestamps();
         });
     }

@@ -11,13 +11,12 @@ class Gasto extends Model
     use HasFactory;
 
     protected $fillable = [
-        'codigo_gasto',
-        'concepto_gasto',
-        'descripcion_gasto',
-        'monto_gasto',
-        'fecha_gasto',
         'cuenta_gasto',
         'subcuenta_gasto',
-        'comprobante_gasto',
+        'concepto_gasto',
+        'descripcion_gasto',
+        'concatenar_subcuenta_concepto',
     ];
+
+    
 }

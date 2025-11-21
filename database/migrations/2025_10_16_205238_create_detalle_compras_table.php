@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('detalle_compras', function (Blueprint $table) {
             $table->id();
             $table->foreignId('compra_id')->constrained('compras')->cascadeOnDelete();
-            $table->foreignId('producto_id')->constrained('productos');
+            //$table->foreignId('producto_id')->constrained('productos');
+            $table->unsignedBigInteger('item_id');
             $table->decimal('cantidad', 12, 2);
             $table->decimal('precio_unitario', 12, 2); // snapshot del precio
             $table->decimal('iva', 12, 2)->default(0);

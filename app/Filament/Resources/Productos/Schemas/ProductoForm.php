@@ -38,11 +38,33 @@ class ProductoForm
                     ->required()
                     ->unique(ignoreRecord: true)
                     ->maxLength(255)
+                    ->live(onBlur: true)
+                    ->afterStateUpdated(function ($set, $get) {
+                        // actualizar el campo concatenado
+                        $codigo = $get('codigo_producto');
+                        $nombre = $get('nombre_producto');
+                        $set('concatenar_codigo_nombre', "{$codigo} - {$nombre}");
+                    })
                     ->placeholder('Ingrese el código del producto'),
                 TextInput::make('nombre_producto')
                     ->required()
+                    ->live(onBlur: true)
+                    ->afterStateUpdated(function ($set, $get) {
+                        // actualizar el campo concatenado
+                        $codigo = $get('codigo_producto');
+                        $nombre = $get('nombre_producto');
+                        $set('concatenar_codigo_nombre', "{$codigo} - {$nombre}");
+                    })
                     ->placeholder('Ingrese el nombre del producto'),
-                TextArea::make('descripcion_producto')
+
+                
+                TextInput::make('concatenar_codigo_nombre')
+                    ->label('Código - Nombre')
+                    ->required()
+                    ->maxLength(510)
+                    ->placeholder('Este campo se genera automáticamente'),
+
+                Textarea::make('descripcion_producto')
                     ->default(null),
 
                 Select::make('medida_id')
@@ -204,6 +226,7 @@ class ProductoForm
                 Toggle::make('activo')
                     ->required()
                     ->default(true),
+
 
             ]);
     }

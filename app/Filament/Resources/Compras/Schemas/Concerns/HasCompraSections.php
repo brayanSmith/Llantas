@@ -133,13 +133,26 @@ trait HasCompraSections
                 ->columns(4)
                 ->columnSpan(1)
                 ->schema([
+                    Radio::make('item_compra')
+                    ->label('Tipo de Ítem')
+                    ->inline()
+                    ->columnSpan(4)
+                    ->required()
+                    ->live()    
+                    ->default('PRODUCTO')
+                    ->options([
+                        'PRODUCTO' => 'Producto',
+                        'GASTO' => 'Gasto',
+                    ]),
+
                     Radio::make('categoria_compra')
                     ->label('Categoría de Producto')
                     ->inline()
                     ->columnSpan(4)
-                    ->required()
+                    ->required(fn($get) => $get('item_compra') === 'PRODUCTO')
                     ->live()
-                    ->default('PRODUCTO_TERMINADO')
+                    ->visible(fn($get) => $get('item_compra') === 'PRODUCTO')
+                    ->default(fn($get) => $get('item_compra') === 'PRODUCTO' ? 'PRODUCTO_TERMINADO' : null)
                     ->options([
                         'MATERIA_PRIMA' => 'Materia Prima',
                         'PRODUCTO_TERMINADO' => 'Producto Terminado',
@@ -206,19 +219,12 @@ trait HasCompraSections
                         'PENDIENTE' => 'Pendiente',
                         'FACTURADO' => 'Facturado',
                         'ANULADO'   => 'Anulado',
-                    ])->default('PENDIENTE')->required()->columnSpan(2)->grouped(),
+                    ])->default('PENDIENTE')->required()->columnSpan(2)->grouped()->reactive(),
 
                     Select::make('tipo_compra')->options([
                         'REMISIONADA' => 'Remisionada',
                         'ELECTRONICA' => 'Electrónica',
-                    ])->required()->columnSpan(2),
-
-                    // El estado de pago ahora se controla automáticamente al guardar (no editable manualmente aquí)
-                    /*Placeholder::make('estado_pago_info')
-                        ->label('Estado pago')
-                        ->content(fn($get) => $get('estado_pago') ?? 'EN_CARTERA')
-                        ->extraAttributes(['class' => 'text-sm text-gray-600'])
-                        ->columnSpan(2),*/
+                    ])->required()->columnSpan(2),                    
                 ]),
         ];
     }
@@ -267,54 +273,47 @@ trait HasCompraSections
                             $data['producto_id'] = isset($data['producto_id']) ? (int) $data['producto_id'] : null;
                             $data['cantidad'] = isset($data['cantidad']) ? (float) $data['cantidad'] : 0;
                             $data['precio_unitario'] = isset($data['precio_unitario']) ? (float) $data['precio_unitario'] : 0;
-                            $data['subtotal'] = $data['cantidad'] * $data['precio_unitario'];
+                            $data['subtotal'] = $data['cantidad'] * $data['precio_unitario'] / 100 * (100 + ($data['iva'] ?? 0));
                             if (isset($data['_remove_temp'])) unset($data['_remove_temp']);
                             return $data;
                         })
                         ->table([
                             //TableColumn::make('Código')->width('50px'),
-                            TableColumn::make('Producto')->markAsRequired()->width('200px'),
-                            TableColumn::make('Cantidad')->markAsRequired()->width('100px'),
+                            TableColumn::make('Item')->markAsRequired()->width('200px'),
+                            TableColumn::make('Cantidad')
+                            ->markAsRequired()                            
+                            ->width('100px'),
                             TableColumn::make('Precio Unitario')->markAsRequired()->width('100px'),
-                            TableColumn::make('IVA')->markAsRequired()->width('100px'),
+                            TableColumn::make('IVA')
+                            ->markAsRequired()
+                            ->width('100px'),
                             TableColumn::make('Subtotal')->markAsRequired()->width('100px'),
                             TableColumn::make('Acciones')->width('10px'),
                         ])
                         ->schema([
                             
-                            Select::make('producto_id')
-                                ->label('Producto')
+                            Select::make('item_id')
+                                ->label('Item')
                                 ->searchable()
                                 ->required()
                                 ->preload()
-                                // Opciones filtradas por categoria_compra
+                                // Opciones: si el item_compra es GASTO, me va a traer la de la tabla de gastos y si es PRODUCTO me va a traer la de productos
                                 ->options(function ($get) {
-                                    $categoriaCompra = $get('../../categoria_compra');
-                                    return Producto::when($categoriaCompra, function ($query, $categoria) {
-                                            return $query->where('categoria_producto', $categoria);
-                                        })
-                                        ->orderBy('nombre_producto')
-                                        ->get()
-                                        ->mapWithKeys(fn($p) => [$p->id => ($p->codigo_producto ? $p->codigo_producto . ' - ' : '') . $p->nombre_producto])
-                                        ->toArray();
-                                })
-                                ->reactive()
-                                ->afterStateHydrated(function ($state, $set) {
-                                    // al hidratar fila (editar existente) rellenar código
-                                    $set('codigo_producto', $state ? optional(Producto::find($state))->codigo_producto : null);
-                                })
-                                ->afterStateUpdated(function ($state, $set, $get) {
-                                    // recalcular precios/subtotales
-                                    self::recalcularFila($set, $get);
-
-                                    // rellenar campo código con el valor del producto seleccionado
-                                    $codigo = null;
-                                    if ($state) {
-                                        $p = Producto::find($state);
-                                        $codigo = $p?->codigo_producto ?? null;
+                                    $tipoItem = $get('../../item_compra');
+                                    if ($tipoItem === 'GASTO') {
+                                        return \App\Models\Gasto::orderBy('concatenar_subcuenta_concepto')->pluck('concatenar_subcuenta_concepto', 'id')->toArray();
+                                    } else {
+                                        $categoriaCompra = $get('../../categoria_compra');
+                                        return \App\Models\Producto::when($categoriaCompra, function ($query, $categoria) {
+                                                return $query->where('categoria_producto', $categoria);
+                                            })
+                                            ->orderBy('codigo_producto')
+                                            ->pluck('concatenar_codigo_nombre', 'id')
+                                            ->toArray(); 
                                     }
-                                    $set('codigo_producto', $codigo);
-                                })
+                                })                               
+
+                                ->reactive()                                                           
                                 ->columnSpan(2),
 
                             TextInput::make('cantidad')
@@ -352,7 +351,7 @@ trait HasCompraSections
                                 ->prefix('$')
                                 ->currencyMask(".", ",", 0)
                                 ->numeric()
-                                ->disabled()
+                                ->readonly()
                                 ->dehydrated(true)
                                 ->columnSpan(1),
                         ])
@@ -459,16 +458,7 @@ trait HasCompraSections
         $productoId = $get('producto_id');
         $cantidad   = $get('cantidad') ?? 0;
         $precio     = $get('precio_unitario') ?? 0;
-
-        /*if ($productoId && (empty($precio) || $precio == 0)) {
-            $producto = Producto::find($productoId);
-            if ($producto) {
-                // Usar costo_producto como valor por defecto; si no existe, caer a precio según tipo
-                $precio = (float) ($producto->costo_producto ?? $producto->getPrecioPorTipo($get('../../tipo_precio') ?? 'DETAL') ?? 0);
-                // sólo setear precio_unitario si no había un precio manual
-                $set('precio_unitario', $precio);
-            }
-        }*/
+        
         $iva = $get('iva') ?? 0;
         $ivaFactor = 1 + ($iva / 100);
         $precioConIva = $precio * $ivaFactor;
@@ -484,7 +474,7 @@ trait HasCompraSections
         self::recalcularAbonos($set, $get);
 
         // actualizar código producto si corresponde
-        self::buscarCodigoProducto((int) $productoId);
+        //self::buscarCodigoProducto((int) $productoId);
     }
 
     private static function recalcularAbonos(callable $set, callable $get): void
@@ -549,24 +539,11 @@ trait HasCompraSections
         }
     }
 
-    private static function buscarCodigoProducto(int $productoId): string
+    /*private static function buscarCodigoProducto(int $productoId): string
     {
         $producto = Producto::find($productoId);
         return $producto ? $producto->codigo_producto : '-';
-    }
-
-    //del codigo del producto seleccionado me va a traer la medida_id y ese id lo va a buscar en la tabla de medidas y me va a traer el tipo_medida
-    /*private static function buscarTipoMedidaPorCodigoProducto(int $productoId): ?string
-    {
-        $producto = Producto::find($productoId);
-        if (! $producto) return null;
-
-        $medidaId = $producto->medida_id;
-        if (! $medidaId) return null;
-
-        $medida = \App\Models\Medida::find($medidaId);
-        return $medida ? $medida->tipo_medida : null;
-    }}*/
+    }*/
 
     private static function recalcularDesdePrecioManual(callable $set, callable $get): void
     {
