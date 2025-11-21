@@ -133,7 +133,7 @@ trait HasCompraSections
                 ->columns(4)
                 ->columnSpan(1)
                 ->schema([
-                    Radio::make('tipo_item')
+                    Radio::make('item_compra')
                     ->label('Tipo de Ítem')
                     ->inline()
                     ->columnSpan(4)
@@ -149,10 +149,10 @@ trait HasCompraSections
                     ->label('Categoría de Producto')
                     ->inline()
                     ->columnSpan(4)
-                    ->required(fn($get) => $get('tipo_item') === 'PRODUCTO')
+                    ->required(fn($get) => $get('item_compra') === 'PRODUCTO')
                     ->live()
-                    ->visible(fn($get) => $get('tipo_item') === 'PRODUCTO')
-                    ->default(fn($get) => $get('tipo_item') === 'PRODUCTO' ? 'PRODUCTO_TERMINADO' : null)
+                    ->visible(fn($get) => $get('item_compra') === 'PRODUCTO')
+                    ->default(fn($get) => $get('item_compra') === 'PRODUCTO' ? 'PRODUCTO_TERMINADO' : null)
                     ->options([
                         'MATERIA_PRIMA' => 'Materia Prima',
                         'PRODUCTO_TERMINADO' => 'Producto Terminado',
@@ -219,7 +219,7 @@ trait HasCompraSections
                         'PENDIENTE' => 'Pendiente',
                         'FACTURADO' => 'Facturado',
                         'ANULADO'   => 'Anulado',
-                    ])->default('PENDIENTE')->required()->columnSpan(2)->grouped(),
+                    ])->default('PENDIENTE')->required()->columnSpan(2)->grouped()->reactive(),
 
                     Select::make('tipo_compra')->options([
                         'REMISIONADA' => 'Remisionada',
@@ -273,7 +273,7 @@ trait HasCompraSections
                             $data['producto_id'] = isset($data['producto_id']) ? (int) $data['producto_id'] : null;
                             $data['cantidad'] = isset($data['cantidad']) ? (float) $data['cantidad'] : 0;
                             $data['precio_unitario'] = isset($data['precio_unitario']) ? (float) $data['precio_unitario'] : 0;
-                            $data['subtotal'] = $data['cantidad'] * $data['precio_unitario'];
+                            $data['subtotal'] = $data['cantidad'] * $data['precio_unitario'] / 100 * (100 + ($data['iva'] ?? 0));
                             if (isset($data['_remove_temp'])) unset($data['_remove_temp']);
                             return $data;
                         })
@@ -297,9 +297,9 @@ trait HasCompraSections
                                 ->searchable()
                                 ->required()
                                 ->preload()
-                                // Opciones: si el tipo_item es GASTO, me va a traer la de la tabla de gastos y si es PRODUCTO me va a traer la de productos
+                                // Opciones: si el item_compra es GASTO, me va a traer la de la tabla de gastos y si es PRODUCTO me va a traer la de productos
                                 ->options(function ($get) {
-                                    $tipoItem = $get('../../tipo_item');
+                                    $tipoItem = $get('../../item_compra');
                                     if ($tipoItem === 'GASTO') {
                                         return \App\Models\Gasto::orderBy('concatenar_subcuenta_concepto')->pluck('concatenar_subcuenta_concepto', 'id')->toArray();
                                     } else {
@@ -309,7 +309,7 @@ trait HasCompraSections
                                             })
                                             ->orderBy('codigo_producto')
                                             ->pluck('concatenar_codigo_nombre', 'id')
-                                            ->toArray();
+                                            ->toArray(); 
                                     }
                                 })                               
 
@@ -351,7 +351,7 @@ trait HasCompraSections
                                 ->prefix('$')
                                 ->currencyMask(".", ",", 0)
                                 ->numeric()
-                                ->disabled()
+                                ->readonly()
                                 ->dehydrated(true)
                                 ->columnSpan(1),
                         ])
@@ -474,7 +474,7 @@ trait HasCompraSections
         self::recalcularAbonos($set, $get);
 
         // actualizar código producto si corresponde
-        self::buscarCodigoProducto((int) $productoId);
+        //self::buscarCodigoProducto((int) $productoId);
     }
 
     private static function recalcularAbonos(callable $set, callable $get): void
@@ -539,11 +539,11 @@ trait HasCompraSections
         }
     }
 
-    private static function buscarCodigoProducto(int $productoId): string
+    /*private static function buscarCodigoProducto(int $productoId): string
     {
         $producto = Producto::find($productoId);
         return $producto ? $producto->codigo_producto : '-';
-    }    
+    }*/
 
     private static function recalcularDesdePrecioManual(callable $set, callable $get): void
     {

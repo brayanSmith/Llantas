@@ -15,7 +15,7 @@ class Compra extends Model
         'fecha',
         'dias_plazo_vencimiento',
         'fecha_vencimiento',
-        'metodo_pago',
+        'metodo_pago', 
         'estado_pago',
         'tipo_compra',
         'estado',
@@ -44,21 +44,22 @@ class Compra extends Model
     /**
      * 🔹 Recalcula subtotal de la compra
      */
-    public function recalcularTotalesCompra(): void
+    /*public function recalcularTotalesCompra(): void
     {
-        $this->subtotal_compra = $this->detalles()->sum('subtotal');
+        $this->subtotal_compra = $this->detalles()->sum('subtotal') ;
         $this->total_a_pagar_compra = $this->subtotal_compra - $this->descuento_compra;
         $this->estado_pago_compra = $this->total_a_pagar_compra <= $this->abono_compra ? 'Pagado' : 'Pendiente';
         $this->save();
-    }
+    }*/
     /**
      * 🔹 Recalcular el total a pagar de la compra = (subtotal - Abono - descuento)
      */
+    /*
     public function recalcularTotalAPagarCompra(): void
     {
         $this->total_a_pagar_compra = $this->subtotal_compra - $this->abono_compra - $this->descuento_compra;
         $this->save();
-    }
+    }*/
 
     public function getFechaRecibidoCompra($value)
     {
