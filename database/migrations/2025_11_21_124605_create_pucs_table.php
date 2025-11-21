@@ -11,14 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('gastos', function (Blueprint $table) {
+        Schema::create('pucs', function (Blueprint $table) {
             $table->id();
-            $table->string('cuenta_gasto');
-            $table->string('subcuenta_gasto')->unique();
-            $table->string('concepto_gasto');  
-            $table->string('descripcion_gasto')->nullable();
+            $table->enum('tipo', ['1', '2', '3', '4', '5', '6', '7', '8', '9']);
+            $table->string('cuenta');
+            $table->string('subcuenta')->unique();
+            $table->string('concepto');  
+            $table->string('descripcion')->nullable();
             $table->string('concatenar_subcuenta_concepto')->default('');
             $table->timestamps();
+            
         });
     }
 
@@ -27,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('gastos');
+        Schema::dropIfExists('pucs');
     }
 };
