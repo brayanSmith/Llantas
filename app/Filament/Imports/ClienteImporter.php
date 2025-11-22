@@ -35,7 +35,7 @@ class ClienteImporter extends Importer
                 ->rules(['required', 'max:255']),
             ImportColumn::make('email')
                 ->requiredMapping()
-                ->rules(['required', 'email', 'max:255' , 'unique:clientes,email']),
+                ->rules(['required', 'email', 'max:255']),
             ImportColumn::make('representante_legal')
                 ->requiredMapping()
                 ->rules(['required', 'max:255']),
