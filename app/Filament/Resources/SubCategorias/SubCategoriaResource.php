@@ -50,6 +50,7 @@ class SubCategoriaResource extends Resource
         return $table
             ->recordTitleAttribute('nombre_sub_categoria')
             ->columns([
+                TextColumn::make('id'),
                 TextColumn::make('nombre_sub_categoria')
                     ->searchable(),
                 TextColumn::make('categoria.nombre_categoria')

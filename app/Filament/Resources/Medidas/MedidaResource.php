@@ -54,6 +54,7 @@ class MedidaResource extends Resource
         return $table
             ->recordTitleAttribute('nombre_medida')
             ->columns([
+                TextColumn::make('id'),
                 TextColumn::make('nombre_medida')
                     ->searchable(),
                 TextColumn::make('descripcion_medida')
