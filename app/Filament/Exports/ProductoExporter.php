@@ -17,6 +17,7 @@ class ProductoExporter extends Exporter
         return [
             ExportColumn::make('id')
                 ->label('ID'),
+            ExportColumn::make('categoria_producto'),
             ExportColumn::make('codigo_producto'),
             ExportColumn::make('nombre_producto'),
             ExportColumn::make('descripcion_producto'),
