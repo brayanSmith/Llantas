@@ -91,6 +91,7 @@ class ProveedorResource extends Resource
         return $table
             ->recordTitleAttribute('razon_social_proveedor')
             ->columns([
+                TextColumn::make('id'),
                 TextColumn::make('razon_social_proveedor')
                     ->searchable(),
                 TextColumn::make('nit_proveedor'),

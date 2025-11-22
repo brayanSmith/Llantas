@@ -44,6 +44,7 @@ class BodegaResource extends Resource
         return $table
             ->recordTitleAttribute('nombre_bodega')
             ->columns([
+                TextColumn::make('id'),
                 TextColumn::make('nombre_bodega')
                     ->searchable(),
                 TextColumn::make('ubicacion_bodega')

@@ -40,6 +40,7 @@ class CategoriaResource extends Resource
         return $table
             ->recordTitleAttribute('nombre_categoria')
             ->columns([
+                TextColumn::make('id'),
                 TextColumn::make('nombre_categoria')
                     ->searchable(),
                 TextColumn::make('created_at')

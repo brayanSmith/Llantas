@@ -42,6 +42,7 @@ class RutaResource extends Resource
         return $table
             ->recordTitleAttribute('ruta')
             ->columns([
+                TextColumn::make('id'),
                 TextColumn::make('ruta')
                     ->searchable(),
                 TextColumn::make('descripcion')

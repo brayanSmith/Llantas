@@ -12,7 +12,6 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         //
-        $middleware->append(\App\Http\Middleware\SelectDatabase::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

@@ -3,6 +3,9 @@
 namespace App\Filament\Imports;
 
 use App\Models\Producto;
+use App\Models\Bodega;
+use App\Models\Categoria;
+use App\Models\SubCategoria;
 use Filament\Actions\Imports\ImportColumn;
 use Filament\Actions\Imports\Importer;
 use Filament\Actions\Imports\Models\Import;
@@ -15,6 +18,9 @@ class ProductoImporter extends Importer
     public static function getColumns(): array
     {
         return [
+            ImportColumn::make('categoria_producto')
+                ->requiredMapping()
+                ->rules(['required', 'max:255']),
             ImportColumn::make('codigo_producto')
                 ->requiredMapping()
                 ->rules(['required', 'max:255']),
@@ -39,20 +45,52 @@ class ProductoImporter extends Importer
                 ->requiredMapping()
                 ->numeric()
                 ->rules(['required']),
-            ImportColumn::make('imagen_producto')
+            ImportColumn::make('imagen_producto')   
                 ->rules(['max:255']),
             ImportColumn::make('bodega_id')
                 ->requiredMapping()
                 ->numeric()
-                ->rules(['required', 'integer']),
+                ->rules([
+                    'required', 
+                    'integer',
+                    function (string $attribute, mixed $value, \Closure $fail) {
+                        if (!Bodega::where('id', $value)->exists()) {
+                            $fail("No se encontró la bodega con el ID: {$value}");
+                        }
+                    }
+                ]),
             ImportColumn::make('categoria_id')
                 ->requiredMapping()
                 ->numeric()
-                ->rules(['required', 'integer']),
+                ->rules([
+                    'required', 
+                    'integer',
+                    function (string $attribute, mixed $value, \Closure $fail) {
+                        if (!Categoria::where('id', $value)->exists()) {
+                            $fail("No se encontró la categoría con el ID: {$value}");
+                        }
+                    }
+                ]),
             ImportColumn::make('sub_categoria_id')
                 ->requiredMapping()
                 ->numeric()
-                ->rules(['required', 'integer']),
+                ->rules([
+                    'required', 
+                    'integer',
+                    function (string $attribute, mixed $value, \Closure $fail) {
+                        if (!SubCategoria::where('id', $value)->exists()) {
+                            $fail("No se encontró la subcategoría con el ID: {$value}");
+                        } else {
+                            // Verificar que la subcategoría pertenezca a la categoría especificada
+                            $subCategoria = SubCategoria::find($value);
+                            $categoriaId = $this->data['categoria_id'] ?? null;
+                            
+                            if ($categoriaId && $subCategoria->categoria_id != $categoriaId) {
+                                $fail("La subcategoría con ID: {$value} no pertenece a la categoría con ID: {$categoriaId}");
+                            }
+                        }
+                    }
+                ]),
             ImportColumn::make('stock')
                 ->requiredMapping()
                 ->numeric()
