@@ -6,6 +6,7 @@ use App\Models\Producto;
 use App\Models\Bodega;
 use App\Models\Categoria;
 use App\Models\SubCategoria;
+use App\Models\Medida;
 use Filament\Actions\Imports\ImportColumn;
 use Filament\Actions\Imports\Importer;
 use Filament\Actions\Imports\Models\Import;
@@ -14,131 +15,129 @@ use Illuminate\Support\Number;
 class ProductoImporter extends Importer
 {
     protected static ?string $model = Producto::class;
+    
+    protected static ?int $chunkSize = 100;
 
     public static function getColumns(): array
     {
         return [
             ImportColumn::make('categoria_producto')
-                ->requiredMapping()
-                ->rules(['required', 'max:255']),
+                ->rules([
+                    'nullable',
+                    'in:MATERIA_PRIMA,PRODUCTO_TERMINADO,OTRO'
+                ]),
             ImportColumn::make('codigo_producto')
-                ->requiredMapping()
-                ->rules(['required', 'max:255']),
+                ->rules(['nullable', 'max:255']),
             ImportColumn::make('nombre_producto')
-                ->requiredMapping()
-                ->rules(['required', 'max:255']),
+                ->rules(['nullable', 'max:255']),
             ImportColumn::make('descripcion_producto')
                 ->rules(['max:255']),
             ImportColumn::make('costo_producto')
-                ->requiredMapping()
                 ->numeric()
-                ->rules(['required']),
+                ->rules(['nullable', 'numeric', 'min:0']),
             ImportColumn::make('valor_detal_producto')
-                ->requiredMapping()
                 ->numeric()
-                ->rules(['required']),
+                ->rules(['nullable', 'numeric', 'min:0']),
             ImportColumn::make('valor_mayorista_producto')
-                ->requiredMapping()
                 ->numeric()
-                ->rules(['required']),
+                ->rules(['nullable', 'numeric', 'min:0']),
             ImportColumn::make('valor_ferretero_producto')
-                ->requiredMapping()
                 ->numeric()
-                ->rules(['required']),
+                ->rules(['nullable', 'numeric', 'min:0']),
             ImportColumn::make('imagen_producto')   
                 ->rules(['max:255']),
-            ImportColumn::make('bodega_id')
-                ->requiredMapping()
+            ImportColumn::make('medida_id')
                 ->numeric()
                 ->rules([
-                    'required', 
+                    'nullable', 
                     'integer',
-                    function (string $attribute, mixed $value, \Closure $fail) {
-                        if (!Bodega::where('id', $value)->exists()) {
-                            $fail("No se encontró la bodega con el ID: {$value}");
-                        }
-                    }
+                    'exists:medidas,id'
+                ]),
+            ImportColumn::make('bodega_id') 
+                ->numeric()
+                ->rules([
+                    'nullable', 
+                    'integer',
+                    'exists:bodegas,id'
                 ]),
             ImportColumn::make('categoria_id')
-                ->requiredMapping()
                 ->numeric()
                 ->rules([
-                    'required', 
+                    'nullable', 
                     'integer',
-                    function (string $attribute, mixed $value, \Closure $fail) {
-                        if (!Categoria::where('id', $value)->exists()) {
-                            $fail("No se encontró la categoría con el ID: {$value}");
-                        }
-                    }
+                    'exists:categorias,id'
                 ]),
             ImportColumn::make('sub_categoria_id')
-                ->requiredMapping()
                 ->numeric()
                 ->rules([
-                    'required', 
+                    'nullable', 
                     'integer',
-                    function (string $attribute, mixed $value, \Closure $fail) {
-                        if (!SubCategoria::where('id', $value)->exists()) {
-                            $fail("No se encontró la subcategoría con el ID: {$value}");
-                        } else {
-                            // Verificar que la subcategoría pertenezca a la categoría especificada
-                            $subCategoria = SubCategoria::find($value);
-                            $categoriaId = $this->data['categoria_id'] ?? null;
-                            
-                            if ($categoriaId && $subCategoria->categoria_id != $categoriaId) {
-                                $fail("La subcategoría con ID: {$value} no pertenece a la categoría con ID: {$categoriaId}");
-                            }
-                        }
-                    }
+                    'exists:sub_categorias,id'
                 ]),
             ImportColumn::make('stock')
-                ->requiredMapping()
                 ->numeric()
-                ->rules(['required', 'integer']),
+                ->rules(['nullable', 'integer', 'min:0']),
             ImportColumn::make('entradas')
-                ->requiredMapping()
                 ->numeric()
-                ->rules(['required', 'integer']),
+                ->rules(['nullable', 'integer', 'min:0']),
             ImportColumn::make('salidas')
-                ->requiredMapping()
                 ->numeric()
-                ->rules(['required', 'integer']),
+                ->rules(['nullable', 'integer', 'min:0']),
             ImportColumn::make('activo')
-                ->requiredMapping()
                 ->boolean()
-                ->rules(['required', 'boolean']),
+                ->rules(['nullable', 'boolean']),
             ImportColumn::make('tipo_producto')
                 ->rules(['max:255']),
             ImportColumn::make('peso_producto')
-                ->numeric(),
-                //->rules(['double']),
+                ->numeric()
+                ->rules([
+                    'nullable',
+                    'numeric',
+                    'min:0',
+                    'regex:/^\d{1,6}(\.\d{1,2})?$/',
+                    function (string $attribute, mixed $value, \Closure $fail) {
+                        if ($value !== null && !is_numeric($value)) {
+                            $fail("El campo {$attribute} debe ser un número decimal válido (formato: 999999.99)");
+                        }
+                    }
+                ]),
             ImportColumn::make('ubicacion_producto')
-                ->rules(['max:255']),
+                ->rules(['nullable', 'max:255']),
             ImportColumn::make('alerta_producto')
-                ->requiredMapping()
                 ->numeric()
-                ->rules(['required', 'integer']),
+                ->rules(['nullable', 'integer', 'min:0']),
             ImportColumn::make('empaquetado_externo')
-                ->rules(['max:255']),
+                ->rules(['nullable', 'max:255']),
             ImportColumn::make('empaquetado_interno')
-                ->rules(['max:255']),
+                ->rules(['nullable', 'max:255']),
             ImportColumn::make('referencia_producto')
-                ->rules(['max:255']),
+                ->rules(['nullable', 'max:255']),
             ImportColumn::make('codigo_cliente')
-                ->rules(['max:255']),
-            ImportColumn::make('volumen_producto'),
+                ->rules(['nullable', 'max:255']),
+            ImportColumn::make('volumen_producto')
+                ->rules([
+                    'nullable',
+                    'in:EXTRA_GRANDE,GRANDE,MEDIANO,PEQUEÑO,EXTRA_PEQUEÑO'
+                ]),
             ImportColumn::make('iva_producto')
-                ->requiredMapping()
                 ->numeric()
-                ->rules(['required']),
+                ->rules(['nullable', 'numeric', 'min:0']),
+            ImportColumn::make('tipo_compra')
+                ->rules([
+                    'nullable',
+                    'in:NACIONAL,IMPORTADO'
+                ]),
         ];
     }
 
     public function resolveRecord(): Producto
     {
-        return Producto::firstOrNew([
-            'codigo_producto' => $this->data['codigo_producto'],
-        ]);
+        // Usar firstOrNew solo si se pretende actualizar registros existentes
+        // Si solo se quieren crear nuevos, usar new Producto()
+        return new Producto();
+        
+        // Descomenta la línea siguiente si quieres permitir actualizaciones de productos existentes:
+        // return Producto::firstOrNew(['codigo_producto' => $this->data['codigo_producto']]);
     }
 
     public static function getCompletedNotificationBody(Import $import): string
