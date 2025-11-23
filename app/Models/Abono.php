@@ -36,6 +36,10 @@ class Abono extends Model
     {
         return $this->belongsTo(Pedido::class, 'pedido_id');
     }
+    public function formaPago()
+    {
+        return $this->belongsTo(Puc::class, 'forma_pago');
+    }
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');

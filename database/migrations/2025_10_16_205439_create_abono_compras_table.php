@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('compra_id')->constrained('compras')->onDelete('cascade');
             $table->dateTime('fecha_abono_compra')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->decimal('monto_abono_compra', 12, 2)->default(0);
-            $table->string('forma_pago_abono_compra');
+            $table->foreignId('forma_pago_abono_compra')->constrained('pucs')->onDelete('cascade');
             $table->string('descripcion_abono_compra')->nullable();
             $table->string('imagen_abono_compra')->nullable();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');

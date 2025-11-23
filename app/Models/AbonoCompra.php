@@ -28,4 +28,8 @@ class AbonoCompra extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+    public function formaPagoAbonoCompra()
+    {
+        return $this->belongsTo(Puc::class, 'forma_pago_abono_compra');
+    }
 }
