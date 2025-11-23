@@ -395,7 +395,15 @@ trait HasCompraSections
                                 ->preload()
                                 ->columnSpan(1),
                                 Textarea::make('descripcion_abono_compra')->label('Descripción')->default(null)->columnSpan(2),
-                                Select::make('user_id')->label('Usuario que registra')->relationship('user', 'name')->searchable()->preload()->required()->columnSpan(1),
+                                
+                                Select::make('user_id')
+                                ->label('Usuario que registra')
+                                ->relationship('user', 'name')                                 
+                                ->searchable()
+                                ->preload()
+                                ->required()
+                                ->default(auth()->id())
+                                ->columnSpan(1),
                             ])->columns(3)->columnSpan(2),
 
                             Section::make('Soporte')->schema([

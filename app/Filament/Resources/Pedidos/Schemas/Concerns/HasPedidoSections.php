@@ -468,7 +468,14 @@ trait HasPedidoSections
                                 ->reactive()
                                 ->columnSpan(1),
                                 Textarea::make('descripcion')->label('Descripción')->default(null)->columnSpan(2),
-                                Select::make('user_id')->label('Usuario que registra')->relationship('user', 'name')->searchable()->preload()->required()->columnSpan(1),
+                                Select::make('user_id')
+                                ->label('Usuario que registra')
+                                ->relationship('user', 'name')
+                                ->default(auth()->id())
+                                ->searchable()
+                                ->preload()
+                                ->required()
+                                ->columnSpan(1),
                             ])->columns(3)->columnSpan(2),
 
                             Section::make('Soporte')->schema([
