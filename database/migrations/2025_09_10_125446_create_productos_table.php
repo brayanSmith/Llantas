@@ -42,18 +42,18 @@ return new class extends Migration
         Schema::create('productos', function (Blueprint $table) {
             $table->id();
             $table->enum('categoria_producto', ['MATERIA_PRIMA', 'PRODUCTO_TERMINADO', 'OTRO'])->default('PRODUCTO_TERMINADO');
-            $table->string('codigo_producto')->nullable();
-            $table->string('nombre_producto')->nullable();
+            $table->string('codigo_producto')->unique();
+            $table->string('nombre_producto');
             $table->string('descripcion_producto')->nullable();
             $table->decimal('costo_producto', 10, 2)->default(0);
             $table->decimal('valor_detal_producto', 10, 2)->default(0);
             $table->decimal('valor_mayorista_producto', 10, 2)->default(0);
             $table->decimal('valor_ferretero_producto', 10, 2)->default(0);
             $table->string('imagen_producto')->nullable();
-            $table->foreignId('medida_id')->nullable()->constrained('medidas')->onDelete('cascade');
-            $table->foreignId('bodega_id')->nullable()->constrained('bodegas')->onDelete('cascade');
-            $table->foreignId('categoria_id')->nullable()->constrained('categorias')->onDelete('cascade');
-            $table->foreignId('sub_categoria_id')->nullable()->constrained('sub_categorias')->onDelete('cascade');
+            $table->foreignId('medida_id')->constrained('medidas')->onDelete('cascade');
+            $table->foreignId('bodega_id')->constrained('bodegas')->onDelete('cascade');
+            $table->foreignId('categoria_id')->constrained('categorias')->onDelete('cascade');
+            $table->foreignId('sub_categoria_id')->constrained('sub_categorias')->onDelete('cascade');
             $table->integer('stock')->default(0);
             $table->integer('entradas')->default(0);
             $table->integer('salidas')->default(0);

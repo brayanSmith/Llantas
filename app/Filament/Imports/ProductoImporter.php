@@ -47,12 +47,18 @@ class ProductoImporter extends Importer
             ImportColumn::make('imagen_producto')   
                 ->rules(['max:255']),
             ImportColumn::make('medida_id')
-                ->numeric()
-                ->rules([
+                ->helperText('Seleccione el nombre de la medida existente')
+                ->example('Kilogramo, Litro, Metro, Unidad')
+                ->validationAttribute('Medida Invalida')
+                //->numeric()
+                //->relationship()
+                //->multiple(',')
+                //->relationship(resolveUsing: 'nombre_medida')
+                /*->rules([
                     'nullable', 
                     'integer',
                     'exists:medidas,id'
-                ]),
+                ])*/,
             ImportColumn::make('bodega_id') 
                 ->numeric()
                 ->rules([
