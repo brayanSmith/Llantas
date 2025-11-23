@@ -26,7 +26,8 @@ class ProductoExporter extends Exporter
             ExportColumn::make('valor_ferretero_producto'),
             ExportColumn::make('iva_producto'),
             ExportColumn::make('imagen_producto'),
-            ExportColumn::make('medida_id'),
+            ExportColumn::make('medida_nombre')
+                ->state(fn (Producto $record): ?string => $record->medida?->nombre_medida),
             ExportColumn::make('bodega_id'),
             ExportColumn::make('categoria_id'),
             ExportColumn::make('sub_categoria_id'),
