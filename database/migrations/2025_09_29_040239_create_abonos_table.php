@@ -16,7 +16,7 @@ return new class extends Migration
             $table->id();
             $table->dateTime('fecha')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->decimal('monto', 12, 2)->default(0);
-            $table->string('forma_pago');
+            $table->foreignId('forma_pago')->constrained('pucs')->onDelete('cascade');
             $table->string('descripcion')->nullable();
             $table->string('imagen')->nullable();
             $table->foreignId('pedido_id')->constrained('pedidos')->onDelete('cascade');

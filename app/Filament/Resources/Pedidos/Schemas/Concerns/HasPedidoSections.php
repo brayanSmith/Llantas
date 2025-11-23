@@ -455,17 +455,27 @@ trait HasPedidoSections
                             Section::make('Datos del abono')->schema([
                                 DateTimePicker::make('fecha')->label('Fecha')->required()->default(now())->columnSpan(1),
                                 TextInput::make('monto')->label('Monto')->prefix('$')->inputMode('decimal')->currencyMask(".", ",", 0)->required()->stripCharacters('.')->live(onBlur: true)->numeric()->columnSpan(1),
-                                Select::make('forma_pago')->label('Forma de pago')->options([
-                                    'EFECTIVO' => 'Efectivo',
-                                    'TARJETA' => 'Tarjeta',
-                                    'NEQUI' => 'Nequi',
-                                    'DAVIPLATA' => 'Daviplata',
-                                    'PSE' => 'PSE',
-                                    'TRANSFERENCIA' => 'Transferencia',
-                                    'OTRO' => 'Otro',
-                                ])->required()->columnSpan(1),
+                                Select::make('forma_pago')
+                                ->label('Forma de pago')
+                                ->relationship(
+                                    name: 'formaPago',
+                                    titleAttribute: 'concatenar_subcuenta_concepto',
+                                    modifyQueryUsing: fn ($query) => $query->where('tipo', 1)
+                                )
+                                ->searchable()
+                                ->required()
+                                ->preload()
+                                ->reactive()
+                                ->columnSpan(1),
                                 Textarea::make('descripcion')->label('Descripción')->default(null)->columnSpan(2),
-                                Select::make('user_id')->label('Usuario que registra')->relationship('user', 'name')->searchable()->preload()->required()->columnSpan(1),
+                                Select::make('user_id')
+                                ->label('Usuario que registra')
+                                ->relationship('user', 'name')
+                                ->default(auth()->id())
+                                ->searchable()
+                                ->preload()
+                                ->required()
+                                ->columnSpan(1),
                             ])->columns(3)->columnSpan(2),
 
                             Section::make('Soporte')->schema([

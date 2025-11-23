@@ -382,17 +382,28 @@ trait HasCompraSections
                             Section::make('Datos del abono')->schema([
                                 DateTimePicker::make('fecha_abono_compra')->label('Fecha')->required()->default(now())->columnSpan(1),
                                 TextInput::make('monto_abono_compra')->label('Monto')->prefix('$')->inputMode('decimal')->currencyMask(".", ",", 0)->required()->stripCharacters('.')->live(onBlur: true)->numeric()->columnSpan(1),
-                                Select::make('forma_pago_abono_compra')->label('Forma de pago')->options([
-                                    'EFECTIVO' => 'Efectivo',
-                                    'TARJETA' => 'Tarjeta',
-                                    'NEQUI' => 'Nequi',
-                                    'DAVIPLATA' => 'Daviplata',
-                                    'PSE' => 'PSE',
-                                    'TRANSFERENCIA' => 'Transferencia',
-                                    'OTRO' => 'Otro',
-                                ])->required()->columnSpan(1),
+                                Select::make('forma_pago_abono_compra')
+                                ->label('Forma de pago')
+                                ->relationship(
+                                    name:'formaPagoAbonoCompra',
+                                    titleAttribute: 'concatenar_subcuenta_concepto',
+                                    modifyQueryUsing: fn ($query) => $query->where('tipo', 1)
+                                    
+                                    )
+                                ->searchable()
+                                ->required()
+                                ->preload()
+                                ->columnSpan(1),
                                 Textarea::make('descripcion_abono_compra')->label('Descripción')->default(null)->columnSpan(2),
-                                Select::make('user_id')->label('Usuario que registra')->relationship('user', 'name')->searchable()->preload()->required()->columnSpan(1),
+                                
+                                Select::make('user_id')
+                                ->label('Usuario que registra')
+                                ->relationship('user', 'name')                                 
+                                ->searchable()
+                                ->preload()
+                                ->required()
+                                ->default(auth()->id())
+                                ->columnSpan(1),
                             ])->columns(3)->columnSpan(2),
 
                             Section::make('Soporte')->schema([
