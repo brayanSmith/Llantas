@@ -54,11 +54,11 @@ class ProductoImporter extends Importer
                 //->relationship()
                 //->multiple(',')
                 //->relationship(resolveUsing: 'nombre_medida')
-                /*->rules([
+                ->rules([
                     'nullable', 
                     'integer',
                     'exists:medidas,id'
-                ])*/,
+                ]),
             ImportColumn::make('bodega_id') 
                 ->numeric()
                 ->rules([
