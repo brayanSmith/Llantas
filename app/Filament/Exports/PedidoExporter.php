@@ -18,7 +18,8 @@ class PedidoExporter extends Exporter
             ExportColumn::make('id')
                 ->label('ID'),
             ExportColumn::make('codigo'),
-            ExportColumn::make('cliente_id'),
+            //ExportColumn::make('cliente_id'),
+            ExportColumn::make('cliente.razon_social'),
             ExportColumn::make('fecha'),
             ExportColumn::make('dias_plazo_vencimiento'),
             ExportColumn::make('fecha_vencimiento'),
@@ -30,7 +31,7 @@ class PedidoExporter extends Exporter
             ExportColumn::make('tipo_precio'),
             ExportColumn::make('tipo_venta'),
             ExportColumn::make('estado_pago'),
-            ExportColumn::make('bodega_id'),
+            ExportColumn::make('bodega.nombre_bodega'),
             ExportColumn::make('primer_comentario'),
             ExportColumn::make('segundo_comentario'),
             ExportColumn::make('subtotal'),
@@ -41,7 +42,7 @@ class PedidoExporter extends Exporter
             ExportColumn::make('total_a_pagar'),
             ExportColumn::make('contador_impresiones'),
             ExportColumn::make('impresa'),
-            ExportColumn::make('user_id'),
+            ExportColumn::make('user.user'),
             ExportColumn::make('created_at'),
             ExportColumn::make('updated_at'),
         ];

@@ -18,7 +18,7 @@ class SubCategoriaExporter extends Exporter
             ExportColumn::make('id')
                 ->label('ID'),
             ExportColumn::make('nombre_sub_categoria'),
-            ExportColumn::make('categoria_id'),
+            ExportColumn::make('categoria.nombre_categoria'),            
             ExportColumn::make('created_at'),
             ExportColumn::make('updated_at'),
         ];

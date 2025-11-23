@@ -18,10 +18,9 @@ class SubCategoriaImporter extends Importer
             ImportColumn::make('nombre_sub_categoria')
                 ->requiredMapping()
                 ->rules(['required', 'max:255']),
-            ImportColumn::make('categoria_id')
-                ->requiredMapping()
-                ->numeric()
-                ->rules(['required', 'integer']),
+            ImportColumn::make('categoria')
+                ->relationship(resolveUsing: 'nombre_categoria')
+                ->helperText('Relacionar con la categoría por su nombre'),            
         ];
     }
 

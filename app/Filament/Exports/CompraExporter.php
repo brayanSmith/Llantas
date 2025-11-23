@@ -18,7 +18,7 @@ class CompraExporter extends Exporter
             ExportColumn::make('id')
                 ->label('ID'),
             ExportColumn::make('factura'),
-            ExportColumn::make('proveedor_id'),
+            ExportColumn::make('proveedor.nombre_proveedor'),
             ExportColumn::make('fecha'),
             ExportColumn::make('dias_plazo_vencimiento'),
             ExportColumn::make('fecha_vencimiento'),
