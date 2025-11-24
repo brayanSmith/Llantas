@@ -7,6 +7,7 @@ use Filament\Actions\Imports\ImportColumn;
 use Filament\Actions\Imports\Importer;
 use Filament\Actions\Imports\Models\Import;
 use Illuminate\Support\Number;
+use Illuminate\Support\Facades\Hash;
 
 class UserImporter extends Importer
 {
@@ -17,26 +18,48 @@ class UserImporter extends Importer
         return [
             ImportColumn::make('name')
                 ->requiredMapping()
-                ->rules(['required', 'max:255']),
+                ->rules(['required', 'string', 'max:255']),
             ImportColumn::make('email')
                 ->requiredMapping()
-                ->rules(['required', 'email', 'max:255']),
+                ->rules([
+                    'required', 
+                    'email', 
+                    'max:255',
+                    'unique:users,email'
+                ]),
             ImportColumn::make('email_verified_at')
-                ->rules(['email', 'datetime']),
+                ->rules(['nullable', 'date']),
             ImportColumn::make('password')
                 ->requiredMapping()
-                ->rules(['required', 'max:255']),
+                ->rules(['required', 'string', 'min:8', 'max:255']),
             ImportColumn::make('role')
-                ->requiredMapping()
-                ->rules(['required']),
+                ->rules([
+                    'nullable',
+                    'string',
+                    'in:ADMIN,COMERCIAL,BODEGA,USER,FINANCIERO,GERENTE,CONDUCTOR,LOGISTICA,CASINO,ALMACEN' // Ajusta estos roles según tu aplicación
+                ]),
         ];
     }
 
     public function resolveRecord(): User
     {
-        return User::firstOrNew([
-            'email' => $this->data['email'],
-        ]);
+        // Encriptar la contraseña antes de guardar
+        if (!empty($this->data['password'])) {
+            $this->data['password'] = Hash::make($this->data['password']);
+        }
+        
+        // Manejar email_verified_at
+        if (empty($this->data['email_verified_at'])) {
+            $this->data['email_verified_at'] = null;
+        }
+        
+        // Si no se especifica rol, asignar uno por defecto
+        if (empty($this->data['role'])) {
+            $this->data['role'] = 'USER'; // Rol por defecto
+        }
+        
+        // Usar solo new User() para evitar duplicados (ya validamos unique:users,email)
+        return new User();
     }
 
     public static function getCompletedNotificationBody(Import $import): string
