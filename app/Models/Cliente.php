@@ -39,4 +39,21 @@ class Cliente extends Model
     {
         return $this->belongsTo(User::class, 'comercial_id');
     }
+
+    /**
+     * Accessor para obtener la ruta concatenada con descripción
+     */
+    public function getRutaCompletaAttribute(): string
+    {
+        if (!$this->ruta) {
+            return 'Sin ruta asignada';
+        }
+
+        $rutaNombre = $this->ruta->ruta;
+        $rutaDescripcion = $this->ruta->descripcion;
+        
+        return $rutaDescripcion 
+            ? "Ruta: {$rutaNombre} - {$rutaDescripcion}" 
+            : "Ruta: {$rutaNombre}";
+    }
 }

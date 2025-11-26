@@ -37,6 +37,9 @@ class Pedido extends Model
         'stock_retirado',
         'bodega_id',
         'user_id',
+        'imagen_recibido',
+        'comentario_entrega',
+
     ];
 
     protected $casts = [

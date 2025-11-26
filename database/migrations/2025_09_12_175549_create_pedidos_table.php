@@ -20,7 +20,7 @@ return new class extends Migration
             $table->integer('dias_plazo_vencimiento')->default(30);
             $table->date('fecha_vencimiento')->nullable();
             $table->string('ciudad')->nullable();
-            $table->enum('estado', ['PENDIENTE', 'FACTURADO', 'ANULADO'])->default(value: 'PENDIENTE');
+            $table->enum('estado', ['PENDIENTE', 'FACTURADO', 'ANULADO', 'EN_RUTA', 'ENTREGADO', 'DEVUELTO'])->default(value: 'PENDIENTE');
             $table->boolean('stock_retirado')->default(false);
             $table->boolean('en_cartera')->default(false);
             $table->enum('metodo_pago', ['CREDITO', 'CONTADO'])->default('CREDITO');
@@ -40,6 +40,8 @@ return new class extends Migration
             $table->integer('contador_impresiones')->default(0);
             $table->boolean('impresa')->default(false);
             $table->foreignId('user_id')->constrained('users')->nullable()->default(1);
+            $table->string('imagen_recibido')->nullable();
+            $table->string('comentario_entrega')->nullable();
             $table->timestamps();
         });
     }
