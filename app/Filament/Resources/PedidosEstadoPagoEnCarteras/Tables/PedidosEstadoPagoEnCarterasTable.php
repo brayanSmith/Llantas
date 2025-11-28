@@ -18,7 +18,7 @@ class PedidosEstadoPagoEnCarterasTable
     {
         return $table
             //voy a traer los pedidos que esten en estado_pago EN_CARTERA y estado FACTURADO
-            ->modifyQueryUsing(fn ($query) => $query->where('estado_pago', 'EN_CARTERA')->where('estado', 'FACTURADO'))
+            ->modifyQueryUsing(fn ($query) => $query->where('estado_pago', 'EN_CARTERA')->whereIn('estado', ['FACTURADO', 'EN_RUTA']))
             ->groups([
                 Group::make('fecha')
                     ->date()
