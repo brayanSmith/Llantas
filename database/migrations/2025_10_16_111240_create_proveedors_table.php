@@ -26,6 +26,7 @@ return new class extends Migration
             $table->string('banco_proveedor')->nullable();
             $table->enum('tipo_cuenta_proveedor',['AHORRO', 'CORRIENTE'])->nullable();
             $table->string('numero_cuenta_proveedor')->nullable();
+            $table->string('convenio')->nullable();
             $table->timestamps();
         });
     }

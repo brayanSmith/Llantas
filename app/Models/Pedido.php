@@ -41,6 +41,7 @@ class Pedido extends Model
         'user_id',
         'imagen_recibido',
         'comentario_entrega',
+        'motivo_devolucion',
 
     ];
 

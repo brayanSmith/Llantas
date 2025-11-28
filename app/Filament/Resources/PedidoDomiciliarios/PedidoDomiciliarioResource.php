@@ -22,6 +22,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\Layout\Split;
 use Filament\Tables\Columns\Layout\Stack;
 use Filament\Support\Enums\FontWeight;
+use Filament\Forms\Components\Select;
 
 class PedidoDomiciliarioResource extends Resource
 {
@@ -68,6 +69,17 @@ class PedidoDomiciliarioResource extends Resource
                     ->required(fn($get) => $get('estado') === 'ENTREGADO')
                     ->downloadable()                    
                     ->maxSize(1024),
+                Select::make('motivo_devolucion')
+                    ->label('Motivo de devolución')
+                    ->required(fn($get) => $get('estado') === 'DEVUELTO')
+                    ->visible(fn($get) => $get('estado') === 'DEVUELTO')
+                    ->options([
+                        'CERRADO' => 'Cerrado',
+                        'TRASLADO' => 'Traslado',
+                        'NO_CANCELA' => 'No cancela',
+                        'NO_RECIBE' => 'No recibe',
+                    ]),
+                    
                 TextArea::make('comentario_entrega')
                     ->label('Comentario de entrega')
                     ->maxLength(500),
