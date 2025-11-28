@@ -16,6 +16,7 @@ class DetallePedido extends Model
         'producto_id',
         'cantidad',
         'precio_unitario',
+        'aplicar_iva',
         'iva',
         'subtotal'
     ];
@@ -35,10 +36,22 @@ class DetallePedido extends Model
     {
         $cantidad = $this->cantidad ?? 0;
         $precioUnitario = $this->precio_unitario ?? 0;
-        $ivaPercentage = $this->iva ?? 0;
+        $aplicarIva = $this->aplicar_iva ?? false;
         
-        // Calcular el factor del IVA (ej: si iva = 19, factor = 1.19)
-        $factorIva = ($ivaPercentage / 100) + 1;
+        // Obtener el IVA del producto relacionado
+        $ivaPercentage = 0;
+        if ($this->producto_id) {
+            $producto = \App\Models\Producto::find($this->producto_id);
+            $ivaPercentage = $producto?->iva_producto ?? 0;
+            // Actualizar el campo iva del detalle con el IVA del producto
+            $this->iva = $ivaPercentage;
+        }
+        
+        // Solo aplicar IVA si la casilla está marcada
+        $factorIva = 1;
+        if ($aplicarIva && $ivaPercentage > 0) {
+            $factorIva = ($ivaPercentage / 100) + 1;
+        }
         
         // Subtotal = Cantidad * (Precio unitario * factor IVA)
         $this->subtotal = $cantidad * ($precioUnitario * $factorIva);
@@ -53,10 +66,22 @@ class DetallePedido extends Model
         static::saving(function (DetallePedido $detalle) {
             $cantidad = $detalle->cantidad ?? 0;
             $precioUnitario = $detalle->precio_unitario ?? 0;
-            $ivaPercentage = $detalle->iva ?? 0;
+            $aplicarIva = $detalle->aplicar_iva ?? false;
             
-            // Calcular el factor del IVA (ej: si iva = 19, factor = 1.19)
-            $factorIva = ($ivaPercentage / 100) + 1;
+            // Obtener el IVA del producto relacionado
+            $ivaPercentage = 0;
+            if ($detalle->producto_id) {
+                $producto = \App\Models\Producto::find($detalle->producto_id);
+                $ivaPercentage = $producto?->iva_producto ?? 0;
+                // Actualizar el campo iva del detalle con el IVA del producto
+                $detalle->iva = $ivaPercentage;
+            }
+            
+            // Solo aplicar IVA si la casilla está marcada
+            $factorIva = 1;
+            if ($aplicarIva && $ivaPercentage > 0) {
+                $factorIva = ($ivaPercentage / 100) + 1;
+            }
             
             // Subtotal = Cantidad * (Precio unitario * factor IVA)
             $detalle->subtotal = $cantidad * ($precioUnitario * $factorIva);

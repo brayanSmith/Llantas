@@ -31,7 +31,9 @@ class Pedido extends Model
         'descuento',
         'flete',        
         'total_a_pagar',
+        'saldo_pendiente',
         'contador_impresiones',
+        'estado_vencimiento',
         'impresa',
         'estado_pago',
         'stock_retirado',
@@ -68,6 +70,45 @@ class Pedido extends Model
     }
 
 
+    //Estado de pago basado en campo estado_pago y cálculo de vencimiento para EN_CARTERA
+    public function getEstadoPagoFactura()
+    {
+        $estadoPago = $this->estado_pago;
+        
+        // Si ya está saldado, retornar directamente
+        if ($estadoPago === 'SALDADO') {
+            return 'SALDADO';
+        }
+        
+        // Si está EN_CARTERA, calcular si está vencido o al día
+        if ($estadoPago === 'EN_CARTERA') {
+            $ultimoAbono = $this->abonoPedido()->latest()->first();        
+            $diasPlazoVencimiento = $this->dias_plazo_vencimiento;
+            $fechaActual = now();
+            
+            // Calcular fecha de vencimiento basada en último abono o fecha del pedido
+            if ($ultimoAbono) {
+                $fechaUltimoAbono = $ultimoAbono->fecha;
+                $fechaVencimiento = $fechaUltimoAbono->addDays($diasPlazoVencimiento);
+            } else {
+                $fechaPedido = $this->created_at;
+                $fechaVencimiento = $fechaPedido->addDays($diasPlazoVencimiento);
+            }
+            
+            // Comparar fecha actual con vencimiento
+            if ($fechaActual->greaterThan($fechaVencimiento)) {
+                return 'VENCIDO';
+            } else {
+                return 'AL_DIA';
+            }
+        }
+        
+        // Fallback para otros estados
+        return $estadoPago ?? 'INDEFINIDO';
+    }
+    
+
+
      /**
      * 🔹 Recalcula subtotal del pedido
      */
@@ -79,25 +120,26 @@ class Pedido extends Model
         $this->recalcularTotalAPagar();
     }
 
+    /*
     public function recalcularAbono(): void
     {
         $abonos = $this->abonoPedido()->sum('monto');
         $this->abono = $abonos;
-        // Recalcular el total a pagar teniendo en cuenta descuento y abonos
-        $this->recalcularTotalAPagar();
-    }
+        // Solo recalcular el saldo pendiente (no el total a pagar que es fijo)
+        $this->recalcularSaldoPendiente();
+    }*/
 
-    public function aplicarDescuento(float $monto): void
+    /*public function aplicarDescuento(float $monto): void
     {
         $this->descuento = $monto;
-        // Recalcular el total a pagar después de aplicar descuento
+        // Recalcular tanto el total a pagar como el saldo pendiente
         $this->recalcularTotalAPagar();
-    }
+    }*/
 
     /**
-     * Recalcula y guarda el campo `total_a_pagar`.
+     * Recalcula y guarda el campo `total_a_pagar` (FIJO - no se descuentan abonos).
      *
-     * Lógica: total_a_pagar = (subtotal + flete) - (abonos + descuento)
+     * Lógica: total_a_pagar = (subtotal + flete) - descuento (SIN abonos)
      */
     public function recalcularTotalAPagar(): void
     {
@@ -107,15 +149,31 @@ class Pedido extends Model
         $flete = (float) ($this->flete ?? 0);
         $descuento = (float) ($this->descuento ?? 0); 
 
-        // Total a Pagar = (Subtotal + Flete) - (Abono + Descuento)
-        $calculated = ($subtotal + $flete) - ($abonos + $descuento);
-        $this->total_a_pagar = $calculated < 0 ? 0 : $calculated;
+        // Total a Pagar FIJO = (Subtotal + Flete) - Descuento (SIN abonos)
+        $totalAPagar = ($subtotal + $flete) - $descuento;
+        $this->total_a_pagar = $totalAPagar < 0 ? 0 : $totalAPagar;
+        
+        // Saldo Pendiente = Total a Pagar - Abonos
+        $saldoPendiente = $this->total_a_pagar - $abonos;
+        $this->saldo_pendiente = $saldoPendiente < 0 ? 0 : $saldoPendiente;
         
         // Guardamos también el acumulado de abonos en el campo `abono`
         $this->abono = $abonos;
 
         $this->saveQuietly(); // evita disparar eventos otra vez
     }
+
+    /**
+     * Recalcula solo el saldo pendiente (cuando ya existe el total_a_pagar)
+     */
+    /*public function recalcularSaldoPendiente(): void
+    {
+        $abonos = $this->abonoPedido()->sum('monto') ?? 0;
+        $saldoPendiente = $this->total_a_pagar - $abonos;
+        $this->saldo_pendiente = $saldoPendiente < 0 ? 0 : $saldoPendiente;
+        $this->abono = $abonos;
+        $this->saveQuietly();
+    }*/
 
      /**
      * The "booted" method of the model.
@@ -139,5 +197,30 @@ class Pedido extends Model
             return null;
         }
         return \Carbon\Carbon::parse($value)->setTimezone('America/Bogota');
+    }
+
+    /**
+     * Accessor para obtener el estado de pago de la factura
+     */
+    public function getEstadoPagoFacturaAttribute(): string
+    {
+        // Si no hay saldo pendiente o es 0, está saldada
+        $saldoPendiente = (float) ($this->saldo_pendiente ?? 0);
+        if ($saldoPendiente <= 0) {
+            return 'SALDADA';
+        }
+
+        // Si hay saldo pendiente, verificar si está vencida
+        if ($this->fecha_vencimiento) {
+            $hoy = \Carbon\Carbon::now()->startOfDay();
+            $fechaVencimiento = \Carbon\Carbon::parse($this->fecha_vencimiento)->startOfDay();
+            
+            if ($fechaVencimiento->isPast()) {
+                return 'VENCIDA';
+            }
+        }
+
+        // Si tiene saldo pero no está vencida, está al día
+        return 'AL DIA';
     }
 }

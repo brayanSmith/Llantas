@@ -78,6 +78,8 @@ class PedidoDomiciliarioResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+        //solo se van a mostrar los pedidos que tengan estado EN_RUTA
+            ->modifyQueryUsing(fn ($query) => $query->where('estado', 'EN_RUTA'))
         
             ->recordTitleAttribute('codigo')
             ->defaultGroup('cliente.ruta.ruta')

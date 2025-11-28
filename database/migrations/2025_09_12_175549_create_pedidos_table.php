@@ -28,6 +28,7 @@ return new class extends Migration
             $table->enum('tipo_venta', ['ELECTRONICA','REMISIONADA'])->default('REMISIONADA');
             $table->enum('estado_pago', ['EN_CARTERA', 'SALDADO'])->default('EN_CARTERA');
             $table->enum('estado_venta', ['COTIZACION', 'VENTA'])->default('VENTA');
+            $table->enum('estado_vencimiento', ['AL_DIA', 'VENCIDO'])->default('AL_DIA');
             $table->foreignId('bodega_id')->constrained('bodegas')->nullable()->default(1);
             $table->text('primer_comentario')->nullable();
             $table->text('segundo_comentario')->nullable();
@@ -37,6 +38,7 @@ return new class extends Migration
             $table->decimal('flete', 12, 2)->default(0)->nullable();
             $table->decimal('iva', 12, 2)->default(0);
             $table->decimal('total_a_pagar', 12, 2)->default(0);
+            $table->decimal('saldo_pendiente', 12, 2)->default(0);
             $table->integer('contador_impresiones')->default(0);
             $table->boolean('impresa')->default(false);
             $table->foreignId('user_id')->constrained('users')->nullable()->default(1);
