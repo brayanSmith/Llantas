@@ -15,53 +15,33 @@ class ClientesTable
     {
         return $table
             ->columns([
-                TextColumn::make('tipo_documento')
-                    ->searchable(),
-                TextColumn::make('numero_documento')
+                TextColumn::make('ciudad')
                     ->searchable(),
                 TextColumn::make('razon_social')
                     ->searchable(),
-                TextColumn::make('direccion')
-                    ->searchable(),
-                TextColumn::make('telefono')
-                    ->searchable(),
-                TextColumn::make('ciudad')
-                    ->searchable(),
-                TextColumn::make('role')
-                    ->searchable(),
-                TextColumn::make('email')
-                    ->label('Email address')
-                    ->searchable(),
-                TextColumn::make('representante_legal')
-                    ->searchable(),
-                IconColumn::make('activo')
-                    ->boolean(),
-                TextColumn::make('novedad')
-                    ->searchable(),
-                TextColumn::make('tipo_cliente')
-                    ->searchable(),
+                // Vamos a poner los pedidos que estan en cartera
+                TextColumn::make('total_cartera')
+                    ->label('En Cartera')
+                    //->badge()
+                    //->color(fn ($state) => $state > 0 ? 'danger' : 'success')
+                    ->formatStateUsing(fn ($state) => $state > 0 ? '$' . number_format($state, 0, ',', '.') : '$0'),
+                // Llama la funcion getTotalVencidoAttribute() del modelo Cliente
+                TextColumn::make('total_vencido')
+                    ->label('Saldo Vencido')
+                    ->badge()
+                    ->color(fn ($state) => $state > 0 ? 'danger' : 'success')
+                    ->formatStateUsing(fn ($state) => $state > 0 ? '$' . number_format($state, 0, ',', '.') : '$0'),
+
                 TextColumn::make('ruta.ruta')
                     ->label('Ruta')
                     ->searchable(),
-                IconColumn::make('retenedor_fuente')
-                    ->label('Retenedor Fuente')
-                    ->boolean(),
-                IconColumn::make('rut_imagen')
-                    ->label('RUT')
-                    ->url(fn ($record) => $record->rut_imagen ? asset('storage/' . $record->rut_imagen) : null)
-                    ->openUrlInNewTab()
-                    ->tooltip('Ver RUT')
-                    ->icon('heroicon-o-document')
-                    ->boolean(),
-
-                TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('comercial.name')
+                    ->label('Comercial')
+                    ->searchable(),
+                TextColumn::make('direccion')
+                    ->searchable(),
+                    
+                
             ])
             ->filters([
                 //
