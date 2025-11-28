@@ -56,4 +56,22 @@ class Cliente extends Model
             ? "Ruta: {$rutaNombre} - {$rutaDescripcion}" 
             : "Ruta: {$rutaNombre}";
     }
+    // Calcular la suma del saldo_pendiente de los pedidos que están en estado VENCIDO
+    public function getTotalVencidoAttribute(): float
+    {
+        $pedidos = $this->pedidos()->get();
+        
+        return $pedidos->filter(function ($pedido) {
+            return $pedido->getEstadoPagoFactura() === 'VENCIDO';
+        })->sum('saldo_pendiente');
+    }
+    // Calcular la suma del saldo_pendiente de los pedidos que están en estado CARTERA
+    public function getTotalCarteraAttribute(): float
+    {
+        $pedidos = $this->pedidos()->get();
+        
+        return $pedidos->filter(function ($pedido) {
+            return $pedido->estado_pago === 'EN_CARTERA';
+        })->sum('saldo_pendiente');
+    }
 }

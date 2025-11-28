@@ -17,6 +17,66 @@ use Filament\Forms\Components\Placeholder;
 
 class ClienteForm
 {
+    /**
+     * Genera el schema del repeater de pedidos filtrado por estado
+     */
+    private static function getPedidosRepeater(?string $estado = null): Repeater
+    {
+        return Repeater::make($estado ? 'pedidos_' . strtolower($estado) : 'pedidos')
+            ->columnSpanFull()
+            ->relationship('pedidos', modifyQueryUsing: $estado ? 
+                fn ($query) => $query->where('estado_pago', $estado) : 
+                null
+            )
+            ->deletable(false)
+            ->addable(false)
+            ->table([
+                TableColumn::make('Pedido')->width('100px'),
+                TableColumn::make('Vence El')->width('100px'),
+                TableColumn::make('Saldo')->width('100px'),
+                TableColumn::make('Estado')->width('100px'),
+                TableColumn::make('Abonos')->width('100px'),
+                TableColumn::make('Total')->width('100px'),
+            ])
+            ->compact()
+            ->schema([
+                TextInput::make('codigo')
+                    ->label('Pedido')
+                    ->disabled(),
+                TextInput::make('fecha_vencimiento')
+                    ->label('Vence El')
+                    ->disabled(),
+                TextInput::make('saldo_pendiente')
+                    ->label('Saldo')
+                    ->formatStateUsing(fn($state) => number_format($state, 0))
+                    ->disabled(),
+                \Filament\Forms\Components\Placeholder::make('estado_pago_display')
+                    ->label('Estado')
+                    ->content(function ($record) {
+                        return $record ? $record->getEstadoPagoFactura() : 'N/A';
+                    })
+                    ->extraAttributes(function ($record) {
+                        if (!$record) return ['class' => 'text-gray-500 font-bold text-sm'];
+                        
+                        $estado = $record->getEstadoPagoFactura();
+                        return match ($estado) {
+                            'SALDADO' => ['class' => 'text-green-600 font-bold text-sm'],
+                            'VENCIDO' => ['class' => 'text-red-600 font-bold text-sm'],
+                            'AL_DIA' => ['class' => 'text-blue-600 font-bold text-sm'],
+                            default => ['class' => 'text-gray-500 font-bold text-sm'],
+                        };
+                    }),
+                TextInput::make('abono')
+                    ->label('Abonos')
+                    ->formatStateUsing(fn($state) => number_format($state, 0))
+                    ->disabled(),
+                TextInput::make('total_a_pagar')
+                    ->label('Total')
+                    ->formatStateUsing(fn($state) => number_format($state, 0))
+                    ->disabled(),
+            ]);
+    }
+
     public static function configure(Schema $schema): Schema
     {
         return $schema
@@ -104,58 +164,23 @@ class ClienteForm
 
                             ]),
 
-                        Tab::make('Pedidos')
+                        Tab::make('Todos los Pedidos')
                             ->schema([
-                                Repeater::make('pedidos')
-                                    ->columnSpanFull()
-                                    ->relationship('pedidos')
-                                    ->deletable(false)
-                                    ->addable(false)
-                                    ->table([
-                                        TableColumn::make('Pedido')->width('100px'),
-                                        TableColumn::make('Vence El')->width('100px'),
-                                        TableColumn::make('Saldo')->width('100px'),
-                                        TableColumn::make('Estado')->width('100px'),
-                                        TableColumn::make('Abonos')->width('100px'),
-                                        TableColumn::make('Total')->width('100px'),
-                                    ])
-                                    ->compact()
-                                    ->schema([
-                                        TextInput::make('codigo')
-                                            ->label('Pedido')
-                                            ->disabled(),
-                                        TextInput::make('fecha_vencimiento')
-                                            ->label('Vence El')
-                                            ->disabled(),
-                                        TextInput::make('saldo_pendiente')
-                                            ->label('Saldo')
-                                            ->formatStateUsing(fn($state) => number_format($state, 0))
-                                            ->disabled(),
-                                        \Filament\Forms\Components\Placeholder::make('estado_pago_display')
-                                            ->label('Estado')
-                                            ->content(function ($record) {
-                                                return $record ? $record->getEstadoPagoFactura() : 'N/A';
-                                            })
-                                            ->extraAttributes(function ($record) {
-                                                if (!$record) return ['class' => 'text-gray-500 font-bold text-sm'];
-                                                
-                                                $estado = $record->getEstadoPagoFactura();
-                                                return match ($estado) {
-                                                    'SALDADO' => ['class' => 'text-green-600 font-bold text-sm'],
-                                                    'VENCIDO' => ['class' => 'text-red-600 font-bold text-sm'],
-                                                    'AL_DIA' => ['class' => 'text-blue-600 font-bold text-sm'],
-                                                    default => ['class' => 'text-gray-500 font-bold text-sm'],
-                                                };
-                                            }),
-                                        TextInput::make('abono')
-                                            ->label('Abonos')
-                                            ->formatStateUsing(fn($state) => number_format($state, 0))
-                                            ->disabled(),
-                                        TextInput::make('total_a_pagar')
-                                            ->label('Total')
-                                            ->formatStateUsing(fn($state) => number_format($state, 0))
-                                            ->disabled(),
-                                    ]),
+                                self::getPedidosRepeater()
+                            ]),                          
+                            
+                        Tab::make('Pedidos en Cartera')
+                            ->icon('heroicon-o-clock')
+                            ->badge(fn ($record) => $record?->pedidos()?->where('estado_pago', 'EN_CARTERA')->count() ?? 0)
+                            ->schema([
+                                self::getPedidosRepeater('EN_CARTERA')
+                            ]),
+                            
+                        Tab::make('Pedidos Saldados')
+                            ->icon('heroicon-o-check-circle')
+                            ->badge(fn ($record) => $record?->pedidos()?->where('estado_pago', 'SALDADO')->count() ?? 0)
+                            ->schema([
+                                self::getPedidosRepeater('SALDADO')
                             ]),
                     ])->vertical(),
             ]);

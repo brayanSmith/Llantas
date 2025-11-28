@@ -236,12 +236,26 @@ trait HasPedidoSections
                         ->numeric()
                         ->reactive(), // Hacer reactivo para que se actualice cuando cambien los detalles
                     
+                    \Filament\Forms\Components\Placeholder::make('abono_display')
+                        ->label('Abono')
+                        ->extraAttributes(['class' => 'text-lg font-semibold text-blue-600'])
+                        ->content(function ($get, $record) {
+                            // Calcular desde el repeater de abonos si existe
+                            $abonos = $get('abonos') ?? [];
+                            $totalAbonos = collect($abonos)->sum(fn($abono) => (float) ($abono['monto'] ?? 0));
+                            
+                            // Si no hay abonos en el repeater y hay record, consultar la BD
+                            if ($totalAbonos <= 0 && $record) {
+                                $totalAbonos = $record->abonoPedido()->sum('monto') ?? 0;
+                            }
+                            
+                            return '$' . number_format($totalAbonos, 0, ',', '.');
+                        }),
+                    
+                    // Campo oculto para mantener el valor en BD
                     TextInput::make('abono')
-                        ->prefix('$')
-                        ->currencyMask(".", ",", 0)
-                        ->readOnly()
-                        ->numeric()
-                        ->reactive(),
+                        ->hidden()
+                        ->dehydrated(true),
                     
                     TextInput::make('descuento')
                         ->prefix('$')
@@ -512,7 +526,16 @@ trait HasPedidoSections
                         ->columns(3)
                         ->columnSpan(4)
                         ->disabled(fn($get) => $get('estado') === 'ANULADO')
-                        ->hidden(fn($get) => $get('estado') === 'ANULADO'),
+                        ->hidden(fn($get) => $get('estado') === 'ANULADO')
+                        ->afterStateUpdated(function ($state, $set, $get) {
+                            // Recalcular el total de abonos cuando se modifique el repeater
+                            $abonos = $get('abonos') ?? [];
+                            $totalAbonos = collect($abonos)->sum(fn($abono) => (float) ($abono['monto'] ?? 0));
+                            $set('abono', $totalAbonos);
+                            // Recalcular totales
+                            self::recalcularAbonos($set, $get);
+                        })
+                        ->live(),
                 ])
                 ->afterStateUpdated(function ($set, $get) {
                     self::recalcularAbonos($set, $get);

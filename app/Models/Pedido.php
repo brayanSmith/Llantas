@@ -120,21 +120,21 @@ class Pedido extends Model
         $this->recalcularTotalAPagar();
     }
 
-    /*
+    
     public function recalcularAbono(): void
     {
         $abonos = $this->abonoPedido()->sum('monto');
         $this->abono = $abonos;
         // Solo recalcular el saldo pendiente (no el total a pagar que es fijo)
         $this->recalcularSaldoPendiente();
-    }*/
+    }
 
-    /*public function aplicarDescuento(float $monto): void
+    public function aplicarDescuento(float $monto): void
     {
         $this->descuento = $monto;
         // Recalcular tanto el total a pagar como el saldo pendiente
         $this->recalcularTotalAPagar();
-    }*/
+    }
 
     /**
      * Recalcula y guarda el campo `total_a_pagar` (FIJO - no se descuentan abonos).
@@ -159,21 +159,41 @@ class Pedido extends Model
         
         // Guardamos también el acumulado de abonos en el campo `abono`
         $this->abono = $abonos;
+        
+        // Actualizar el estado de pago basado en saldo pendiente
+        if ($saldoPendiente <= 0) {
+            $this->estado_pago = 'SALDADO';
+        } else {
+            $this->estado_pago = 'EN_CARTERA';
+        }
 
         $this->saveQuietly(); // evita disparar eventos otra vez
+    }
+
+    //vamos a cambiar el estado_pago de acuerdo al saldo pendiente
+    public function actualizarEstadoPago(): void
+    {
+        $estadoPago = $this->estado_pago;
+        $saldoPendiente = (float) ($this->saldo_pendiente ?? 0);
+        if ($saldoPendiente <= 0) {
+            $this->estado_pago = 'SALDADO';
+        } else {
+            $this->estado_pago = 'EN_CARTERA';
+        }
+        $this->saveQuietly();
     }
 
     /**
      * Recalcula solo el saldo pendiente (cuando ya existe el total_a_pagar)
      */
-    /*public function recalcularSaldoPendiente(): void
+    public function recalcularSaldoPendiente(): void
     {
         $abonos = $this->abonoPedido()->sum('monto') ?? 0;
         $saldoPendiente = $this->total_a_pagar - $abonos;
         $this->saldo_pendiente = $saldoPendiente < 0 ? 0 : $saldoPendiente;
         $this->abono = $abonos;
         $this->saveQuietly();
-    }*/
+    }
 
      /**
      * The "booted" method of the model.
