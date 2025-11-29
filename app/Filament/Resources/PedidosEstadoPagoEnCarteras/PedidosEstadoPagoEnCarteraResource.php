@@ -9,6 +9,7 @@ use App\Filament\Resources\PedidosEstadoPagoEnCarteras\Pages\ListPedidosEstadoPa
 use App\Filament\Resources\PedidosEstadoPagoEnCarteras\Schemas\PedidosEstadoPagoEnCarteraForm;
 use App\Filament\Resources\PedidosEstadoPagoEnCarteras\Tables\PedidosEstadoPagoEnCarterasTable;
 use App\Models\Pedido;
+use App\Policies\PedidoCarteraPolicy;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -19,6 +20,12 @@ use UnitEnum;
 class PedidosEstadoPagoEnCarteraResource extends Resource
 {
     protected static ?string $model = Pedido::class;
+    
+    // Slug único para permisos de Shield
+    protected static ?string $slug = 'pedidos-en-cartera';
+    
+    // Política específica para este recurso
+    protected static ?string $modelPolicy = PedidoCarteraPolicy::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
     protected static string|UnitEnum|null $navigationGroup = 'Cartera Ventas';

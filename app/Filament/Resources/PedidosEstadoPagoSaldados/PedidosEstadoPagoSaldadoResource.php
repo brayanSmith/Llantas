@@ -8,6 +8,7 @@ use App\Filament\Resources\PedidosEstadoPagoSaldados\Pages\ListPedidosEstadoPago
 use App\Filament\Resources\PedidosEstadoPagoSaldados\Schemas\PedidosEstadoPagoSaldadoForm;
 use App\Filament\Resources\PedidosEstadoPagoSaldados\Tables\PedidosEstadoPagoSaldadosTable;
 use App\Models\Pedido;
+use App\Policies\PedidoSaldadoPolicy;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -18,6 +19,12 @@ use UnitEnum;
 class PedidosEstadoPagoSaldadoResource extends Resource
 {
     protected static ?string $model = Pedido::class;
+    
+    // Slug único para permisos de Shield
+    protected static ?string $slug = 'pedidos-saldados';
+    
+    // Política específica para este recurso
+    protected static ?string $modelPolicy = PedidoSaldadoPolicy::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
     protected static string|UnitEnum|null $navigationGroup = 'Cartera Ventas';

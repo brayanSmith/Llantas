@@ -9,13 +9,15 @@
         "php": "^8.2",
         "ariaieboy/filament-currency": "^2.0",
         "barryvdh/laravel-dompdf": "^3.1",
+        "bezhansalleh/filament-shield": "^4.0",
         "filament/filament": "^4.0",
         "laravel-lang/common": "^6.7",
         "laravel/framework": "^12.0",
         "laravel/octane": "^2.13",
         "laravel/tinker": "^2.10.1",
         "livewire/flux": "^2.1.1",
-        "livewire/volt": "^1.7.0"
+        "livewire/volt": "^1.7.0",
+        "spatie/laravel-permission": "^6.23"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

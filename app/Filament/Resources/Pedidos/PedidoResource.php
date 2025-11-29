@@ -18,6 +18,9 @@ use UnitEnum;
 class PedidoResource extends Resource
 {
     protected static ?string $model = Pedido::class;
+    
+    // Slug único para permisos de Shield
+    protected static ?string $slug = 'pedidos';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::ShoppingCart;
     protected static string | UnitEnum | null $navigationGroup = 'Ventas';

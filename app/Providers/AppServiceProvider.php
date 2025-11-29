@@ -3,12 +3,15 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Gate;
 use App\Models\Compra;
 use App\Models\Pedido;
 use App\Models\DetalleCompra;
 use App\Observers\CompraObserver;
 use App\Observers\PedidoObserver;
 use App\Observers\DetalleCompraObserver;
+use App\Policies\PedidoCarteraPolicy;
+use App\Policies\PedidoSaldadoPolicy;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -32,5 +35,9 @@ class AppServiceProvider extends ServiceProvider
         Compra::observe(CompraObserver::class);
         //DetalleCompra::observe(DetalleCompraObserver::class);
         Pedido::observe(PedidoObserver::class);
+        
+        // Registrar políticas específicas para recursos de pedidos
+        Gate::policy('App\Filament\Resources\PedidosEstadoPagoEnCarteras\PedidosEstadoPagoEnCarteraResource', PedidoCarteraPolicy::class);
+        Gate::policy('App\Filament\Resources\PedidosEstadoPagoSaldados\PedidosEstadoPagoSaldadoResource', PedidoSaldadoPolicy::class);
     }
 }

@@ -19,7 +19,7 @@ class AdminUserSeeder extends Seeder
             [
                 'name' => 'Admin',
                 'password' => bcrypt('password123'),
-                'role' => 'ADMIN',
+                //'role' => 'ADMIN',
             ]
         );
             User::updateOrCreate(
@@ -27,7 +27,7 @@ class AdminUserSeeder extends Seeder
             [
                 'name' => 'Comercial',
                 'password' => bcrypt('password123'),
-                'role' => 'COMERCIAL',
+                //'role' => 'COMERCIAL',
             ]
         );
 
@@ -36,7 +36,7 @@ class AdminUserSeeder extends Seeder
             [
                 'name' => 'Cliente',
                 'password' => bcrypt('password123'),
-                'role' => 'USER',
+                //'role' => 'USER',
             ]
         );
     }
