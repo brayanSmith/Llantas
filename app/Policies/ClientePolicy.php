@@ -14,57 +14,57 @@ class ClientePolicy
     
     public function viewAny(AuthUser $authUser): bool
     {
-        return $authUser->can('ViewAny:Cliente');
+        return $authUser->can('ViewAny:ClienteResource');
     }
 
     public function view(AuthUser $authUser, Cliente $cliente): bool
     {
-        return $authUser->can('View:Cliente');
+        return $authUser->can('View:ClienteResource');
     }
 
     public function create(AuthUser $authUser): bool
     {
-        return $authUser->can('Create:Cliente');
+        return $authUser->can('Create:ClienteResource');
     }
 
     public function update(AuthUser $authUser, Cliente $cliente): bool
     {
-        return $authUser->can('Update:Cliente');
+        return $authUser->can('Update:ClienteResource');
     }
 
     public function delete(AuthUser $authUser, Cliente $cliente): bool
     {
-        return $authUser->can('Delete:Cliente');
+        return $authUser->can('Delete:ClienteResource');
     }
 
     public function restore(AuthUser $authUser, Cliente $cliente): bool
     {
-        return $authUser->can('Restore:Cliente');
+        return $authUser->can('Restore:ClienteResource');
     }
 
     public function forceDelete(AuthUser $authUser, Cliente $cliente): bool
     {
-        return $authUser->can('ForceDelete:Cliente');
+        return $authUser->can('ForceDelete:ClienteResource');
     }
 
     public function forceDeleteAny(AuthUser $authUser): bool
     {
-        return $authUser->can('ForceDeleteAny:Cliente');
+        return $authUser->can('ForceDeleteAny:ClienteResource');
     }
 
     public function restoreAny(AuthUser $authUser): bool
     {
-        return $authUser->can('RestoreAny:Cliente');
+        return $authUser->can('RestoreAny:ClienteResource');
     }
 
     public function replicate(AuthUser $authUser, Cliente $cliente): bool
     {
-        return $authUser->can('Replicate:Cliente');
+        return $authUser->can('Replicate:ClienteResource');
     }
 
     public function reorder(AuthUser $authUser): bool
     {
-        return $authUser->can('Reorder:Cliente');
+        return $authUser->can('Reorder:ClienteResource');
     }
 
 }

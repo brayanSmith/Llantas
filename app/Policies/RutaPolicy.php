@@ -14,57 +14,57 @@ class RutaPolicy
     
     public function viewAny(AuthUser $authUser): bool
     {
-        return $authUser->can('ViewAny:Ruta');
+        return $authUser->can('ViewAny:RutaResource');
     }
 
     public function view(AuthUser $authUser, Ruta $ruta): bool
     {
-        return $authUser->can('View:Ruta');
+        return $authUser->can('View:RutaResource');
     }
 
     public function create(AuthUser $authUser): bool
     {
-        return $authUser->can('Create:Ruta');
+        return $authUser->can('Create:RutaResource');
     }
 
     public function update(AuthUser $authUser, Ruta $ruta): bool
     {
-        return $authUser->can('Update:Ruta');
+        return $authUser->can('Update:RutaResource');
     }
 
     public function delete(AuthUser $authUser, Ruta $ruta): bool
     {
-        return $authUser->can('Delete:Ruta');
+        return $authUser->can('Delete:RutaResource');
     }
 
     public function restore(AuthUser $authUser, Ruta $ruta): bool
     {
-        return $authUser->can('Restore:Ruta');
+        return $authUser->can('Restore:RutaResource');
     }
 
     public function forceDelete(AuthUser $authUser, Ruta $ruta): bool
     {
-        return $authUser->can('ForceDelete:Ruta');
+        return $authUser->can('ForceDelete:RutaResource');
     }
 
     public function forceDeleteAny(AuthUser $authUser): bool
     {
-        return $authUser->can('ForceDeleteAny:Ruta');
+        return $authUser->can('ForceDeleteAny:RutaResource');
     }
 
     public function restoreAny(AuthUser $authUser): bool
     {
-        return $authUser->can('RestoreAny:Ruta');
+        return $authUser->can('RestoreAny:RutaResource');
     }
 
     public function replicate(AuthUser $authUser, Ruta $ruta): bool
     {
-        return $authUser->can('Replicate:Ruta');
+        return $authUser->can('Replicate:RutaResource');
     }
 
     public function reorder(AuthUser $authUser): bool
     {
-        return $authUser->can('Reorder:Ruta');
+        return $authUser->can('Reorder:RutaResource');
     }
 
 }

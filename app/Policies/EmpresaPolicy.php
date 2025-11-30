@@ -14,57 +14,57 @@ class EmpresaPolicy
     
     public function viewAny(AuthUser $authUser): bool
     {
-        return $authUser->can('ViewAny:Empresa');
+        return $authUser->can('ViewAny:EmpresaResource');
     }
 
     public function view(AuthUser $authUser, Empresa $empresa): bool
     {
-        return $authUser->can('View:Empresa');
+        return $authUser->can('View:EmpresaResource');
     }
 
     public function create(AuthUser $authUser): bool
     {
-        return $authUser->can('Create:Empresa');
+        return $authUser->can('Create:EmpresaResource');
     }
 
     public function update(AuthUser $authUser, Empresa $empresa): bool
     {
-        return $authUser->can('Update:Empresa');
+        return $authUser->can('Update:EmpresaResource');
     }
 
     public function delete(AuthUser $authUser, Empresa $empresa): bool
     {
-        return $authUser->can('Delete:Empresa');
+        return $authUser->can('Delete:EmpresaResource');
     }
 
     public function restore(AuthUser $authUser, Empresa $empresa): bool
     {
-        return $authUser->can('Restore:Empresa');
+        return $authUser->can('Restore:EmpresaResource');
     }
 
     public function forceDelete(AuthUser $authUser, Empresa $empresa): bool
     {
-        return $authUser->can('ForceDelete:Empresa');
+        return $authUser->can('ForceDelete:EmpresaResource');
     }
 
     public function forceDeleteAny(AuthUser $authUser): bool
     {
-        return $authUser->can('ForceDeleteAny:Empresa');
+        return $authUser->can('ForceDeleteAny:EmpresaResource');
     }
 
     public function restoreAny(AuthUser $authUser): bool
     {
-        return $authUser->can('RestoreAny:Empresa');
+        return $authUser->can('RestoreAny:EmpresaResource');
     }
 
     public function replicate(AuthUser $authUser, Empresa $empresa): bool
     {
-        return $authUser->can('Replicate:Empresa');
+        return $authUser->can('Replicate:EmpresaResource');
     }
 
     public function reorder(AuthUser $authUser): bool
     {
-        return $authUser->can('Reorder:Empresa');
+        return $authUser->can('Reorder:EmpresaResource');
     }
 
 }

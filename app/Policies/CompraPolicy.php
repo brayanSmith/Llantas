@@ -14,57 +14,57 @@ class CompraPolicy
     
     public function viewAny(AuthUser $authUser): bool
     {
-        return $authUser->can('ViewAny:Compra');
+        return $authUser->can('ViewAny:CompraResource');
     }
 
     public function view(AuthUser $authUser, Compra $compra): bool
     {
-        return $authUser->can('View:Compra');
+        return $authUser->can('View:CompraResource');
     }
 
     public function create(AuthUser $authUser): bool
     {
-        return $authUser->can('Create:Compra');
+        return $authUser->can('Create:CompraResource');
     }
 
     public function update(AuthUser $authUser, Compra $compra): bool
     {
-        return $authUser->can('Update:Compra');
+        return $authUser->can('Update:CompraResource');
     }
 
     public function delete(AuthUser $authUser, Compra $compra): bool
     {
-        return $authUser->can('Delete:Compra');
+        return $authUser->can('Delete:CompraResource');
     }
 
     public function restore(AuthUser $authUser, Compra $compra): bool
     {
-        return $authUser->can('Restore:Compra');
+        return $authUser->can('Restore:CompraResource');
     }
 
     public function forceDelete(AuthUser $authUser, Compra $compra): bool
     {
-        return $authUser->can('ForceDelete:Compra');
+        return $authUser->can('ForceDelete:CompraResource');
     }
 
     public function forceDeleteAny(AuthUser $authUser): bool
     {
-        return $authUser->can('ForceDeleteAny:Compra');
+        return $authUser->can('ForceDeleteAny:CompraResource');
     }
 
     public function restoreAny(AuthUser $authUser): bool
     {
-        return $authUser->can('RestoreAny:Compra');
+        return $authUser->can('RestoreAny:CompraResource');
     }
 
     public function replicate(AuthUser $authUser, Compra $compra): bool
     {
-        return $authUser->can('Replicate:Compra');
+        return $authUser->can('Replicate:CompraResource');
     }
 
     public function reorder(AuthUser $authUser): bool
     {
-        return $authUser->can('Reorder:Compra');
+        return $authUser->can('Reorder:CompraResource');
     }
 
 }

@@ -14,57 +14,57 @@ class PucPolicy
     
     public function viewAny(AuthUser $authUser): bool
     {
-        return $authUser->can('ViewAny:Puc');
+        return $authUser->can('ViewAny:PucResource');
     }
 
     public function view(AuthUser $authUser, Puc $puc): bool
     {
-        return $authUser->can('View:Puc');
+        return $authUser->can('View:PucResource');
     }
 
     public function create(AuthUser $authUser): bool
     {
-        return $authUser->can('Create:Puc');
+        return $authUser->can('Create:PucResource');
     }
 
     public function update(AuthUser $authUser, Puc $puc): bool
     {
-        return $authUser->can('Update:Puc');
+        return $authUser->can('Update:PucResource');
     }
 
     public function delete(AuthUser $authUser, Puc $puc): bool
     {
-        return $authUser->can('Delete:Puc');
+        return $authUser->can('Delete:PucResource');
     }
 
     public function restore(AuthUser $authUser, Puc $puc): bool
     {
-        return $authUser->can('Restore:Puc');
+        return $authUser->can('Restore:PucResource');
     }
 
     public function forceDelete(AuthUser $authUser, Puc $puc): bool
     {
-        return $authUser->can('ForceDelete:Puc');
+        return $authUser->can('ForceDelete:PucResource');
     }
 
     public function forceDeleteAny(AuthUser $authUser): bool
     {
-        return $authUser->can('ForceDeleteAny:Puc');
+        return $authUser->can('ForceDeleteAny:PucResource');
     }
 
     public function restoreAny(AuthUser $authUser): bool
     {
-        return $authUser->can('RestoreAny:Puc');
+        return $authUser->can('RestoreAny:PucResource');
     }
 
     public function replicate(AuthUser $authUser, Puc $puc): bool
     {
-        return $authUser->can('Replicate:Puc');
+        return $authUser->can('Replicate:PucResource');
     }
 
     public function reorder(AuthUser $authUser): bool
     {
-        return $authUser->can('Reorder:Puc');
+        return $authUser->can('Reorder:PucResource');
     }
 
 }

@@ -14,57 +14,57 @@ class ProduccionPolicy
     
     public function viewAny(AuthUser $authUser): bool
     {
-        return $authUser->can('ViewAny:Produccion');
+        return $authUser->can('ViewAny:ProduccionResource');
     }
 
     public function view(AuthUser $authUser, Produccion $produccion): bool
     {
-        return $authUser->can('View:Produccion');
+        return $authUser->can('View:ProduccionResource');
     }
 
     public function create(AuthUser $authUser): bool
     {
-        return $authUser->can('Create:Produccion');
+        return $authUser->can('Create:ProduccionResource');
     }
 
     public function update(AuthUser $authUser, Produccion $produccion): bool
     {
-        return $authUser->can('Update:Produccion');
+        return $authUser->can('Update:ProduccionResource');
     }
 
     public function delete(AuthUser $authUser, Produccion $produccion): bool
     {
-        return $authUser->can('Delete:Produccion');
+        return $authUser->can('Delete:ProduccionResource');
     }
 
     public function restore(AuthUser $authUser, Produccion $produccion): bool
     {
-        return $authUser->can('Restore:Produccion');
+        return $authUser->can('Restore:ProduccionResource');
     }
 
     public function forceDelete(AuthUser $authUser, Produccion $produccion): bool
     {
-        return $authUser->can('ForceDelete:Produccion');
+        return $authUser->can('ForceDelete:ProduccionResource');
     }
 
     public function forceDeleteAny(AuthUser $authUser): bool
     {
-        return $authUser->can('ForceDeleteAny:Produccion');
+        return $authUser->can('ForceDeleteAny:ProduccionResource');
     }
 
     public function restoreAny(AuthUser $authUser): bool
     {
-        return $authUser->can('RestoreAny:Produccion');
+        return $authUser->can('RestoreAny:ProduccionResource');
     }
 
     public function replicate(AuthUser $authUser, Produccion $produccion): bool
     {
-        return $authUser->can('Replicate:Produccion');
+        return $authUser->can('Replicate:ProduccionResource');
     }
 
     public function reorder(AuthUser $authUser): bool
     {
-        return $authUser->can('Reorder:Produccion');
+        return $authUser->can('Reorder:ProduccionResource');
     }
 
 }

@@ -35,9 +35,5 @@ class AppServiceProvider extends ServiceProvider
         Compra::observe(CompraObserver::class);
         //DetalleCompra::observe(DetalleCompraObserver::class);
         Pedido::observe(PedidoObserver::class);
-        
-        // Registrar políticas específicas para recursos de pedidos
-        Gate::policy('App\Filament\Resources\PedidosEstadoPagoEnCarteras\PedidosEstadoPagoEnCarteraResource', PedidoCarteraPolicy::class);
-        Gate::policy('App\Filament\Resources\PedidosEstadoPagoSaldados\PedidosEstadoPagoSaldadoResource', PedidoSaldadoPolicy::class);
     }
 }

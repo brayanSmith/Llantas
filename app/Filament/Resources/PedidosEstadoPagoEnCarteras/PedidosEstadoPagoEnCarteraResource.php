@@ -26,6 +26,11 @@ class PedidosEstadoPagoEnCarteraResource extends Resource
     
     // Política específica para este recurso
     protected static ?string $modelPolicy = PedidoCarteraPolicy::class;
+    
+    // Labels personalizados para Shield
+    protected static ?string $modelLabel = 'Pedido En Cartera';
+    protected static ?string $pluralModelLabel = 'Pedidos En Cartera';
+    protected static ?string $navigationLabel = 'En Cartera';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
     protected static string|UnitEnum|null $navigationGroup = 'Cartera Ventas';
@@ -34,6 +39,31 @@ class PedidosEstadoPagoEnCarteraResource extends Resource
 
 
     protected static ?string $recordTitleAttribute = 'codigo';
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('ViewAny:PedidosEstadoPagoEnCarteraResource');
+    }
+
+    public static function canView($record): bool
+    {
+        return auth()->user()->can('View:PedidosEstadoPagoEnCarteraResource');
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()->can('Create:PedidosEstadoPagoEnCarteraResource');
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->user()->can('Update:PedidosEstadoPagoEnCarteraResource');
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->user()->can('Delete:PedidosEstadoPagoEnCarteraResource');
+    }
 
     public static function form(Schema $schema): Schema
     {

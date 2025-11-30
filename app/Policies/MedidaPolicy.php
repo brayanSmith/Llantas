@@ -14,57 +14,57 @@ class MedidaPolicy
     
     public function viewAny(AuthUser $authUser): bool
     {
-        return $authUser->can('ViewAny:Medida');
+        return $authUser->can('ViewAny:MedidaResource');
     }
 
     public function view(AuthUser $authUser, Medida $medida): bool
     {
-        return $authUser->can('View:Medida');
+        return $authUser->can('View:MedidaResource');
     }
 
     public function create(AuthUser $authUser): bool
     {
-        return $authUser->can('Create:Medida');
+        return $authUser->can('Create:MedidaResource');
     }
 
     public function update(AuthUser $authUser, Medida $medida): bool
     {
-        return $authUser->can('Update:Medida');
+        return $authUser->can('Update:MedidaResource');
     }
 
     public function delete(AuthUser $authUser, Medida $medida): bool
     {
-        return $authUser->can('Delete:Medida');
+        return $authUser->can('Delete:MedidaResource');
     }
 
     public function restore(AuthUser $authUser, Medida $medida): bool
     {
-        return $authUser->can('Restore:Medida');
+        return $authUser->can('Restore:MedidaResource');
     }
 
     public function forceDelete(AuthUser $authUser, Medida $medida): bool
     {
-        return $authUser->can('ForceDelete:Medida');
+        return $authUser->can('ForceDelete:MedidaResource');
     }
 
     public function forceDeleteAny(AuthUser $authUser): bool
     {
-        return $authUser->can('ForceDeleteAny:Medida');
+        return $authUser->can('ForceDeleteAny:MedidaResource');
     }
 
     public function restoreAny(AuthUser $authUser): bool
     {
-        return $authUser->can('RestoreAny:Medida');
+        return $authUser->can('RestoreAny:MedidaResource');
     }
 
     public function replicate(AuthUser $authUser, Medida $medida): bool
     {
-        return $authUser->can('Replicate:Medida');
+        return $authUser->can('Replicate:MedidaResource');
     }
 
     public function reorder(AuthUser $authUser): bool
     {
-        return $authUser->can('Reorder:Medida');
+        return $authUser->can('Reorder:MedidaResource');
     }
 
 }

@@ -161,7 +161,7 @@ return [
     */
 
     'resources' => [
-        'subject' => 'model',
+        'subject' => 'resource',
         'manage' => [
             \BezhanSalleh\FilamentShield\Resources\Roles\RoleResource::class => [
                 'viewAny',
@@ -226,33 +226,7 @@ return [
     |
     */
 
-    'custom_permissions' => [
-        // Permisos específicos para Pedidos En Cartera
-        'ViewAny:PedidosEnCartera',
-        'View:PedidosEnCartera', 
-        'Create:PedidosEnCartera',
-        'Update:PedidosEnCartera',
-        'Delete:PedidosEnCartera',
-        'Restore:PedidosEnCartera',
-        'ForceDelete:PedidosEnCartera',
-        'RestoreAny:PedidosEnCartera',
-        'ForceDeleteAny:PedidosEnCartera',
-        'Replicate:PedidosEnCartera',
-        'Reorder:PedidosEnCartera',
-        
-        // Permisos específicos para Pedidos Saldados  
-        'ViewAny:PedidosSaldados',
-        'View:PedidosSaldados',
-        'Create:PedidosSaldados', 
-        'Update:PedidosSaldados',
-        'Delete:PedidosSaldados',
-        'Restore:PedidosSaldados',
-        'ForceDelete:PedidosSaldados',
-        'RestoreAny:PedidosSaldados',
-        'ForceDeleteAny:PedidosSaldados',
-        'Replicate:PedidosSaldados',
-        'Reorder:PedidosSaldados',
-    ],
+    'custom_permissions' => [],
 
     /*
     |--------------------------------------------------------------------------

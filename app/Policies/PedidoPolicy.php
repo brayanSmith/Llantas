@@ -14,57 +14,57 @@ class PedidoPolicy
     
     public function viewAny(AuthUser $authUser): bool
     {
-        return $authUser->can('ViewAny:Pedido');
+        return $authUser->can('ViewAny:PedidoResource');
     }
 
     public function view(AuthUser $authUser, Pedido $pedido): bool
     {
-        return $authUser->can('View:Pedido');
+        return $authUser->can('View:PedidoResource');
     }
 
     public function create(AuthUser $authUser): bool
     {
-        return $authUser->can('Create:Pedido');
+        return $authUser->can('Create:PedidoResource');
     }
 
     public function update(AuthUser $authUser, Pedido $pedido): bool
     {
-        return $authUser->can('Update:Pedido');
+        return $authUser->can('Update:PedidoResource');
     }
 
     public function delete(AuthUser $authUser, Pedido $pedido): bool
     {
-        return $authUser->can('Delete:Pedido');
+        return $authUser->can('Delete:PedidoResource');
     }
 
     public function restore(AuthUser $authUser, Pedido $pedido): bool
     {
-        return $authUser->can('Restore:Pedido');
+        return $authUser->can('Restore:PedidoResource');
     }
 
     public function forceDelete(AuthUser $authUser, Pedido $pedido): bool
     {
-        return $authUser->can('ForceDelete:Pedido');
+        return $authUser->can('ForceDelete:PedidoResource');
     }
 
     public function forceDeleteAny(AuthUser $authUser): bool
     {
-        return $authUser->can('ForceDeleteAny:Pedido');
+        return $authUser->can('ForceDeleteAny:PedidoResource');
     }
 
     public function restoreAny(AuthUser $authUser): bool
     {
-        return $authUser->can('RestoreAny:Pedido');
+        return $authUser->can('RestoreAny:PedidoResource');
     }
 
     public function replicate(AuthUser $authUser, Pedido $pedido): bool
     {
-        return $authUser->can('Replicate:Pedido');
+        return $authUser->can('Replicate:PedidoResource');
     }
 
     public function reorder(AuthUser $authUser): bool
     {
-        return $authUser->can('Reorder:Pedido');
+        return $authUser->can('Reorder:PedidoResource');
     }
 
 }

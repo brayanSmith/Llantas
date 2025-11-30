@@ -7,7 +7,7 @@ use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 
-class PedidosPermissionsSeeder extends Seeder
+class ComprasPermissionsSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -23,21 +23,20 @@ class PedidosPermissionsSeeder extends Seeder
             return;
         }
 
-        // Definir qué recursos puede acceder cada rol
-        $comercialResources = [
-            'PedidoResource',                      // Pedidos generales
-            'PedidosEstadoPagoEnCarteraResource',  // Pedidos en cartera
-            'PedidosPendientesResource',           // Pedidos pendientes
+        // Definir qué recursos de compras puede acceder cada rol
+        $comercialComprasResources = [
+            'CompraResource',                    // Compras generales  
+            'ComprasPendientesResource',         // Compras pendientes
         ];
 
-        $superAdminOnlyResources = [
-            'PedidosEstadoPagoSaldadoResource',    // Solo admin ve saldados
-            'PedidosAnuladosResource',             // Solo admin ve anulados
-            'PedidosFacturadosResource',           // Solo admin ve facturados
-            'PedidoDomiciliarioResource',          // Solo admin ve domiciliarios
+        $superAdminOnlyComprasResources = [
+            'ComprasEstadoEnCarteraResource',    // Solo admin ve en cartera
+            'ComprasFacturadasResource',         // Solo admin ve facturadas
+            'ComprasEstadoPagadoResource',       // Solo admin ve pagadas
+            'ComprasAnuladasResource',           // Solo admin ve anuladas
         ];
 
-        $allPedidoResources = array_merge($comercialResources, $superAdminOnlyResources);
+        $allComprasResources = array_merge($comercialComprasResources, $superAdminOnlyComprasResources);
 
         // Permisos CRUD para cada recurso
         $permissions = [
@@ -46,8 +45,8 @@ class PedidosPermissionsSeeder extends Seeder
             'Replicate', 'Reorder'
         ];
 
-        // Asignar permisos a Comercial (recursos limitados)
-        foreach ($comercialResources as $resource) {
+        // Asignar permisos a Comercial (recursos limitados de compras)
+        foreach ($comercialComprasResources as $resource) {
             foreach ($permissions as $permission) {
                 $permissionName = "{$permission}:{$resource}";
                 $perm = Permission::where('name', $permissionName)->first();
@@ -58,8 +57,8 @@ class PedidosPermissionsSeeder extends Seeder
             }
         }
 
-        // Asignar todos los permisos a Super Admin
-        foreach ($allPedidoResources as $resource) {
+        // Asignar todos los permisos de compras a Super Admin
+        foreach ($allComprasResources as $resource) {
             foreach ($permissions as $permission) {
                 $permissionName = "{$permission}:{$resource}";
                 $perm = Permission::where('name', $permissionName)->first();
@@ -70,8 +69,8 @@ class PedidosPermissionsSeeder extends Seeder
             }
         }
 
-        $this->command->info("\n🎉 Permisos de Pedidos configurados correctamente:");
-        $this->command->info("👨‍💼 Comercial: Acceso a " . count($comercialResources) . " recursos de pedidos");
-        $this->command->info("👑 SuperAdmin: Acceso a " . count($allPedidoResources) . " recursos de pedidos");
+        $this->command->info("\n🎉 Permisos de Compras configurados correctamente:");
+        $this->command->info("👨‍💼 Comercial: Acceso a " . count($comercialComprasResources) . " recursos de compras");
+        $this->command->info("👑 SuperAdmin: Acceso a " . count($allComprasResources) . " recursos de compras");
     }
 }

@@ -14,57 +14,57 @@ class ProveedorPolicy
     
     public function viewAny(AuthUser $authUser): bool
     {
-        return $authUser->can('ViewAny:Proveedor');
+        return $authUser->can('ViewAny:ProveedorResource');
     }
 
     public function view(AuthUser $authUser, Proveedor $proveedor): bool
     {
-        return $authUser->can('View:Proveedor');
+        return $authUser->can('View:ProveedorResource');
     }
 
     public function create(AuthUser $authUser): bool
     {
-        return $authUser->can('Create:Proveedor');
+        return $authUser->can('Create:ProveedorResource');
     }
 
     public function update(AuthUser $authUser, Proveedor $proveedor): bool
     {
-        return $authUser->can('Update:Proveedor');
+        return $authUser->can('Update:ProveedorResource');
     }
 
     public function delete(AuthUser $authUser, Proveedor $proveedor): bool
     {
-        return $authUser->can('Delete:Proveedor');
+        return $authUser->can('Delete:ProveedorResource');
     }
 
     public function restore(AuthUser $authUser, Proveedor $proveedor): bool
     {
-        return $authUser->can('Restore:Proveedor');
+        return $authUser->can('Restore:ProveedorResource');
     }
 
     public function forceDelete(AuthUser $authUser, Proveedor $proveedor): bool
     {
-        return $authUser->can('ForceDelete:Proveedor');
+        return $authUser->can('ForceDelete:ProveedorResource');
     }
 
     public function forceDeleteAny(AuthUser $authUser): bool
     {
-        return $authUser->can('ForceDeleteAny:Proveedor');
+        return $authUser->can('ForceDeleteAny:ProveedorResource');
     }
 
     public function restoreAny(AuthUser $authUser): bool
     {
-        return $authUser->can('RestoreAny:Proveedor');
+        return $authUser->can('RestoreAny:ProveedorResource');
     }
 
     public function replicate(AuthUser $authUser, Proveedor $proveedor): bool
     {
-        return $authUser->can('Replicate:Proveedor');
+        return $authUser->can('Replicate:ProveedorResource');
     }
 
     public function reorder(AuthUser $authUser): bool
     {
-        return $authUser->can('Reorder:Proveedor');
+        return $authUser->can('Reorder:ProveedorResource');
     }
 
 }

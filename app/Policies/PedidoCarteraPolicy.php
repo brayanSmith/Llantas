@@ -16,7 +16,7 @@ class PedidoCarteraPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any:_pedidos_en_cartera');
+        return $user->can('ViewAny:PedidosEstadoPagoEnCarteraResource');
     }
 
     /**
@@ -24,7 +24,7 @@ class PedidoCarteraPolicy
      */
     public function view(User $user, Pedido $pedido): bool
     {
-        return $user->can('view:_pedidos_en_cartera');
+        return $user->can('View:PedidosEstadoPagoEnCarteraResource');
     }
 
     /**
@@ -32,7 +32,7 @@ class PedidoCarteraPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create:_pedidos_en_cartera');
+        return $user->can('Create:PedidosEstadoPagoEnCarteraResource');
     }
 
     /**
@@ -40,7 +40,7 @@ class PedidoCarteraPolicy
      */
     public function update(User $user, Pedido $pedido): bool
     {
-        return $user->can('update:_pedidos_en_cartera');
+        return $user->can('Update:PedidosEstadoPagoEnCarteraResource');
     }
 
     /**
@@ -48,7 +48,7 @@ class PedidoCarteraPolicy
      */
     public function delete(User $user, Pedido $pedido): bool
     {
-        return $user->can('delete:_pedidos_en_cartera');
+        return $user->can('Delete:PedidosEstadoPagoEnCarteraResource');
     }
 
     /**
@@ -56,7 +56,7 @@ class PedidoCarteraPolicy
      */
     public function restore(User $user, Pedido $pedido): bool
     {
-        return $user->can('restore:_pedidos_en_cartera');
+        return $user->can('Restore:PedidosEstadoPagoEnCarteraResource');
     }
 
     /**
@@ -64,7 +64,7 @@ class PedidoCarteraPolicy
      */
     public function forceDelete(User $user, Pedido $pedido): bool
     {
-        return $user->can('force_delete:_pedidos_en_cartera');
+        return $user->can('ForceDelete:PedidosEstadoPagoEnCarteraResource');
     }
 
     /**
@@ -72,7 +72,7 @@ class PedidoCarteraPolicy
      */
     public function replicate(User $user, Pedido $pedido): bool
     {
-        return $user->can('replicate:_pedidos_en_cartera');
+        return $user->can('Replicate:PedidosEstadoPagoEnCarteraResource');
     }
 
     /**
@@ -80,7 +80,7 @@ class PedidoCarteraPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder:_pedidos_en_cartera');
+        return $user->can('Reorder:PedidosEstadoPagoEnCarteraResource');
     }
 
     /**
@@ -88,7 +88,7 @@ class PedidoCarteraPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any:_pedidos_en_cartera');
+        return $user->can('RestoreAny:PedidosEstadoPagoEnCarteraResource');
     }
 
     /**
@@ -96,6 +96,6 @@ class PedidoCarteraPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any:_pedidos_en_cartera');
+        return $user->can('ForceDeleteAny:PedidosEstadoPagoEnCarteraResource');
     }
 }

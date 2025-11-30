@@ -16,7 +16,7 @@ class PedidoSaldadoPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any:_pedidos_saldados');
+        return $user->can('ViewAny:PedidosEstadoPagoSaldadoResource');
     }
 
     /**
@@ -24,7 +24,7 @@ class PedidoSaldadoPolicy
      */
     public function view(User $user, Pedido $pedido): bool
     {
-        return $user->can('view:_pedidos_saldados');
+        return $user->can('View:PedidosEstadoPagoSaldadoResource');
     }
 
     /**
@@ -32,7 +32,7 @@ class PedidoSaldadoPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create:_pedidos_saldados');
+        return $user->can('Create:PedidosEstadoPagoSaldadoResource');
     }
 
     /**
@@ -40,7 +40,7 @@ class PedidoSaldadoPolicy
      */
     public function update(User $user, Pedido $pedido): bool
     {
-        return $user->can('update:_pedidos_saldados');
+        return $user->can('Update:PedidosEstadoPagoSaldadoResource');
     }
 
     /**
@@ -48,7 +48,7 @@ class PedidoSaldadoPolicy
      */
     public function delete(User $user, Pedido $pedido): bool
     {
-        return $user->can('delete:_pedidos_saldados');
+        return $user->can('Delete:PedidosEstadoPagoSaldadoResource');
     }
 
     /**
@@ -56,7 +56,7 @@ class PedidoSaldadoPolicy
      */
     public function restore(User $user, Pedido $pedido): bool
     {
-        return $user->can('restore:_pedidos_saldados');
+        return $user->can('Restore:PedidosEstadoPagoSaldadoResource');
     }
 
     /**
@@ -64,7 +64,7 @@ class PedidoSaldadoPolicy
      */
     public function forceDelete(User $user, Pedido $pedido): bool
     {
-        return $user->can('force_delete:_pedidos_saldados');
+        return $user->can('ForceDelete:PedidosEstadoPagoSaldadoResource');
     }
 
     /**
@@ -72,7 +72,7 @@ class PedidoSaldadoPolicy
      */
     public function replicate(User $user, Pedido $pedido): bool
     {
-        return $user->can('replicate:_pedidos_saldados');
+        return $user->can('Replicate:PedidosEstadoPagoSaldadoResource');
     }
 
     /**
@@ -80,7 +80,7 @@ class PedidoSaldadoPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder:_pedidos_saldados');
+        return $user->can('Reorder:PedidosEstadoPagoSaldadoResource');
     }
 
     /**
@@ -88,7 +88,7 @@ class PedidoSaldadoPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any:_pedidos_saldados');
+        return $user->can('RestoreAny:PedidosEstadoPagoSaldadoResource');
     }
 
     /**
@@ -96,6 +96,6 @@ class PedidoSaldadoPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any:_pedidos_saldados');
+        return $user->can('ForceDeleteAny:PedidosEstadoPagoSaldadoResource');
     }
 }

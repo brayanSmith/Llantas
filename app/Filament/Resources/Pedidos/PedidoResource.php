@@ -21,11 +21,41 @@ class PedidoResource extends Resource
     
     // Slug único para permisos de Shield
     protected static ?string $slug = 'pedidos';
+    
+    // Labels personalizados para Shield
+    protected static ?string $modelLabel = 'Pedido General';
+    protected static ?string $pluralModelLabel = 'Pedidos Generales';
+    protected static ?string $navigationLabel = 'Pedidos';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::ShoppingCart;
     protected static string | UnitEnum | null $navigationGroup = 'Ventas';
 
     protected static ?string $recordTitleAttribute = 'codigo';
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('ViewAny:PedidoResource');
+    }
+
+    public static function canView($record): bool
+    {
+        return auth()->user()->can('View:PedidoResource');
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()->can('Create:PedidoResource');
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->user()->can('Update:PedidoResource');
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->user()->can('Delete:PedidoResource');
+    }
 
     public static function form(Schema $schema): Schema
     {

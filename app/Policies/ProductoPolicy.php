@@ -14,57 +14,57 @@ class ProductoPolicy
     
     public function viewAny(AuthUser $authUser): bool
     {
-        return $authUser->can('ViewAny:Producto');
+        return $authUser->can('ViewAny:ProductoResource');
     }
 
     public function view(AuthUser $authUser, Producto $producto): bool
     {
-        return $authUser->can('View:Producto');
+        return $authUser->can('View:ProductoResource');
     }
 
     public function create(AuthUser $authUser): bool
     {
-        return $authUser->can('Create:Producto');
+        return $authUser->can('Create:ProductoResource');
     }
 
     public function update(AuthUser $authUser, Producto $producto): bool
     {
-        return $authUser->can('Update:Producto');
+        return $authUser->can('Update:ProductoResource');
     }
 
     public function delete(AuthUser $authUser, Producto $producto): bool
     {
-        return $authUser->can('Delete:Producto');
+        return $authUser->can('Delete:ProductoResource');
     }
 
     public function restore(AuthUser $authUser, Producto $producto): bool
     {
-        return $authUser->can('Restore:Producto');
+        return $authUser->can('Restore:ProductoResource');
     }
 
     public function forceDelete(AuthUser $authUser, Producto $producto): bool
     {
-        return $authUser->can('ForceDelete:Producto');
+        return $authUser->can('ForceDelete:ProductoResource');
     }
 
     public function forceDeleteAny(AuthUser $authUser): bool
     {
-        return $authUser->can('ForceDeleteAny:Producto');
+        return $authUser->can('ForceDeleteAny:ProductoResource');
     }
 
     public function restoreAny(AuthUser $authUser): bool
     {
-        return $authUser->can('RestoreAny:Producto');
+        return $authUser->can('RestoreAny:ProductoResource');
     }
 
     public function replicate(AuthUser $authUser, Producto $producto): bool
     {
-        return $authUser->can('Replicate:Producto');
+        return $authUser->can('Replicate:ProductoResource');
     }
 
     public function reorder(AuthUser $authUser): bool
     {
-        return $authUser->can('Reorder:Producto');
+        return $authUser->can('Reorder:ProductoResource');
     }
 
 }

@@ -14,57 +14,57 @@ class FormulaPolicy
     
     public function viewAny(AuthUser $authUser): bool
     {
-        return $authUser->can('ViewAny:Formula');
+        return $authUser->can('ViewAny:FormulaResource');
     }
 
     public function view(AuthUser $authUser, Formula $formula): bool
     {
-        return $authUser->can('View:Formula');
+        return $authUser->can('View:FormulaResource');
     }
 
     public function create(AuthUser $authUser): bool
     {
-        return $authUser->can('Create:Formula');
+        return $authUser->can('Create:FormulaResource');
     }
 
     public function update(AuthUser $authUser, Formula $formula): bool
     {
-        return $authUser->can('Update:Formula');
+        return $authUser->can('Update:FormulaResource');
     }
 
     public function delete(AuthUser $authUser, Formula $formula): bool
     {
-        return $authUser->can('Delete:Formula');
+        return $authUser->can('Delete:FormulaResource');
     }
 
     public function restore(AuthUser $authUser, Formula $formula): bool
     {
-        return $authUser->can('Restore:Formula');
+        return $authUser->can('Restore:FormulaResource');
     }
 
     public function forceDelete(AuthUser $authUser, Formula $formula): bool
     {
-        return $authUser->can('ForceDelete:Formula');
+        return $authUser->can('ForceDelete:FormulaResource');
     }
 
     public function forceDeleteAny(AuthUser $authUser): bool
     {
-        return $authUser->can('ForceDeleteAny:Formula');
+        return $authUser->can('ForceDeleteAny:FormulaResource');
     }
 
     public function restoreAny(AuthUser $authUser): bool
     {
-        return $authUser->can('RestoreAny:Formula');
+        return $authUser->can('RestoreAny:FormulaResource');
     }
 
     public function replicate(AuthUser $authUser, Formula $formula): bool
     {
-        return $authUser->can('Replicate:Formula');
+        return $authUser->can('Replicate:FormulaResource');
     }
 
     public function reorder(AuthUser $authUser): bool
     {
-        return $authUser->can('Reorder:Formula');
+        return $authUser->can('Reorder:FormulaResource');
     }
 
 }

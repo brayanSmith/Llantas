@@ -18,6 +18,14 @@ use UnitEnum;
 class PedidosAnuladosResource extends Resource
 {
     protected static ?string $model = Pedido::class;
+    
+    // Labels personalizados para Shield
+    protected static ?string $modelLabel = 'Pedido Anulado';
+    protected static ?string $pluralModelLabel = 'Pedidos Anulados';
+    protected static ?string $navigationLabel = 'Anulados';
+    
+    // Política específica para este recurso
+    protected static ?string $modelPolicy = \App\Policies\PedidoAnuladoPolicy::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
     protected static string|UnitEnum|null $navigationGroup = 'Ventas';
@@ -25,6 +33,31 @@ class PedidosAnuladosResource extends Resource
     protected static ?int $navigationSort = 3;
 
     protected static ?string $recordTitleAttribute = 'codigo';
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('ViewAny:PedidosAnuladosResource');
+    }
+
+    public static function canView($record): bool
+    {
+        return auth()->user()->can('View:PedidosAnuladosResource');
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()->can('Create:PedidosAnuladosResource');
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->user()->can('Update:PedidosAnuladosResource');
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->user()->can('Delete:PedidosAnuladosResource');
+    }
 
     public static function form(Schema $schema): Schema
     {

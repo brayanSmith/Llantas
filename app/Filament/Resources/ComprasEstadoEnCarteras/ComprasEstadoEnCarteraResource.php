@@ -18,13 +18,43 @@ use UnitEnum;
 class ComprasEstadoEnCarteraResource extends Resource
 {
     protected static ?string $model = Compra::class;
+    
+    // Labels personalizados para Shield
+    protected static ?string $modelLabel = 'Compra En Cartera';
+    protected static ?string $pluralModelLabel = 'Compras En Cartera';
+    protected static ?string $navigationLabel = 'En Cartera';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static ?string $recordTitleAttribute = 'factura';
-        protected static string|UnitEnum|null $navigationGroup = 'Cartera Compras';
+     protected static string|UnitEnum|null $navigationGroup = 'Compras';
         //protected static ?string $navigationParentItem = 'Compras';
         //protected static ?int $navigationSort = 1;
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('ViewAny:ComprasEstadoEnCarteraResource');
+    }
+
+    public static function canView($record): bool
+    {
+        return auth()->user()->can('View:ComprasEstadoEnCarteraResource');
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()->can('Create:ComprasEstadoEnCarteraResource');
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->user()->can('Update:ComprasEstadoEnCarteraResource');
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->user()->can('Delete:ComprasEstadoEnCarteraResource');
+    }
 
     public static function form(Schema $schema): Schema
     {

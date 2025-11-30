@@ -25,11 +25,41 @@ class PedidosEstadoPagoSaldadoResource extends Resource
     
     // Política específica para este recurso
     protected static ?string $modelPolicy = PedidoSaldadoPolicy::class;
+    
+    // Labels personalizados para Shield
+    protected static ?string $modelLabel = 'Pedido Saldado';
+    protected static ?string $pluralModelLabel = 'Pedidos Saldados';
+    protected static ?string $navigationLabel = 'Saldados';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
     protected static string|UnitEnum|null $navigationGroup = 'Cartera Ventas';
 
     protected static ?string $recordTitleAttribute = 'codigo';
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('ViewAny:PedidosEstadoPagoSaldadoResource');
+    }
+
+    public static function canView($record): bool
+    {
+        return auth()->user()->can('View:PedidosEstadoPagoSaldadoResource');
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()->can('Create:PedidosEstadoPagoSaldadoResource');
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->user()->can('Update:PedidosEstadoPagoSaldadoResource');
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->user()->can('Delete:PedidosEstadoPagoSaldadoResource');
+    }
 
     public static function form(Schema $schema): Schema
     {

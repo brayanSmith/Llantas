@@ -27,10 +27,40 @@ use Filament\Forms\Components\Select;
 class PedidoDomiciliarioResource extends Resource
 {
     protected static ?string $model = Pedido::class;
+    
+    // Labels personalizados para Shield
+    protected static ?string $modelLabel = 'Pedido Domiciliario';
+    protected static ?string $pluralModelLabel = 'Pedidos Domiciliarios';
+    protected static ?string $navigationLabel = 'Domiciliarios';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static ?string $recordTitleAttribute = 'codigo';
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('ViewAny:PedidoDomiciliarioResource');
+    }
+
+    public static function canView($record): bool
+    {
+        return auth()->user()->can('View:PedidoDomiciliarioResource');
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()->can('Create:PedidoDomiciliarioResource');
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->user()->can('Update:PedidoDomiciliarioResource');
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->user()->can('Delete:PedidoDomiciliarioResource');
+    }
 
     public static function getNavigationLabel(): string
     {

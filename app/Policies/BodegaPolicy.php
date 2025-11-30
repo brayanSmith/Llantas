@@ -14,57 +14,57 @@ class BodegaPolicy
     
     public function viewAny(AuthUser $authUser): bool
     {
-        return $authUser->can('ViewAny:Bodega');
+        return $authUser->can('ViewAny:BodegaResource');
     }
 
     public function view(AuthUser $authUser, Bodega $bodega): bool
     {
-        return $authUser->can('View:Bodega');
+        return $authUser->can('View:BodegaResource');
     }
 
     public function create(AuthUser $authUser): bool
     {
-        return $authUser->can('Create:Bodega');
+        return $authUser->can('Create:BodegaResource');
     }
 
     public function update(AuthUser $authUser, Bodega $bodega): bool
     {
-        return $authUser->can('Update:Bodega');
+        return $authUser->can('Update:BodegaResource');
     }
 
     public function delete(AuthUser $authUser, Bodega $bodega): bool
     {
-        return $authUser->can('Delete:Bodega');
+        return $authUser->can('Delete:BodegaResource');
     }
 
     public function restore(AuthUser $authUser, Bodega $bodega): bool
     {
-        return $authUser->can('Restore:Bodega');
+        return $authUser->can('Restore:BodegaResource');
     }
 
     public function forceDelete(AuthUser $authUser, Bodega $bodega): bool
     {
-        return $authUser->can('ForceDelete:Bodega');
+        return $authUser->can('ForceDelete:BodegaResource');
     }
 
     public function forceDeleteAny(AuthUser $authUser): bool
     {
-        return $authUser->can('ForceDeleteAny:Bodega');
+        return $authUser->can('ForceDeleteAny:BodegaResource');
     }
 
     public function restoreAny(AuthUser $authUser): bool
     {
-        return $authUser->can('RestoreAny:Bodega');
+        return $authUser->can('RestoreAny:BodegaResource');
     }
 
     public function replicate(AuthUser $authUser, Bodega $bodega): bool
     {
-        return $authUser->can('Replicate:Bodega');
+        return $authUser->can('Replicate:BodegaResource');
     }
 
     public function reorder(AuthUser $authUser): bool
     {
-        return $authUser->can('Reorder:Bodega');
+        return $authUser->can('Reorder:BodegaResource');
     }
 
 }

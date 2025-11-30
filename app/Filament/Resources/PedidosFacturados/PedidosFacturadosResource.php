@@ -20,6 +20,14 @@ use UnitEnum;
 class PedidosFacturadosResource extends Resource
 {
     protected static ?string $model = Pedido::class;
+    
+    // Labels personalizados para Shield
+    protected static ?string $modelLabel = 'Pedido Facturado';
+    protected static ?string $pluralModelLabel = 'Pedidos Facturados';
+    protected static ?string $navigationLabel = 'Facturados';
+    
+    // Política específica para este recurso
+    protected static ?string $modelPolicy = \App\Policies\PedidoFacturadoPolicy::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
     protected static string|UnitEnum|null $navigationGroup = 'Ventas';
@@ -27,6 +35,31 @@ class PedidosFacturadosResource extends Resource
     protected static ?int $navigationSort = 1;
 
     protected static ?string $recordTitleAttribute = 'codigo';
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('ViewAny:PedidosFacturadosResource');
+    }
+
+    public static function canView($record): bool
+    {
+        return auth()->user()->can('View:PedidosFacturadosResource');
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()->can('Create:PedidosFacturadosResource');
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->user()->can('Update:PedidosFacturadosResource');
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->user()->can('Delete:PedidosFacturadosResource');
+    }
 
     public static function form(Schema $schema): Schema
     {
