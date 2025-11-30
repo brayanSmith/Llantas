@@ -26,6 +26,37 @@ class CatalogoResource extends Resource
 {
     protected static ?string $model = Producto::class;
 
+    // Labels personalizados para Shield
+    protected static ?string $modelLabel = 'Catálogo de Productos';
+    protected static ?string $pluralModelLabel = 'Catálogo de Productos';
+    protected static ?string $navigationLabel = 'Catalogos';
+    
+    // Métodos de autorización independientes para Catálogo
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('ViewAny:CatalogoResource');
+    }
+
+    public static function canView($record): bool
+    {
+        return auth()->user()->can('View:CatalogoResource');
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()->can('Create:CatalogoResource');
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->user()->can('Update:CatalogoResource');
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->user()->can('Delete:CatalogoResource');
+    }
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
     protected static string|UnitEnum|null $navigationGroup = 'Productos';
 

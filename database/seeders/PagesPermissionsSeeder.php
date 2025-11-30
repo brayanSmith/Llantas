@@ -23,11 +23,9 @@ class PagesPermissionsSeeder extends Seeder
             return;
         }
 
-        // Definir permisos de páginas por rol
+        // Definir permisos de páginas por rol (usando formato Shield automático)
         $comercialPages = [
-            'View:Pos',                              // Formato personalizado
-            'view_pos',                              // Formato Shield simple
-            'view_App\Filament\Pages\Pos',          // Formato Shield con clase completa
+            'view_App\Filament\Pages\Pos',          // Permiso generado automáticamente por Shield
         ];
 
         $superAdminOnlyPages = [
