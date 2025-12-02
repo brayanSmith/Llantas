@@ -111,7 +111,8 @@ class PedidosAnuladosTable
 
             ])
             ->recordActions([
-                EditAction::make(),
+                EditAction::make()
+                    ->visible(fn($record) => auth()->user()->can('Update:PedidosAnuladosResource')),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

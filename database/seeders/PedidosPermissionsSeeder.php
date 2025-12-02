@@ -28,13 +28,13 @@ class PedidosPermissionsSeeder extends Seeder
             'PedidoResource',                      // Pedidos generales
             'PedidosEstadoPagoEnCarteraResource',  // Pedidos en cartera
             'PedidosPendientesResource',           // Pedidos pendientes
+            'PedidoDomiciliarioResource',          // Comercial puede ver domiciliarios
         ];
 
         $superAdminOnlyResources = [
             'PedidosEstadoPagoSaldadoResource',    // Solo admin ve saldados
             'PedidosAnuladosResource',             // Solo admin ve anulados
             'PedidosFacturadosResource',           // Solo admin ve facturados
-            'PedidoDomiciliarioResource',          // Solo admin ve domiciliarios
         ];
 
         $allPedidoResources = array_merge($comercialResources, $superAdminOnlyResources);

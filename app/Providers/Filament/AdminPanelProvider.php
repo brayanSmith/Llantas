@@ -13,6 +13,7 @@ use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -31,8 +32,8 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            ->brandName(Empresa::first()?->nombre_empresa ?? 'Mi Ferretería')
-            ->brandLogo(fn() => Empresa::first()?->logo_empresa ? asset('storage/' . Empresa::first()->logo_empresa) : null)
+            ->brandName($this->getBrandName())
+            ->brandLogo(fn() => $this->getBrandLogo())
             ->brandLogoHeight('2.5rem')
             ->login()
             ->registration()
@@ -64,8 +65,23 @@ class AdminPanelProvider extends PanelProvider
                 DispatchServingFilamentEvent::class,
             ])
             ->plugins([
-                FilamentShieldPlugin::make(),
-                
+                FilamentShieldPlugin::make()
+                    ->gridColumns([
+                        'default' => 1,
+                        'sm' => 2,
+                        'lg' => 3
+                    ])
+                    ->sectionColumnSpan(1)
+                    ->checkboxListColumns([
+                        'default' => 1,
+                        'sm' => 2,
+                        'lg' => 4,
+                    ])
+                    ->resourceCheckboxListColumns([
+                        'default' => 1,
+                        'sm' => 2,
+                    ]),
+                    
             ])
             ->databaseNotifications()
             ->viteTheme('resources/css/filament/admin/theme.css')
@@ -83,5 +99,40 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ]);
+    }
+
+    /**
+     * Get brand name safely, avoiding database queries during migrations
+     */
+    private function getBrandName(): string
+    {
+        try {
+            // Verificar si la tabla empresas existe antes de hacer la consulta
+            if (\Schema::hasTable('empresas')) {
+                return Empresa::first()?->nombre_empresa ?? 'Mi Ferretería';
+            }
+        } catch (\Exception $e) {
+            // Si hay cualquier error, usar el nombre por defecto
+        }
+        
+        return 'Mi Ferretería';
+    }
+
+    /**
+     * Get brand logo safely, avoiding database queries during migrations
+     */
+    private function getBrandLogo(): ?string
+    {
+        try {
+            // Verificar si la tabla empresas existe antes de hacer la consulta
+            if (\Schema::hasTable('empresas')) {
+                $empresa = Empresa::first();
+                return $empresa?->logo_empresa ? asset('storage/' . $empresa->logo_empresa) : null;
+            }
+        } catch (\Exception $e) {
+            // Si hay cualquier error, no mostrar logo
+        }
+        
+        return null;
     }
 }

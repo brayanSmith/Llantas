@@ -8,6 +8,8 @@ use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Filament\Actions\ViewAction;
+
 
 class ClientesTable
 {
@@ -47,6 +49,7 @@ class ClientesTable
                 //
             ])
             ->recordActions([
+                ViewAction::make(),                
                 EditAction::make(),
             ])
             ->toolbarActions([

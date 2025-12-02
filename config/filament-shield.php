@@ -21,7 +21,7 @@ return [
             'pages' => true,
             'widgets' => true,
             'resources' => true,
-            'custom_permissions' => false,
+            'custom_permissions' => true,
         ],
     ],
 
@@ -188,7 +188,7 @@ return [
     */
 
     'pages' => [
-        'subject' => 'class',
+        'subject' => 'resource',
         'prefix' => 'view',
         'exclude' => [
             \Filament\Pages\Dashboard::class,

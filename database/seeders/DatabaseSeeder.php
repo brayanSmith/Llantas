@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
         AdminUserSeeder::class,
+        RolesSeeder::class,  // Crear roles primero
         BodegaSeeder::class,
         CategoriaSeeder::class,
         SubCategoriaSeeder::class,

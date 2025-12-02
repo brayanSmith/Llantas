@@ -23,6 +23,7 @@ use Filament\Tables\Columns\Layout\Split;
 use Filament\Tables\Columns\Layout\Stack;
 use Filament\Support\Enums\FontWeight;
 use Filament\Forms\Components\Select;
+use Filament\Actions\ViewAction;
 
 class PedidoDomiciliarioResource extends Resource
 {
@@ -117,6 +118,10 @@ class PedidoDomiciliarioResource extends Resource
             ]);
     }
 
+
+   
+    //funcion para mostrar la tabla de los pedidos domiciliarios
+
     public static function table(Table $table): Table
     {
         return $table
@@ -172,8 +177,12 @@ class PedidoDomiciliarioResource extends Resource
                 //
             ])
             ->recordActions([
-                EditAction::make(),
-                //DeleteAction::make(),
+                ViewAction::make()
+                    ->visible(fn($record) => static::canView($record)),
+                EditAction::make()
+                    ->visible(fn($record) => static::canEdit($record)),
+                DeleteAction::make()
+                    ->visible(fn($record) => static::canDelete($record)),
             ])
             ->toolbarActions([
                 /*BulkActionGroup::make([

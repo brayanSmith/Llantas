@@ -128,7 +128,7 @@ class ClienteForm
                                     ->default(null),
                                 Select::make('comercial_id')
                                     ->label('Comercial')
-                                    ->relationship('comercial', 'name', fn ($query) => $query->where('role', 'COMERCIAL'))
+                                    ->relationship('comercial', 'name', fn ($query) => $query->whereHas('roles', fn($q) => $q->where('name', 'Comercial')))
                                     ->searchable()
                                     ->preload()
                                     ->required(),

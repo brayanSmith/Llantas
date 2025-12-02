@@ -27,7 +27,7 @@ class PedidoDomiciliarioPolicy
 
     public function update(User $user, Pedido $pedido): bool
     {
-        return $user->can('Update:PedidoDomiciliarioResource');
+        return $user->can('Update:PedidoDomiciliarioResource'); 
     }
 
     public function delete(User $user, Pedido $pedido): bool
