@@ -8,7 +8,9 @@ use App\Models\Compra;
 use App\Models\Pedido;
 use App\Models\DetalleCompra;
 use App\Observers\CompraObserver;
+use App\Observers\CompraInventarioObserver;
 use App\Observers\PedidoObserver;
+use App\Observers\PedidoInventarioObserver;
 use App\Observers\DetalleCompraObserver;
 use App\Policies\PedidoCarteraPolicy;
 use App\Policies\PedidoSaldadoPolicy;
@@ -33,7 +35,9 @@ class AppServiceProvider extends ServiceProvider
 
         // Registramos los observers en su orden lógico
         Compra::observe(CompraObserver::class);
+        Compra::observe(CompraInventarioObserver::class);
         //DetalleCompra::observe(DetalleCompraObserver::class);
-        Pedido::observe(PedidoObserver::class);
+        //Pedido::observe(PedidoObserver::class);
+        Pedido::observe(PedidoInventarioObserver::class);
     }
 }
