@@ -70,7 +70,7 @@ class POS extends Component
             $this->user_id = auth()->id();
         }
 
-        $this->clientes = Cliente::orderBy('razon_social')->get();
+        $this->clientes = $this->getClientesQuery()->orderBy('razon_social')->get();
         $this->ciudades = Cliente::select('ciudad')->distinct()->orderBy('ciudad')->pluck('ciudad')->toArray();
         //$this->bodegas = \App\Models\Bodega::all();
     }
@@ -185,7 +185,7 @@ class POS extends Component
     }
 
     // 4) Fallback: obtener sólo lo necesario de BD
-    $cliente = Cliente::query()
+    $cliente = $this->getClientesQuery()
         ->select(['id', 'ciudad', 'municipio' ,'direccion'])
         ->find($id);
 
@@ -515,6 +515,21 @@ class POS extends Component
         
         // Retornar precio sin IVA (para guardar en BD)
         return $precioBase;
+    }
+
+    /**
+     * Obtener query de clientes filtrada según el rol del usuario
+     */
+    private function getClientesQuery()
+    {
+        $query = Cliente::query();
+        
+        // Si el usuario no es super_admin ni financiero, mostrar solo sus clientes
+        if (!auth()->user()->hasRole(['super_admin', 'financiero'])) {
+            $query->where('comercial_id', auth()->id());
+        }
+        
+        return $query;
     }
 
     public function render()

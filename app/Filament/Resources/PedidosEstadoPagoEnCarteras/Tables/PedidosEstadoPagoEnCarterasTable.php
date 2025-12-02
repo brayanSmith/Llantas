@@ -18,7 +18,16 @@ class PedidosEstadoPagoEnCarterasTable
     {
         return $table
             //voy a traer los pedidos que esten en estado_pago EN_CARTERA y estado FACTURADO
-            ->modifyQueryUsing(fn ($query) => $query->where('estado_pago', 'EN_CARTERA')->whereIn('estado', ['FACTURADO', 'EN_RUTA']))
+            ->modifyQueryUsing(function ($query) {
+                $query->where('estado_pago', 'EN_CARTERA')->whereIn('estado', ['FACTURADO', 'EN_RUTA']);
+                
+                // Si el usuario no es super_admin, mostrar solo sus pedidos
+                if (!auth()->user()->hasRole('super_admin')) {
+                    $query->where('user_id', auth()->id());
+                }
+                
+                return $query;
+            })
             ->groups([
                 Group::make('fecha')
                     ->date()
@@ -42,6 +51,11 @@ class PedidosEstadoPagoEnCarterasTable
                     ->sortable(),
                 TextColumn::make('cliente.ruta.ruta')
                     ->label('Ruta')
+                    ->sortable(),
+
+                TextColumn::make('user.name')
+                    ->label('Vendedor')
+                    ->searchable()
                     ->sortable(),
 
                 TextColumn::make('subtotal')
@@ -108,6 +122,15 @@ class PedidosEstadoPagoEnCarterasTable
                     ->searchable()
                     ->preload()
                     ->multiple(),
+
+                // Filtro por Vendedor (solo visible para super_admin)
+                SelectFilter::make('user_id')
+                    ->label('Vendedor')
+                    ->relationship('user', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->multiple()
+                    ->visible(fn() => auth()->user()->hasRole('super_admin')),
 
 
             ])
