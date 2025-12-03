@@ -37,7 +37,7 @@ class AppServiceProvider extends ServiceProvider
         Compra::observe(CompraObserver::class);
         Compra::observe(CompraInventarioObserver::class);
         //DetalleCompra::observe(DetalleCompraObserver::class);
-        //Pedido::observe(PedidoObserver::class);
+        Pedido::observe(PedidoObserver::class);
         Pedido::observe(PedidoInventarioObserver::class);
     }
 }
