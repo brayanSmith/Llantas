@@ -99,11 +99,11 @@ class ProductoImporter extends Importer
                     'nullable', 
                     'max:255',
                 ]),
-            ImportColumn::make('stock')
+            /*ImportColumn::make('stock')
                 ->helperText('Cantidad disponible en stock')
                 ->numeric()
                 ->example('100')
-                ->rules(['nullable', 'integer', 'min:0']),           
+                ->rules(['nullable', 'integer', 'min:0']), */          
             ImportColumn::make('activo')
                 ->helperText('Ingrese 1 para activo o 0 para inactivo')
                 ->boolean()

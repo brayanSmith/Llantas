@@ -13,7 +13,8 @@ class EditPedidosAnulados extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            DeleteAction::make(),
+            DeleteAction::make()
+                ->visible(fn() => static::getResource()::canDelete($this->record)),
         ];
     }
 }

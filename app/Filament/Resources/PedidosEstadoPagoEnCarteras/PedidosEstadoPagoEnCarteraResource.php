@@ -9,6 +9,7 @@ use App\Filament\Resources\PedidosEstadoPagoEnCarteras\Pages\ListPedidosEstadoPa
 use App\Filament\Resources\PedidosEstadoPagoEnCarteras\Schemas\PedidosEstadoPagoEnCarteraForm;
 use App\Filament\Resources\PedidosEstadoPagoEnCarteras\Tables\PedidosEstadoPagoEnCarterasTable;
 use App\Models\Pedido;
+use App\Policies\PedidoCarteraPolicy;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -19,6 +20,17 @@ use UnitEnum;
 class PedidosEstadoPagoEnCarteraResource extends Resource
 {
     protected static ?string $model = Pedido::class;
+    
+    // Slug único para permisos de Shield
+    protected static ?string $slug = 'pedidos-en-cartera';
+    
+    // Política específica para este recurso
+    protected static ?string $modelPolicy = PedidoCarteraPolicy::class;
+    
+    // Labels personalizados para Shield
+    protected static ?string $modelLabel = 'Pedido En Cartera';
+    protected static ?string $pluralModelLabel = 'Pedidos En Cartera';
+    protected static ?string $navigationLabel = 'En Cartera';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
     protected static string|UnitEnum|null $navigationGroup = 'Cartera Ventas';
@@ -27,6 +39,31 @@ class PedidosEstadoPagoEnCarteraResource extends Resource
 
 
     protected static ?string $recordTitleAttribute = 'codigo';
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('ViewAny:PedidosEstadoPagoEnCarteraResource');
+    }
+
+    public static function canView($record): bool
+    {
+        return auth()->user()->can('View:PedidosEstadoPagoEnCarteraResource');
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()->can('Create:PedidosEstadoPagoEnCarteraResource');
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->user()->can('Update:PedidosEstadoPagoEnCarteraResource');
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->user()->can('Delete:PedidosEstadoPagoEnCarteraResource');
+    }
 
     public static function form(Schema $schema): Schema
     {

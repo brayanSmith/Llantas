@@ -32,12 +32,6 @@ class UserImporter extends Importer
             ImportColumn::make('password')
                 ->requiredMapping()
                 ->rules(['required', 'string', 'min:8', 'max:255']),
-            ImportColumn::make('role')
-                ->rules([
-                    'nullable',
-                    'string',
-                    'in:ADMIN,COMERCIAL,BODEGA,USER,FINANCIERO,GERENTE,CONDUCTOR,LOGISTICA,CASINO,ALMACEN' // Ajusta estos roles según tu aplicación
-                ]),
         ];
     }
 
@@ -53,10 +47,8 @@ class UserImporter extends Importer
             $this->data['email_verified_at'] = null;
         }
         
-        // Si no se especifica rol, asignar uno por defecto
-        if (empty($this->data['role'])) {
-            $this->data['role'] = 'USER'; // Rol por defecto
-        }
+        // Remover role de los datos ya que no existe en la tabla
+        unset($this->data['role']);
         
         // Usar solo new User() para evitar duplicados (ya validamos unique:users,email)
         return new User();

@@ -22,12 +22,40 @@ class ProductoResource extends Resource
 {
     protected static ?string $model = Producto::class;
 
-
+    // Labels personalizados para Shield
+    protected static ?string $modelLabel = 'Gestión de Productos';
+    protected static ?string $pluralModelLabel = 'Gestión de Productos';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
     protected static string|UnitEnum|null $navigationGroup = 'Productos';
 
     protected static ?string $recordTitleAttribute = 'codigo_producto';
+    
+    // Métodos de autorización independientes para Productos
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('ViewAny:ProductoResource');
+    }
+
+    public static function canView($record): bool
+    {
+        return auth()->user()->can('View:ProductoResource');
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()->can('Create:ProductoResource');
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->user()->can('Update:ProductoResource');
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->user()->can('Delete:ProductoResource');
+    }
 
     public static function form(Schema $schema): Schema
     {

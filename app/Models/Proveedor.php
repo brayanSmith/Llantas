@@ -27,6 +27,7 @@ class Proveedor extends Model
         'banco_proveedor',
         'tipo_cuenta_proveedor',
         'numero_cuenta_proveedor',
+        'convenio',
     ];
 
     public function compras()

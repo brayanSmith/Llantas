@@ -22,7 +22,6 @@ class UserExporter extends Exporter
             ExportColumn::make('email_verified_at'),
             ExportColumn::make('created_at'),
             ExportColumn::make('updated_at'),
-            ExportColumn::make('role'),
         ];
     }
 

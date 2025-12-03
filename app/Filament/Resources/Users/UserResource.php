@@ -35,9 +35,7 @@ class UserResource extends Resource
         return $schema
             ->components([
                 TextInput::make('name')
-                    ->required(),
-                TextInput::make('role')
-                    ->required(),
+                    ->required(),              
                 TextInput::make('email')
                     ->label('Email address')
                     ->email()
@@ -46,47 +44,20 @@ class UserResource extends Resource
                 /*DateTimePicker::make('email_verified_at'),*/
                 TextInput::make('password')
                     ->password()
-                    ->required(),
+                    ->revealable()
+                    ->required()
+                    ->required(fn (String $context): bool => $context === 'create')
+                    ->dehydrateStateUsing(fn (String $state) => filled($state) ? bcrypt($state) : null)
+                    ->dehydrated(fn ($state) => filled($state)),
 
-                Select::make('role')
-                    ->options([
-                        'ADMIN' => 'ADMIN',
-                        'COMERCIAL' => 'COMERCIAL',
-                        'BODEGA' => 'BODEGA',
-                        'FINANCIERO' => 'FINANCIERO',
-                        'GERENTE' => 'GERENTE',
-                        'CONDUCTOR' => 'CONDUCTOR',
-                        'LOGISTICA' => 'LOGISTICA',
-                        'CASINO' => 'CASINO',
-                        'ALMACEN' => 'ALMACEN',
-                        'USER' => 'USER',
-                    ])
-                    ->default('USER')
-                    ->required(),
+                Select::make('roles')
+                    ->label('Rol')
+                    ->multiple()
+                    ->relationship('roles', 'name')                    
+                    ->preload(),
             ]);
     }
-
-    public static function infolist(Schema $schema): Schema
-    {
-        return $schema
-            ->components([
-                TextEntry::make('id'),
-                TextEntry::make('name'),
-                TextEntry::make('role'),
-                TextEntry::make('email')
-                    ->label('Email address'),
-                TextEntry::make('email_verified_at')
-                    ->dateTime()
-                    ->placeholder('-'),
-                TextEntry::make('created_at')
-                    ->dateTime()
-                    ->placeholder('-'),
-                TextEntry::make('updated_at')
-                    ->dateTime()
-                    ->placeholder('-'),
-            ]);
-    }
-
+    
     public static function table(Table $table): Table
     {
         return $table
@@ -95,7 +66,7 @@ class UserResource extends Resource
                 TextColumn::make('id'),
                 TextColumn::make('name')
                     ->searchable(),
-                TextColumn::make('role')
+                TextColumn::make('roles.name')
                     ->searchable(),
                 TextColumn::make('email')
                     ->label('Email address')
@@ -116,7 +87,7 @@ class UserResource extends Resource
                 //
             ])
             ->recordActions([
-                ViewAction::make(),
+                //ViewAction::make(),
                 EditAction::make(),
                 DeleteAction::make(),
             ])

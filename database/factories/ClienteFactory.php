@@ -19,6 +19,8 @@ class ClienteFactory extends Factory
     public function definition(): array
     {
         $ruta = Ruta::inRandomOrder()->first();
+        $comerciales = User::role('Comercial')->pluck('id');
+        
         return [
             //
             'tipo_documento' => $this->faker->randomElement(['DNI', 'RUC', 'CE']),
@@ -32,7 +34,7 @@ class ClienteFactory extends Factory
             'activo' => $this->faker->boolean(90), // 90% de probabilidad de estar activo
             'novedad' => $this->faker->optional()->sentence(),
             'ruta_id' => $ruta?->id, // Asignar ruta más tarde si es necesario
-            'comercial_id' => $this->faker->randomElement(User::where('role', 'COMERCIAL')->pluck('id')),
+            'comercial_id' => $comerciales->isNotEmpty() ? $this->faker->randomElement($comerciales) : null,
             'tipo_cliente' => $this->faker->randomElement(['ELECTRONICO', 'REMISIONADO']),
             'rut_imagen' => null, // o $this->faker->imageUrl(640, 480, 'clients', true)
             'retenedor_fuente' => $this->faker->randomElement(['SI', 'NO']),

@@ -18,11 +18,41 @@ use UnitEnum;
 class CompraResource extends Resource
 {
     protected static ?string $model = Compra::class;
+    
+    // Labels personalizados para Shield
+    protected static ?string $modelLabel = 'Compra General';
+    protected static ?string $pluralModelLabel = 'Compras Generales';
+    protected static ?string $navigationLabel = 'Compras';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static ?string $recordTitleAttribute = 'factura';
      protected static string|UnitEnum|null $navigationGroup = 'Compras';
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('ViewAny:CompraResource');
+    }
+
+    public static function canView($record): bool
+    {
+        return auth()->user()->can('View:CompraResource');
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()->can('Create:CompraResource');
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->user()->can('Update:CompraResource');
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->user()->can('Delete:CompraResource');
+    }
 
     public static function form(Schema $schema): Schema
     {

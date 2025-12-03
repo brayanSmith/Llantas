@@ -53,19 +53,7 @@ class Producto extends Model
     public function medida()
     {
         return $this->belongsTo(Medida::class, 'medida_id');
-    }
-    public function enStock(float|int $cantidad): bool
-    {
-        // cantidad inválida
-        if ($cantidad <= 0) {
-            return false;
-        }
-
-        $stock = (float) ($this->stock ?? 0);
-
-        return $stock >= (float) $cantidad;
-    }
-
+    }   
 
     public function bodega()
     {
@@ -99,6 +87,26 @@ class Producto extends Model
             'FERRETERO' => $this->valor_ferretero_producto ?? 0,
             default     => $this->valor_detal_producto ?? 0,
         };
+    }
+
+    public function enStock(float|int $cantidad): bool
+    {
+        // cantidad inválida
+        if ($cantidad <= 0) {
+            return false;
+        }
+
+        $stock = (float) ($this->stock ?? 0);
+
+        return $stock >= (float) $cantidad;
+    }
+    //esta funcion calcula el stock actual restando las salidas a las entradas
+    public function getStockAttribute($value): float
+    {
+        $entradas = (float) ($this->entradas ?? 0);
+        $salidas = (float) ($this->salidas ?? 0);
+
+        return $entradas - $salidas;
     }
 
     

@@ -44,6 +44,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->nullable()->default(1);
             $table->string('imagen_recibido')->nullable();
             $table->string('comentario_entrega')->nullable();
+            $table->string('motivo_devolucion')->nullable();
             $table->timestamps();
         });
     }

@@ -19,7 +19,16 @@ class PedidosEstadoPagoSaldadosTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn ($query) => $query->where('estado_pago', 'SALDADO')->where('estado', 'FACTURADO'))
+            ->modifyQueryUsing(function ($query) {
+                $query->where('estado_pago', 'SALDADO')->where('estado', 'FACTURADO');
+                
+                // Si el usuario no es super_admin, mostrar solo sus pedidos
+                if (!auth()->user()->hasRole('super_admin')) {
+                    $query->where('user_id', auth()->id());
+                }
+                
+                return $query;
+            })
             ->groups([
                 Group::make('fecha')
                     ->date()
@@ -43,6 +52,11 @@ class PedidosEstadoPagoSaldadosTable
                     ->sortable(),
                 TextColumn::make('cliente.ruta.ruta')
                     ->label('Ruta')
+                    ->sortable(),
+
+                TextColumn::make('user.name')
+                    ->label('Vendedor')
+                    ->searchable()
                     ->sortable(),
 
                 TextColumn::make('subtotal')
@@ -110,6 +124,15 @@ class PedidosEstadoPagoSaldadosTable
                     ->searchable()
                     ->preload()
                     ->multiple(),
+
+                // Filtro por Vendedor (solo visible para super_admin)
+                SelectFilter::make('user_id')
+                    ->label('Vendedor')
+                    ->relationship('user', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->multiple()
+                    ->visible(fn() => auth()->user()->hasRole('super_admin')),
 
 
             ])

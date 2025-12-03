@@ -9,6 +9,7 @@
         "php": "^8.2",
         "ariaieboy/filament-currency": "^2.0",
         "barryvdh/laravel-dompdf": "^3.1",
+        "bezhansalleh/filament-shield": "^4.0",
         "filament/filament": "^4.0",
         "laravel-lang/common": "^6.7",
         "laravel/framework": "^12.0",
@@ -17,6 +18,7 @@
         "league/flysystem-aws-s3-v3": "^3.30",
         "livewire/flux": "^2.1.1",
         "livewire/volt": "^1.7.0",
+        "spatie/laravel-permission": "^6.23",
         "spiral/roadrunner-cli": "^2.6.0",
         "spiral/roadrunner-http": "^3.3.0"
     },

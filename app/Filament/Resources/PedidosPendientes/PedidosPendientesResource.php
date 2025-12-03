@@ -18,15 +18,48 @@ use UnitEnum;
 class PedidosPendientesResource extends Resource
 {
     protected static ?string $model = Pedido::class;
+    
+    // Labels personalizados para Shield
+    protected static ?string $modelLabel = 'Pedido Pendiente';
+    protected static ?string $pluralModelLabel = 'Pedidos Pendientes';
+    protected static ?string $navigationLabel = 'Pendientes';
+    
+    // Política específica para este recurso
+    protected static ?string $modelPolicy = \App\Policies\PedidoPendientePolicy::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
 
     protected static string|UnitEnum|null $navigationGroup = 'Ventas';
-    protected static ?string $navigationParentItem = 'Pedidos';
+    //protected static ?string $navigationParentItem = 'Pedidos';
     protected static ?int $navigationSort = 2;
 
     protected static ?string $recordTitleAttribute = 'codigo';
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('ViewAny:PedidosPendientesResource');
+    }
+
+    public static function canView($record): bool
+    {
+        return auth()->user()->can('View:PedidosPendientesResource');
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()->can('Create:PedidosPendientesResource');
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->user()->can('Update:PedidosPendientesResource');
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->user()->can('Delete:PedidosPendientesResource');
+    }
 
     public static function form(Schema $schema): Schema
     {

@@ -18,6 +18,11 @@ use UnitEnum;
 class ComprasPendientesResource extends Resource
 {
     protected static ?string $model = Compra::class;
+    
+    // Labels personalizados para Shield
+    protected static ?string $modelLabel = 'Compra Pendiente';
+    protected static ?string $pluralModelLabel = 'Compras Pendientes';
+    protected static ?string $navigationLabel = 'Pendientes';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
@@ -25,6 +30,31 @@ class ComprasPendientesResource extends Resource
      protected static string|UnitEnum|null $navigationGroup = 'Compras';
      protected static ?string $navigationParentItem = 'Compras';
      protected static ?int $navigationSort = 1;
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('ViewAny:ComprasPendientesResource');
+    }
+
+    public static function canView($record): bool
+    {
+        return auth()->user()->can('View:ComprasPendientesResource');
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()->can('Create:ComprasPendientesResource');
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->user()->can('Update:ComprasPendientesResource');
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->user()->can('Delete:ComprasPendientesResource');
+    }
 
     public static function form(Schema $schema): Schema
     {
