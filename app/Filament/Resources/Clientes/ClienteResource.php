@@ -31,7 +31,12 @@ class ClienteResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return ClientesTable::configure($table);
+        return ClientesTable::configure($table)
+            ->modifyQueryUsing(fn ($query) => 
+                auth()->user()?->hasAnyRole(['super_admin', 'Financiero'])
+                    ? $query 
+                    : $query->where('comercial_id', auth()->id())
+            );
     }
 
     public static function getRelations(): array
