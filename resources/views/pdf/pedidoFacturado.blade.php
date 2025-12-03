@@ -109,7 +109,7 @@
 
 <!-- Línea con REMISIÓN a la izquierda y FECHA DE VENCIMIENTO a la derecha -->
 <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-  <div><strong>REMISIÓN N°:</strong> <span class="bold">{{ $pedido->id }}</span></div>
+  <div><strong>REMISIÓN N°:</strong> <span class="bold">{{ $pedido->codigo }}</span></div>
   <div><strong>FECHA DE VENCIMIENTO:</strong> <span> {{ $pedido->fecha_vencimiento }}</span> </div>
 </div>
 <div class="separator"></div>
@@ -163,7 +163,7 @@
   </table>       
 
   <!-- Totales -->
-  <table class="table totals" style="width: 40%; float: right; margin-top: 10px;">
+  <table class="table totals" style="width: 60%; float: right; margin-top: 10px;">
     <tr>
       <td><strong>Sub Total</strong></td>
       <td><span>{{ number_format($pedido->subtotal, 2) }}</span></td>
@@ -173,8 +173,12 @@
       <td><span>{{ number_format($pedido->descuento, 2) }}</span></td>
     </tr>
     <tr>
+      <td><strong>Flete</strong></td>
+      <td><span>{{ number_format($pedido->flete, 2) }}</span></td>
+    </tr>
+    <tr>
       <td><strong>Total</strong></td>
-      <td><strong id="total">{{ number_format($pedido->total, 2) }}</strong></td>
+      <td><strong id="total">{{ number_format($pedido->total_a_pagar, 2) }}</strong></td>
     </tr>
   </table>
     
@@ -185,7 +189,7 @@
   </div>
 
   <!-- Pie de página -->
-<div style="text-align: center; margin-top: 40px; font-size: 12px; border-top: 1px solid #000; padding-top: 10px;">
+<div style="text-align: center; margin-top: 60px; font-size: 12px; border-top: 1px solid #000; padding-top: 10px;">
   PARA CAMBIAR UN PRODUCTO 10 DÍAS CALENDARIO. PARA REPORTAR UN FALTANTE 5 DÍAS CALENDARIO
 </div>
     
