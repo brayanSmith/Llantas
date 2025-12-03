@@ -49,7 +49,8 @@ class ClientesTable
                 //
             ])
             ->recordActions([
-                ViewAction::make(),                
+                ViewAction::make()
+                    ->modalWidth('full'),
                 EditAction::make(),
             ])
             ->toolbarActions([
