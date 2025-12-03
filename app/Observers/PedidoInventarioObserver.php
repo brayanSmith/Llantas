@@ -53,6 +53,12 @@ class PedidoInventarioObserver
                     $producto->salidas = max(0, ($producto->salidas ?? 0) - $cantidad);
                 }
 
+                // Usar el accesor getStockAttribute() a través de $producto->stock
+                // Calculamos el stock con los valores actualizados en memoria
+                $stockCalculado = (float) $producto->stock;
+
+                // Persistir cambios: salidas y actualizar la columna `stock` para reflejar el valor calculado
+                $producto->stock = $stockCalculado;
                 $producto->save();
             }
 

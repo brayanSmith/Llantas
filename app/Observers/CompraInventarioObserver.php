@@ -52,6 +52,12 @@ class CompraInventarioObserver
                     $producto->entradas = max(0, ($producto->entradas ?? 0) - $cantidad);
                 }
 
+                // Usar el accesor getStockAttribute() a través de $producto->stock
+                // Calculamos el stock con los valores actualizados en memoria
+                $stockCalculado = (float) $producto->stock;
+
+                // Persistir cambios: entradas y actualizar la columna `stock` para reflejar el valor calculado
+                $producto->stock = $stockCalculado;
                 $producto->save();
             }
 

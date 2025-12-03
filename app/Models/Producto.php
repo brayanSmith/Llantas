@@ -98,7 +98,7 @@ class Producto extends Model
 
         $stock = (float) ($this->stock ?? 0);
 
-        return $stock >= (float) $cantidad;
+        return $stock >= (float) $cantidad; 
     }
     //esta funcion calcula el stock actual restando las salidas a las entradas
     public function getStockAttribute($value): float
