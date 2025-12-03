@@ -67,4 +67,14 @@ class ProductoPolicy
         return $authUser->can('Reorder:ProductoResource');
     }
 
+    public function import(AuthUser $authUser): bool
+    {
+        return $authUser->can('Import:ProductoResource');
+    }
+
+    public function export(AuthUser $authUser): bool
+    {
+        return $authUser->can('Export:ProductoResource');
+    }
+
 }

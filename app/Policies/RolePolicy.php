@@ -67,4 +67,14 @@ class RolePolicy
         return $authUser->can('Reorder:RoleResource');
     }
 
+    public function import(AuthUser $authUser): bool
+    {
+        return $authUser->can('Import:RoleResource');
+    }
+
+    public function export(AuthUser $authUser): bool
+    {
+        return $authUser->can('Export:RoleResource');
+    }
+
 }

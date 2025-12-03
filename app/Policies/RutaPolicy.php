@@ -67,4 +67,14 @@ class RutaPolicy
         return $authUser->can('Reorder:RutaResource');
     }
 
+    public function import(AuthUser $authUser): bool
+    {
+        return $authUser->can('Import:RutaResource');
+    }
+
+    public function export(AuthUser $authUser): bool
+    {
+        return $authUser->can('Export:RutaResource');
+    }
+
 }

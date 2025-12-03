@@ -67,4 +67,14 @@ class SubCategoriaPolicy
         return $authUser->can('Reorder:SubCategoriaResource');
     }
 
+    public function import(AuthUser $authUser): bool
+    {
+        return $authUser->can('Import:SubCategoriaResource');
+    }
+
+    public function export(AuthUser $authUser): bool
+    {
+        return $authUser->can('Export:SubCategoriaResource');
+    }
+
 }

@@ -67,4 +67,14 @@ class ProveedorPolicy
         return $authUser->can('Reorder:ProveedorResource');
     }
 
+    public function import(AuthUser $authUser): bool
+    {
+        return $authUser->can('Import:ProveedorResource');
+    }
+
+    public function export(AuthUser $authUser): bool
+    {
+        return $authUser->can('Export:ProveedorResource');
+    }
+
 }

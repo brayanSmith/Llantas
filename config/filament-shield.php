@@ -121,7 +121,7 @@ return [
         'generate' => true,
         'methods' => [
             'viewAny', 'view', 'create', 'update', 'delete', 'restore',
-            'forceDelete', 'forceDeleteAny', 'restoreAny', 'replicate', 'reorder',
+            'forceDelete', 'forceDeleteAny', 'restoreAny', 'replicate', 'reorder', 'import', 'export',
         ],
         'single_parameter_methods' => [
             'viewAny',
@@ -130,6 +130,8 @@ return [
             'forceDeleteAny',
             'restoreAny',
             'reorder',
+            'import',
+            'export',
         ],
     ],
 

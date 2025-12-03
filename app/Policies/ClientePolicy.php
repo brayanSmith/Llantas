@@ -67,4 +67,14 @@ class ClientePolicy
         return $authUser->can('Reorder:ClienteResource');
     }
 
+    public function import(AuthUser $authUser): bool
+    {
+        return $authUser->can('Import:ClienteResource');
+    }
+
+    public function export(AuthUser $authUser): bool
+    {
+        return $authUser->can('Export:ClienteResource');
+    }
+
 }

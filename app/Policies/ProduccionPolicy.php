@@ -67,4 +67,14 @@ class ProduccionPolicy
         return $authUser->can('Reorder:ProduccionResource');
     }
 
+    public function import(AuthUser $authUser): bool
+    {
+        return $authUser->can('Import:ProduccionResource');
+    }
+
+    public function export(AuthUser $authUser): bool
+    {
+        return $authUser->can('Export:ProduccionResource');
+    }
+
 }

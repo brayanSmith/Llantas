@@ -18,5 +18,7 @@ return [
     'update' => 'Actualizar',
     'view' => 'Ver un registro en particular',
     'view_any' => 'Ver el listado de registros',
+    'import' => 'Importar registros',
+    'export' => 'Exportar registros',
     'view_pos' => '',
 ];

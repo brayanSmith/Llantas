@@ -67,4 +67,14 @@ class FormulaPolicy
         return $authUser->can('Reorder:FormulaResource');
     }
 
+    public function import(AuthUser $authUser): bool
+    {
+        return $authUser->can('Import:FormulaResource');
+    }
+
+    public function export(AuthUser $authUser): bool
+    {
+        return $authUser->can('Export:FormulaResource');
+    }
+
 }

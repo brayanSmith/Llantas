@@ -67,4 +67,14 @@ class IngredientePolicy
         return $authUser->can('Reorder:IngredienteResource');
     }
 
+    public function import(AuthUser $authUser): bool
+    {
+        return $authUser->can('Import:IngredienteResource');
+    }
+
+    public function export(AuthUser $authUser): bool
+    {
+        return $authUser->can('Export:IngredienteResource');
+    }
+
 }

@@ -67,4 +67,14 @@ class PedidoPolicy
         return $authUser->can('Reorder:PedidoResource');
     }
 
+    public function import(AuthUser $authUser): bool
+    {
+        return $authUser->can('Import:PedidoResource');
+    }
+
+    public function export(AuthUser $authUser): bool
+    {
+        return $authUser->can('Export:PedidoResource');
+    }
+
 }

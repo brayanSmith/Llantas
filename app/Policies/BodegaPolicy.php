@@ -67,4 +67,14 @@ class BodegaPolicy
         return $authUser->can('Reorder:BodegaResource');
     }
 
+    public function import(AuthUser $authUser): bool
+    {
+        return $authUser->can('Import:BodegaResource');
+    }
+
+    public function export(AuthUser $authUser): bool
+    {
+        return $authUser->can('Export:BodegaResource');
+    }
+
 }

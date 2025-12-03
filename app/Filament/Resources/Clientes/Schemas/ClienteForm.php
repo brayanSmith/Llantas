@@ -131,6 +131,7 @@ class ClienteForm
                                     ->relationship('comercial', 'name', fn ($query) => $query->whereHas('roles', fn($q) => $q->where('name', 'Comercial')))
                                     ->searchable()
                                     ->preload()
+                                    ->default(fn () => auth()->user()?->hasRole('Comercial') ? auth()->id() : null)
                                     ->required(),
                                 ToggleButtons::make('tipo_cliente')
                                     ->label('Tipo Cliente')

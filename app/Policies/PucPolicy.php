@@ -67,4 +67,14 @@ class PucPolicy
         return $authUser->can('Reorder:PucResource');
     }
 
+    public function import(AuthUser $authUser): bool
+    {
+        return $authUser->can('Import:PucResource');
+    }
+
+    public function export(AuthUser $authUser): bool
+    {
+        return $authUser->can('Export:PucResource');
+    }
+
 }

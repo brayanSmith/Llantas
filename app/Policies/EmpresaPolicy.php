@@ -67,4 +67,14 @@ class EmpresaPolicy
         return $authUser->can('Reorder:EmpresaResource');
     }
 
+    public function import(AuthUser $authUser): bool
+    {
+        return $authUser->can('Import:EmpresaResource');
+    }
+
+    public function export(AuthUser $authUser): bool
+    {
+        return $authUser->can('Export:EmpresaResource');
+    }
+
 }

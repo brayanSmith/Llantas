@@ -67,4 +67,14 @@ class CompraPolicy
         return $authUser->can('Reorder:CompraResource');
     }
 
+    public function import(AuthUser $authUser): bool
+    {
+        return $authUser->can('Import:CompraResource');
+    }
+
+    public function export(AuthUser $authUser): bool
+    {
+        return $authUser->can('Export:CompraResource');
+    }
+
 }

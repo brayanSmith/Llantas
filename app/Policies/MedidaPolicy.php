@@ -67,4 +67,14 @@ class MedidaPolicy
         return $authUser->can('Reorder:MedidaResource');
     }
 
+    public function import(AuthUser $authUser): bool
+    {
+        return $authUser->can('Import:MedidaResource');
+    }
+
+    public function export(AuthUser $authUser): bool
+    {
+        return $authUser->can('Export:MedidaResource');
+    }
+
 }

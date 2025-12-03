@@ -67,4 +67,14 @@ class CategoriaPolicy
         return $authUser->can('Reorder:CategoriaResource');
     }
 
+    public function import(AuthUser $authUser): bool
+    {
+        return $authUser->can('Import:CategoriaResource');
+    }
+
+    public function export(AuthUser $authUser): bool
+    {
+        return $authUser->can('Export:CategoriaResource');
+    }
+
 }
