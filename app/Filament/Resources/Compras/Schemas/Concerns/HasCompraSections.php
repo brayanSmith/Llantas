@@ -215,11 +215,18 @@ trait HasCompraSections
 
                     DatePicker::make('fecha_vencimiento')->label('Fecha de Vencimiento')->default(null)->columnSpan(2)->readOnly(),
 
-                    ToggleButtons::make('estado')->options([
+                    ToggleButtons::make('estado')
+                    ->options([
                         'PENDIENTE' => 'Pendiente',
                         'FACTURADO' => 'Facturado',
                         'ANULADO'   => 'Anulado',
-                    ])->default('PENDIENTE')->required()->columnSpan(2)->grouped()->reactive(),
+                    ])
+                    //->visible(fn($get) => ($get('estado') ?? '') !== 'PENDIENTE')
+                    ->default('PENDIENTE')
+                    ->required()
+                    ->columnSpan(2)
+                    ->grouped()
+                    ->reactive(),
 
                     Select::make('tipo_compra')->options([
                         'REMISIONADA' => 'Remisionada',
