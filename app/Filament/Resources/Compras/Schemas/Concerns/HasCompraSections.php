@@ -278,6 +278,8 @@ trait HasCompraSections
                         })
                         ->mutateRelationshipDataBeforeSaveUsing(function (array $data, $record = null): array {
                             $data['producto_id'] = isset($data['producto_id']) ? (int) $data['producto_id'] : null;
+                            $data['item_id'] = isset($data['item_id']) ? (int) $data['item_id'] : null;
+                            $data['descripcion'] = $data['descripcion'] ?? '';
                             $data['cantidad'] = isset($data['cantidad']) ? (float) $data['cantidad'] : 0;
                             $data['precio_unitario'] = isset($data['precio_unitario']) ? (float) $data['precio_unitario'] : 0;
                             $data['subtotal'] = $data['cantidad'] * $data['precio_unitario'] / 100 * (100 + ($data['iva'] ?? 0));
@@ -325,8 +327,10 @@ trait HasCompraSections
                                 ->reactive()                                                           
                                 ->columnSpan(2),
                             
-                            TextInput::make('descripcion')
-                                ->label('Descripción'), 
+                            TextInput::make('descripcion_item')
+                                ->label('Descripción')
+                                ->afterStateUpdated(fn($state, $set, $get) => self::recalcularFila($set, $get))
+                                ->columnSpan(2), 
                                 
 
                             TextInput::make('cantidad')
