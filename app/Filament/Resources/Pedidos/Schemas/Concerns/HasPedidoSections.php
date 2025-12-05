@@ -537,14 +537,15 @@ trait HasPedidoSections
                                 ->columnSpan(1),
                             ])->columns(3)->columnSpan(2),
 
-                            FileUpload::make('imagen')
-                            ->label('Comprobante o evidencia')
-                            ->directory('abonos')
-                            ->image()
-                            ->imagePreviewHeight('200')
-                            ->columnSpanFull()
-                            ->acceptedFileTypes(['image/*']) // ✅ Esto habilita galería + cámara
-                            ->maxSize(2048),
+                            Section::make('Soporte')->schema([
+                                FileUpload::make('imagen')
+                                ->label('Comprobante o evidencia')
+                                ->directory('abonos')
+                                ->image()
+                                ->imagePreviewHeight('200')
+                                ->columnSpanFull()
+                                ->acceptedFileTypes(['image/*']) // ✅ Esto habilita galería + cámara
+                                ->maxSize(2048),
                             ])->columnSpan(1),
                         ])
                         ->addActionLabel('Añadir Abono')
