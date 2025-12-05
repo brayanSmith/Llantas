@@ -543,6 +543,7 @@ trait HasPedidoSections
                                     ->directory('abonos')
                                     ->image()
                                     ->imagePreviewHeight('200')
+                                    ->acceptedFileTypes(['image/*'])
                                     ->columnSpanFull(),
                             ])->columnSpan(1),
                         ])
