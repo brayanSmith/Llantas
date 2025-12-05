@@ -11,6 +11,10 @@ use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Actions\ViewAction;
+use Filament\Tables\Enums\RecordActionsPosition;
+use App\Filament\Resources\Pedidos\Tables\Concerns\HasActionSections;
+use Filament\Actions\ActionGroup;
 
 class PedidosEstadoPagoEnCarterasTable
 {
@@ -135,8 +139,15 @@ class PedidosEstadoPagoEnCarterasTable
 
             ])
             ->recordActions([
-                //EditAction::make(),
-            ])
+                ActionGroup::make([
+                    HasActionSections::registrarAbonoAction(),
+                    ViewAction::make()
+                        ->modalWidth('full'),
+                    EditAction::make(),
+            ]),            
+        ], 
+        position: RecordActionsPosition::BeforeColumns
+    )
             ->toolbarActions([
                 BulkActionGroup::make([
                     //DeleteBulkAction::make(),

@@ -33,6 +33,14 @@ class PedidosTable
 
             ])->defaultGroup('fecha')
             ->columns([
+                TextColumn::make('estado')
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        'PENDIENTE' => 'warning',
+                        'FACTURADO' => 'success',
+                        'ANULADO' => 'danger',
+                        default => 'primary',
+                    }),
                 TextColumn::make('fecha')
                     ->label('Fecha de Facturación')
                     ->dateTime()
@@ -72,14 +80,7 @@ class PedidosTable
 
                 TextColumn::make('ciudad')
                     ->searchable(),
-                TextColumn::make('estado')
-                    ->badge()
-                    ->color(fn(string $state): string => match ($state) {
-                        'PENDIENTE' => 'warning',
-                        'FACTURADO' => 'success',
-                        'ANULADO' => 'danger',
-                        default => 'primary',
-                    }),
+                
                 TextColumn::make('metodo_pago')
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {

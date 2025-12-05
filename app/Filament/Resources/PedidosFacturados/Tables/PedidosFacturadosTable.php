@@ -14,6 +14,9 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Actions\ViewAction;
+use Filament\Tables\Enums\RecordActionsPosition;
+use App\Filament\Resources\Pedidos\Tables\Concerns\HasActionSections;
+use Filament\Actions\ActionGroup;
 
 class PedidosFacturadosTable
 {
@@ -136,13 +139,16 @@ class PedidosFacturadosTable
                     ->multiple()
                     ->visible(fn() => auth()->user()->hasRole('super_admin')),
             ])
-            ->recordActions([
-                EditAction::make()
-                    ->modalHeading('Editar Pedido')
-                    ->modalWidth('full'),
-                ViewAction::make()
-                    ->modalWidth('full'),
-            ])
+             ->recordActions([
+                ActionGroup::make([
+                    HasActionSections::registrarAbonoAction(),
+                    ViewAction::make()
+                        ->modalWidth('full'),
+                    EditAction::make(),
+            ]),            
+        ], 
+        position: RecordActionsPosition::BeforeColumns
+    )
             ->toolbarActions([
                 BulkActionGroup::make([
                     //DeleteBulkAction::make(),
