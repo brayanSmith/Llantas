@@ -19,7 +19,7 @@ class PedidosEstadoPagoEnCarterasTable
         return $table
             //voy a traer los pedidos que esten en estado_pago EN_CARTERA y estado FACTURADO
             ->modifyQueryUsing(function ($query) {
-                $query->where('estado_pago', 'EN_CARTERA')->whereIn('estado', ['FACTURADO', 'EN_RUTA']);
+                $query->where('estado_pago', 'EN_CARTERA')->whereIn('estado', ['FACTURADO', 'EN_RUTA', 'ENTREGADO']);
                 
                 // Si el usuario no es super_admin, mostrar solo sus pedidos
                 if (!auth()->user()->hasRole('super_admin')) {

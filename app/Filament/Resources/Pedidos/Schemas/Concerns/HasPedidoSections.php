@@ -501,7 +501,7 @@ trait HasPedidoSections
         return [
             Section::make('Abonos')
                 ->columnSpanFull()
-                ->visible(fn($get) => in_array($get('estado'), ['FACTURADO', 'EN_RUTA']))
+                ->visible(fn($get) => in_array($get('estado'), ['FACTURADO', 'EN_RUTA', 'ENTREGADO', 'DEVUELTO']))
                 ->schema([
                     Repeater::make('abonos')
                         ->relationship('abonoPedido')
