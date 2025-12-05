@@ -19,12 +19,12 @@ class PedidosPendientesForm
         $components = array_merge(
             self::placeholders(),
             // solicitar la sección de datos generales en modo full para este formulario
-            self::sectionDatosGenerales(true),
+            self::sectionDatosGenerales(true, ['PENDIENTE' => 'Pendiente', 'FACTURADO' => 'Facturado']),
             //self::sectionResumen(),
             self::sectionComentarios(),
             self::sectionDetalles(),
             //self::sectionAbonos()
-            self::sectionRecibido()
+            //self::sectionRecibido()
         );
 
         return $schema->components($components);

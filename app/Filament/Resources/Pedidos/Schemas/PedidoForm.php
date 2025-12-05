@@ -41,7 +41,7 @@ class PedidoForm
                 self::placeholders(),
                 [$datosYResumen],
                 self::sectionComentarios(),
-                self::sectionDetalles(),
+                
             );
         } else {
             // Alternativa: incluir las secciones tal como las devuelve el trait
@@ -49,20 +49,25 @@ class PedidoForm
                 self::placeholders(),
                 self::sectionDatosGenerales(),
                 self::sectionResumen(),
-                self::sectionComentarios(),
-                self::sectionDetalles(),
+                self::sectionComentarios(),                
             );
         }
 
         $tab1 = $generalContents;
-        $tab2 = self::sectionRecibido();
+        $tab2 = self::sectionDetalles();
+        $tab3 = self::sectionAbonos();
+        $tab4 = self::sectionRecibido();
 
         $tabs = Tabs::make('PedidoTabs')
             ->tabs([
                 Tab::make('General')
                     ->schema($tab1),
-                Tab::make('Recibido')
+                Tab::make('Detalles')
                     ->schema($tab2),
+                Tab::make('Abonos')
+                    ->schema($tab3),
+                Tab::make('Recibido')
+                    ->schema($tab4),
             ])
             //->horizontal()
             ->columnSpanFull();

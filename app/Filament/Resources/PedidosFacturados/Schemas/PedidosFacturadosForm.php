@@ -15,10 +15,10 @@ class PedidosFacturadosForm
     public static function configure(Schema $schema): Schema
     {
         // Construir pestañas: "General" (placeholders + datos + resumen + comentarios + detalles)
-        // y "Recibido" (sección de recibido).  
+        // y "Recibido" (sección de recibido).
 
         // Tomar la primera Section devuelta por cada helper (devuelven arrays de Section)
-        $datosSections = self::sectionDatosGenerales();
+        $datosSections = self::sectionDatosGenerales(false, ['FACTURADO' => 'Facturado', 'EN_RUTA' => 'En Ruta']);
         $resumenSections = self::sectionResumen();
 
         $datosSection = $datosSections[0] ?? null;
@@ -41,7 +41,7 @@ class PedidosFacturadosForm
                 self::placeholders(),
                 [$datosYResumen],
                 self::sectionComentarios(),
-                self::sectionDetalles(),
+                
             );
         } else {
             // Alternativa: incluir las secciones tal como las devuelve el trait
@@ -49,20 +49,25 @@ class PedidosFacturadosForm
                 self::placeholders(),
                 self::sectionDatosGenerales(),
                 self::sectionResumen(),
-                self::sectionComentarios(),
-                self::sectionDetalles(),
+                self::sectionComentarios(),                
             );
         }
 
         $tab1 = $generalContents;
-        $tab2 = self::sectionRecibido();
+        $tab2 = self::sectionDetalles();
+        $tab3 = self::sectionAbonos();
+        $tab4 = self::sectionRecibido();
 
         $tabs = Tabs::make('PedidoTabs')
             ->tabs([
                 Tab::make('General')
                     ->schema($tab1),
-                Tab::make('Recibido')
+                Tab::make('Detalles')
                     ->schema($tab2),
+                Tab::make('Abonos')
+                    ->schema($tab3),
+                Tab::make('Recibido')
+                    ->schema($tab4),
             ])
             //->horizontal()
             ->columnSpanFull();

@@ -103,8 +103,27 @@ trait HasPedidoSections
     }
 
     // sección datos generales
-    protected static function sectionDatosGenerales(bool $full = false): array
+    // Permite pasar opciones de estado y un estado por defecto al invocar la función.
+    // Si no se pasan, se usan los valores por defecto definidos aquí.
+    protected static function sectionDatosGenerales(bool $full = false, ?array $estadoOptions = null, string $defaultEstado = 'PENDIENTE'): array
     {
+        // Opciones por defecto para el Toggle de estado (clave => etiqueta)
+        $estadoOptions = $estadoOptions ?? [
+            'PENDIENTE' => 'Pendiente',
+            'FACTURADO' => 'Facturado',
+            'EN_RUTA' => 'En Ruta',
+            'ENTREGADO' => 'Entregado',
+            'ANULADO'   => 'Anulado',
+        ];
+
+        // Mapeo de colores por defecto (clave => color)
+        $estadoColors = [
+            'PENDIENTE' => 'primary',
+            'FACTURADO' => 'primary',
+            'EN_RUTA' => 'primary',
+            'ENTREGADO' => 'success',
+            'ANULADO'   => 'danger',
+        ];
         $section = Section::make('Datos del pedido')
             ->columns(4)
             ->schema([
@@ -142,6 +161,7 @@ trait HasPedidoSections
                                 $set('fecha_vencimiento', null);
                             }
                         })
+                        ->live(onBlur: true)
                         ->minValue(0)
                         ->maxValue(365)
                         ->step(1)
@@ -161,21 +181,13 @@ trait HasPedidoSections
                         ->afterStateUpdated(fn($state, $set, $get) => self::recalcularTodo($set, $get, $state))
                         ->columnSpan(2),                   
 
-                    ToggleButtons::make('estado')->options([
-                        'PENDIENTE' => 'Pendiente',
-                        'FACTURADO' => 'Facturado',
-                        'EN_RUTA' => 'En Ruta',
-                        'ENTREGADO' => 'Entregado',
-                        'ANULADO'   => 'Anulado',
-                    ])
-                    ->colors([
-                        'PENDIENTE' => 'primary',
-                        'FACTURADO' => 'primary',
-                        'EN_RUTA' => 'primary',
-                        'ENTREGADO' => 'success',
-                        'ANULADO'   => 'danger',
-                    ])
-                    ->default('PENDIENTE')->required()->columnSpan(4)->grouped(),
+                    ToggleButtons::make('estado')
+                        ->options($estadoOptions)
+                        ->colors($estadoColors)
+                        ->default($defaultEstado)
+                        ->required()
+                        ->columnSpan(4)
+                        ->grouped(),
 
                     Select::make('tipo_venta')->options([
                         'REMISIONADA' => 'Remisionada',
