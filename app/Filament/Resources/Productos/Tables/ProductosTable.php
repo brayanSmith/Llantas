@@ -133,7 +133,7 @@ class ProductosTable
                 //Vamos a crear una accion que me abra un modal correspondiente al modelo Traslado
                 Action::make('crearTraslado')
                     ->label('Crear Traslado')
-                    ->modalHeading('Crear Traslado')
+                    ->modalHeading('Crear Traslado') 
                     ->modalWidth('md')
                     ->form([
                         // Campo para seleccionar la bodega

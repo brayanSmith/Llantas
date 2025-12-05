@@ -13,6 +13,9 @@ use Filament\Tables\Grouping\Group;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
+use Filament\Actions\ViewAction;
+use Filament\Tables\Enums\RecordActionsPosition;
+
 
 class PedidosTable
 {
@@ -114,8 +117,11 @@ class PedidosTable
 
             ])
             ->recordActions([
-               // EditAction::make(),
-            ])
+                \App\Filament\Resources\Pedidos\Tables\Concerns\HasActionSections::registrarAbonoAction(),
+                ViewAction::make()
+                    ->modalWidth('full'),
+                EditAction::make(),
+            ],   position: RecordActionsPosition::BeforeColumns)
             ->toolbarActions([
                 BulkActionGroup::make([
                     //DeleteBulkAction::make(),

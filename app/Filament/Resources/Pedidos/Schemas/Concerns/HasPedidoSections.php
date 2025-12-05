@@ -64,7 +64,7 @@ trait HasPedidoSections
                 ->visible(fn($get) => $get('estado') === 'PENDIENTE' && ! empty($get('fecha_vencimiento')))
                 ->columnSpanFull(),
 
-            Placeholder::make('proximo_abono')
+            Placeholder::make('proximo_abono') 
                 ->content(function ($get) {
                     $abonos = $get('abonos') ?? [];
                     if (empty($abonos)) return '';
