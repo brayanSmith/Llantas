@@ -41,8 +41,8 @@ return new class extends Migration
             $table->decimal('saldo_pendiente', 12, 2)->default(0);
             $table->integer('contador_impresiones')->default(0);
             $table->boolean('impresa')->default(false);
-            $table->foreignId('user_id')->constrained('users')->nullable()->default(1);
-            $table->foreignId('alistador_id')->constrained('users')->nullable()->default(1);
+            $table->foreignId('user_id')->constrained('users')->nullable();
+            $table->foreignId('alistador_id')->constrained('users')->nullable();
             $table->string('imagen_recibido')->nullable();
             $table->string('comentario_entrega')->nullable();
             $table->string('motivo_devolucion')->nullable();

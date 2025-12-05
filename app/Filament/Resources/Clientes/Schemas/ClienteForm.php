@@ -183,7 +183,9 @@ class ClienteForm
                             ->schema([
                                 self::getPedidosRepeater('SALDADO')
                             ]),
-                    ])->vertical(),
+                    ])
+                    //Solo va a ser verical en pantallas grandes
+                    ->vertical(fn () => !\Jenssegers\Agent\Facades\Agent::isMobile()),
             ]);
 
     }
