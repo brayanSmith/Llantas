@@ -66,7 +66,8 @@ trait HasActionSections
                     ->directory('abonos')
                     ->image()
                     ->imagePreviewHeight('200')
-                    ->acceptedFileTypes(['image/*'])
+                    ->maxSize(2048)
+                    //->acceptedFileTypes(['image/*'])
                     ->columnSpanFull(),                    
             ])
             ->visible(fn (Pedido $record): bool => in_array($record->estado, ['FACTURADO', 'EN_RUTA', 'ENTREGADO', 'DEVUELTO']))
