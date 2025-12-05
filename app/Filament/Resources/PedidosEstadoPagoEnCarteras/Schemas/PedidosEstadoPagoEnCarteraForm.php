@@ -17,7 +17,7 @@ class PedidosEstadoPagoEnCarteraForm
         // y "Recibido" (sección de recibido).
 
         // Tomar la primera Section devuelta por cada helper (devuelven arrays de Section)
-        $datosSections = self::sectionDatosGenerales(false);
+        $datosSections = self::sectionDatosGenerales(false); 
         $resumenSections = self::sectionResumen();
 
         $datosSection = $datosSections[0] ?? null;
