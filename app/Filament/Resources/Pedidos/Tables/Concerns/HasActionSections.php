@@ -53,6 +53,7 @@ trait HasActionSections
                     ->acceptedFileTypes(['image/*'])
                     ->columnSpanFull(),                    
             ])
+            ->visible(fn (Pedido $record): bool => in_array($record->estado, ['FACTURADO', 'EN_RUTA', 'ENTREGADO', 'DEVUELTO']))
             ->action(function (Pedido $record, array $data): void {
                 // Lógica para registrar el abono
                 Abono::create([
