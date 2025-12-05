@@ -538,7 +538,16 @@ trait HasPedidoSections
                             ])->columns(3)->columnSpan(2),
 
                             Section::make('Soporte')->schema([
-                                FileUpload::make('imagen')->label('Comprobante o evidencia')->directory('abonos')->image()->imagePreviewHeight('200')->columnSpanFull(),
+                                FileUpload::make('imagen')
+                                ->label('Comprobante o evidencia')
+                                ->directory('abonos')
+                                ->image()
+                                ->imagePreviewHeight('200')
+                                ->columnSpanFull()
+                                ->acceptedFileTypes(['image/*'])
+                                ->extraInputAttributes([
+                                    'capture' => 'environment', // cámara trasera
+                                ]),
                             ])->columnSpan(1),
                         ])
                         ->addActionLabel('Añadir Abono')
