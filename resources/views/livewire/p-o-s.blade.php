@@ -54,8 +54,10 @@
                                 </div>
 
                                 <div class="flex items-center space-x-2">
-                                    <input type="number" min="1"
+                                    @php($maxStock = \App\Models\Producto::find($cartProduct['id'])->stock ?? 1)
+                                    <input type="number" min="1" max="{{ (int) $maxStock }}"
                                         wire:model.live.debounce.500ms="cart.{{ $cartProduct['id'] }}.cantidad"
+                                        @change="if(this.value > {{ (int) $maxStock }}) this.value = {{ (int) $maxStock }}"
                                         class="py-2.5 sm:py-3 px-4 block w-20 border-gray-200 rounded-lg sm:text-sm
                                        focus:border-blue-500 focus:ring-blue-500
                                        dark:bg-neutral-900 dark:border-neutral-700
@@ -351,12 +353,19 @@
                                     <div class="flex-1 md:col-span-6 ml-2 md:ml-0">
                                         <p class="text-[10px] md:text-xs text-gray-500 dark:text-gray-400 mt-1">SKU:
                                             {{ $product->codigo_producto }}</p>
-                                        <p class="text-[10px] md:text-xs text-gray-800 dark:text-gray-100 mt-1">DETAL:
-                                            {{ number_format($product->valor_detal_producto * (($product->iva_producto / 100) + 1), 0) }}</p>
+                                        {{--<p class="text-[10px] md:text-xs text-gray-800 dark:text-gray-100 mt-1">DETAL:
+                                            {{ number_format($product->valor_detal_producto * (($product->iva_producto / 100) + 1), 0) }}</p>--}}
                                         <p class="text-[10px] md:text-xs text-gray-800 dark:text-gray-100 mt-1">FERRETERO:
                                             {{ number_format($product->valor_ferretero_producto * (($product->iva_producto / 100) + 1), 0) }}</p>
-                                        <p class="text-[10px] md:text-xs text-gray-800 dark:text-gray-100 mt-1">MAYORISTA:
-                                            {{ number_format($product->valor_mayorista_producto * (($product->iva_producto / 100) + 1), 0) }}</p>
+                                        <!-- Vamos a poner el Stock -->
+                                        @php($availableStock = $this->getAvailableStock($product->id))                                        
+                                        <p class="text-[10px] md:text-xs mt-1 font-semibold
+                                            {{ $availableStock > 10 ? 'text-green-600 dark:text-green-400' : ($availableStock > 0 ? 'text-orange-600 dark:text-orange-400' : 'text-red-600 dark:text-red-400') }}">Stock disponible:
+                                            {{ $availableStock }}
+                                        </p>
+
+                                        {{--<p class="text-[10px] md:text-xs text-gray-800 dark:text-gray-100 mt-1">MAYORISTA:
+                                            {{ number_format($product->valor_mayorista_producto * (($product->iva_producto / 100) + 1), 0) }}</p>--}}
                                         {{-- <p class="text-[10px] md:text-xs text-gray-800 dark:text-gray-100 mt-1">IVA:
                                             {{ $product->iva_producto }}%</p> --}}
                                     </div>
@@ -373,7 +382,7 @@
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                                                 </svg>
                                                 <!-- Texto solo en escritorio -->
-                                                <span class="hidden md:block">Agregar</span>
+                                                <span class="hidden md:block">+ Agregar</span>
                                             </x-filament::button>
 
                                             <!-- Modal de cantidad -->

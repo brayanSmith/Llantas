@@ -39,6 +39,7 @@ class Pedido extends Model
         'stock_retirado',
         'bodega_id',
         'user_id',
+        'alistador_id',
         'imagen_recibido',
         'comentario_entrega',
         'motivo_devolucion',
@@ -66,6 +67,10 @@ class Pedido extends Model
         return $this->belongsTo(Bodega::class, 'bodega_id');
     }
     public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+    public function alistador()
     {
         return $this->belongsTo(User::class, 'user_id');
     }

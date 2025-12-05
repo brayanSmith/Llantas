@@ -24,6 +24,7 @@ use Filament\Tables\Columns\Layout\Stack;
 use Filament\Support\Enums\FontWeight;
 use Filament\Forms\Components\Select;
 use Filament\Actions\ViewAction;
+use UnitEnum;
 
 class PedidoDomiciliarioResource extends Resource
 {
@@ -35,6 +36,7 @@ class PedidoDomiciliarioResource extends Resource
     protected static ?string $navigationLabel = 'Domiciliarios';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string | UnitEnum | null $navigationGroup = 'Ventas';
 
     protected static ?string $recordTitleAttribute = 'codigo';
 

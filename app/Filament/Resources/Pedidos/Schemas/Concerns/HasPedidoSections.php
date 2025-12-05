@@ -103,13 +103,11 @@ trait HasPedidoSections
     }
 
     // sección datos generales
-    protected static function sectionDatosGenerales(): array
+    protected static function sectionDatosGenerales(bool $full = false): array
     {
-        return [
-            Section::make('Datos del pedido')
-                ->columns(4)
-                ->columnSpan(1)
-                ->schema([
+        $section = Section::make('Datos del pedido')
+            ->columns(4)
+            ->schema([
                     TextInput::make('codigo')->disabled()->columnSpan(1)->label('Remisión'),
 
                     Select::make('cliente_id')
@@ -163,22 +161,21 @@ trait HasPedidoSections
                         ->afterStateUpdated(fn($state, $set, $get) => self::recalcularTodo($set, $get, $state))
                         ->columnSpan(2),                   
 
-
                     ToggleButtons::make('estado')->options([
                         'PENDIENTE' => 'Pendiente',
                         'FACTURADO' => 'Facturado',
                         'EN_RUTA' => 'En Ruta',
+                        'ENTREGADO' => 'Entregado',
                         'ANULADO'   => 'Anulado',
                     ])
                     ->colors([
                         'PENDIENTE' => 'primary',
                         'FACTURADO' => 'primary',
                         'EN_RUTA' => 'primary',
+                        'ENTREGADO' => 'success',
                         'ANULADO'   => 'danger',
                     ])
                     ->default('PENDIENTE')->required()->columnSpan(4)->grouped(),
-
-                    
 
                     Select::make('tipo_venta')->options([
                         'REMISIONADA' => 'Remisionada',
@@ -190,17 +187,25 @@ trait HasPedidoSections
                         'DEVOLUCION' => 'Devolución',
                     ])->default('VENTA')->required()->columnSpan(2)->visible(fn($get) => $get('estado') === 'PENDIENTE'),
 
-                    /*Select::make('bodega_id')
-                        ->label('Bodega')
-                        ->relationship('bodega', 'nombre_bodega')
+                    Select::make('user_id')
+                        ->label('Vendedor')                        
+                        ->relationship(
+                            name: 'user',
+                            titleAttribute: 'name',
+                            modifyQueryUsing: fn ($query) => $query->whereHas('roles', fn ($q) => $q->where('name', 'Comercial')/*->orWhere('name', 'super_admin')*/)
+                        )
                         ->searchable()
                         ->required()
                         ->preload()
-                        ->columnSpan(2),*/
+                        ->columnSpan(2),
 
-                    Select::make('user_id')
-                        ->label('Vendedor')
-                        ->relationship('user', 'name')
+                    Select::make('alistador_id')
+                        ->label('Alistador')
+                        ->relationship(
+                            name: 'alistador',
+                            titleAttribute: 'name',
+                            modifyQueryUsing: fn ($query) => $query->whereHas('roles', fn ($q) => $q->where('name', 'Logistica'))
+                        )
                         ->searchable()
                         ->required()
                         ->preload()
@@ -211,16 +216,16 @@ trait HasPedidoSections
                         ->label('Retenedor fuente')
                         ->disabled()               // solo informativo: el usuario no lo cambia aquí
                         ->dehydrated(false)        // no guardarlo en la BD
-                        ->columnSpan(2),
+                        ->columnSpan(2),                    
+                ]);
 
-                    // El estado de pago ahora se controla automáticamente al guardar (no editable manualmente aquí)
-                    /*Placeholder::make('estado_pago_info')
-                        ->label('Estado pago')
-                        ->content(fn($get) => $get('estado_pago') ?? 'EN_CARTERA')
-                        ->extraAttributes(['class' => 'text-sm text-gray-600'])
-                        ->columnSpan(2),*/
-                ]),
-        ];
+        if ($full) {
+            $section->columnSpanFull();
+        } else {
+            $section->columnSpan(1);
+        }
+
+        return [$section];
     }
 
     // sección resumen
@@ -333,7 +338,7 @@ trait HasPedidoSections
     {
         return [
             Section::make('Detalles del pedido')
-                ->columnSpanFull()
+                ->columnSpanFull() 
                 ->schema([
                     Repeater::make('detalles')
                         ->relationship('detalles')
@@ -358,12 +363,13 @@ trait HasPedidoSections
                         ->table([
                             //TableColumn::make('Código')->width('50px'),
                             TableColumn::make('Producto')->markAsRequired()->width('250px'),
-                            TableColumn::make('Cantidad')->markAsRequired()->width('50px'),
+                            TableColumn::make('Cantidad')->markAsRequired()->width('20px'),
                             TableColumn::make('Precio Unitario')->markAsRequired()->width('100px'),
-                            TableColumn::make('IVA')->markAsRequired()->width('10px'),
+                            TableColumn::make('IVA')->markAsRequired()->width('5px'),
                             //TableColumn::make('Iva_valor')->markAsRequired()->width('100px'),
                             TableColumn::make('Subtotal')->markAsRequired()->width('100px'),                            
                         ])
+                        ->compact()
                         ->schema([
                             
                             Select::make('producto_id')
@@ -427,6 +433,7 @@ trait HasPedidoSections
                                 ->label('Aplicar IVA')
                                 ->default(true)
                                 ->reactive()
+                                
                                 ->afterStateUpdated(function ($state, $set, $get) {
                                     // Si no se aplica IVA, poner a 0 el campo IVA
                                     if (! $state) {
@@ -443,7 +450,7 @@ trait HasPedidoSections
                                     }
                                     // Recalcular fila
                                     self::recalcularFila($set, $get, $get('../../tipo_precio'));
-                                })
+                                })                                
                                 ->columnSpan(1),
 
                             /*TextInput::make('iva')
@@ -542,6 +549,55 @@ trait HasPedidoSections
                 }),
         ];
     }
+
+   //Seccion de Recibido
+   private static function sectionRecibido(): array
+    {
+         return [
+              Section::make('Recibido por')
+                ->columns(1)
+                ->schema([
+                     /*TextInput::make('codigo')
+                    ->required()
+                    ->label('Código')
+                    ->disabled()
+                    ->maxLength(255),
+                ToggleButtons::make('estado')
+                    ->options([
+                        'ENTREGADO' => 'Entregado',
+                        'DEVUELTO' => 'Devuelto',                        
+                    ])
+                    ->colors([
+                        'ENTREGADO' => 'success',
+                        'DEVUELTO' => 'danger',                        
+                    ])
+                    ->grouped()
+                    ->label('Estado')
+                    ->reactive(),*/
+                FileUpload::make('imagen_recibido')
+                    ->image()
+                    ->label('Imagen de recibido')
+                    ->required(fn($get) => $get('estado') === 'ENTREGADO')
+                    ->downloadable()                    
+                    ->maxSize(1024),
+                Select::make('motivo_devolucion')
+                    ->label('Motivo de devolución')
+                    ->required(fn($get) => $get('estado') === 'DEVUELTO')
+                    ->visible(fn($get) => $get('estado') === 'DEVUELTO')
+                    ->options([
+                        'CERRADO' => 'Cerrado',
+                        'TRASLADO' => 'Traslado',
+                        'NO_CANCELA' => 'No cancela',
+                        'NO_RECIBE' => 'No recibe',
+                    ]),
+                    
+                TextArea::make('comentario_entrega')
+                    ->label('Comentario de entrega')
+                    ->maxLength(500),
+                ])->columnSpanFull(),
+         ];
+    }
+
 
     // ---------- helpers: recalcular todo / fila / abonos ----------
     private static function recalcularTodo(callable $set, callable $get, string $tipoPrecio): void

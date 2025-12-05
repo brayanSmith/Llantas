@@ -13,6 +13,7 @@ class DetalleCompra extends Model
         'compra_id',
         //'producto_id',
         'item_id',
+        'descripcion_item',
         'cantidad',
         'precio_unitario',
         'iva',

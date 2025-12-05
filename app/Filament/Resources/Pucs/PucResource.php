@@ -7,7 +7,7 @@ use App\Models\Puc;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\DeleteBulkAction; 
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -17,12 +17,15 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Forms\Components\Textarea;
+use Filament\Actions\ViewAction;
+use unitEnum;
 
 class PucResource extends Resource
 {
     protected static ?string $model = Puc::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string | UnitEnum | null $navigationGroup = 'Compras';
 
     protected static ?string $recordTitleAttribute = 'concatenar_subcuenta_concepto';
 

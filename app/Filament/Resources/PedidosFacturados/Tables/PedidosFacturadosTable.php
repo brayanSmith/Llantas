@@ -13,6 +13,7 @@ use Filament\Tables\Grouping\Group;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
+use Filament\Actions\ViewAction;
 
 class PedidosFacturadosTable
 {
@@ -136,7 +137,11 @@ class PedidosFacturadosTable
                     ->visible(fn() => auth()->user()->hasRole('super_admin')),
             ])
             ->recordActions([
-                //EditAction::make(),
+                EditAction::make()
+                    ->modalHeading('Editar Pedido')
+                    ->modalWidth('full'),
+                ViewAction::make()
+                    ->modalWidth('full'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

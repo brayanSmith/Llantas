@@ -374,17 +374,27 @@ class POS extends Component
         $cantidad = max(1, (int) $cantidad);
 
         //obtener el inventario
-        $inventario = Producto::find($productoId)->first();
+        $inventario = Producto::find($productoId);
+        
+        if (!$inventario) {
+            return;
+        }
 
+        // Validar que la cantidad no supere el stock disponible
         if ($cantidad > $inventario->stock) {
             Notification::make()
-                ->title('Este Producto esta fuera de Stock!')
+                ->title('No hay suficiente stock')
+                ->body("Stock disponible: {$inventario->stock}")
                 ->danger()
                 ->send();
-            $this->cart[$productoId]['stock'] = $inventario->stock;
+            // Limitar a lo que hay disponible
+            $this->cart[$productoId]['cantidad'] = $inventario->stock;
         } else {
-            $this->cart[$productoId]['stock'] = $cantidad;
+            $this->cart[$productoId]['cantidad'] = $cantidad;
         }
+        
+        // Guardar cambios en sesión
+        $this->saveToSession();
     }
 
     //Verificar que el carro no este vacio
@@ -530,6 +540,30 @@ class POS extends Component
         }
         
         return $query;
+    }
+
+    /**
+     * Calcular el stock disponible de un producto
+     * (stock total - cantidad ya agregada al carrito)
+     */
+    public function getAvailableStock($productoId)
+    {
+        $producto = Producto::find($productoId);
+        if (!$producto) {
+            return 0;
+        }
+
+        $stockTotal = (float) $producto->stock;
+
+        // Sumar cantidad del producto si ya está en el carrito
+        $cantidadEnCarrito = isset($this->cart[$productoId]) 
+            ? (float) $this->cart[$productoId]['cantidad'] 
+            : 0;
+
+        // Stock disponible = stock total - cantidad en carrito
+        $stockDisponible = $stockTotal - $cantidadEnCarrito;
+
+        return max(0, $stockDisponible);
     }
 
     public function render()

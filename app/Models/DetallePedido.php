@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Pedido;
+use App\Models\Producto;
 
 class DetallePedido extends Model
 {
@@ -32,7 +34,7 @@ class DetallePedido extends Model
      /**
      * 🔹 Recalcula el subtotal del detalle
      */
-    public function recalcularSubtotal(): void
+    public function recalcularSubtotal(): void 
     {
         $cantidad = $this->cantidad ?? 0;
         $precioUnitario = $this->precio_unitario ?? 0;

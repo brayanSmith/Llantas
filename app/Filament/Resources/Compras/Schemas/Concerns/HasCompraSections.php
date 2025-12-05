@@ -287,6 +287,7 @@ trait HasCompraSections
                         ->table([
                             //TableColumn::make('Código')->width('50px'),
                             TableColumn::make('Item')->markAsRequired()->width('200px'),
+                            TableColumn::make('Descripción')->width('200px'),
                             TableColumn::make('Cantidad')
                             ->markAsRequired()                            
                             ->width('100px'),
@@ -295,8 +296,9 @@ trait HasCompraSections
                             ->markAsRequired()
                             ->width('100px'),
                             TableColumn::make('Subtotal')->markAsRequired()->width('100px'),
-                            TableColumn::make('Acciones')->width('10px'),
+                            //TableColumn::make('Acciones')->width('10px'),
                         ])
+                        ->compact()
                         ->schema([
                             
                             Select::make('item_id')
@@ -322,6 +324,10 @@ trait HasCompraSections
 
                                 ->reactive()                                                           
                                 ->columnSpan(2),
+                            
+                            TextInput::make('descripcion')
+                                ->label('Descripción'), 
+                                
 
                             TextInput::make('cantidad')
                                 ->numeric()
