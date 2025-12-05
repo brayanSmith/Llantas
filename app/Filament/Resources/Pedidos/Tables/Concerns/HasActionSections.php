@@ -21,8 +21,21 @@ trait HasActionSections
             ->modalHeading('Registrar Nuevo Abono')
             //->modalWidth('md')
             ->form([
-                DateTimePicker::make('fecha')->label('Fecha')->required()->default(now())->columnSpan(1),
-                TextInput::make('monto')->label('Monto')->prefix('$')->inputMode('decimal')->currencyMask('.', ',', 0)->required()->stripCharacters('.')->live(onBlur: true)->numeric()->columnSpan(1),
+                DateTimePicker::make('fecha')
+                    ->label('Fecha')
+                    ->required()
+                    ->default(now())
+                    ->columnSpan(1),
+                TextInput::make('monto')
+                    ->label('Monto')
+                    ->prefix('$')
+                    ->inputMode('decimal')
+                    ->currencyMask('.', ',', 0)
+                    ->required()
+                    ->stripCharacters('.')
+                    ->live(onBlur: true)
+                    ->numeric()
+                    ->columnSpan(1),
                 Select::make('forma_pago')
                     ->label('Forma de pago')
                     ->relationship(
@@ -35,7 +48,10 @@ trait HasActionSections
                     ->preload()
                     ->reactive()
                     ->columnSpan(1),
-                Textarea::make('descripcion')->label('Descripción')->default(null)->columnSpan(2),
+                Textarea::make('descripcion')
+                    ->label('Descripción')
+                    ->default(null)
+                    ->columnSpan(2),
                 Select::make('user_id')
                     ->label('Usuario que registra')
                     ->relationship('user', 'name')
