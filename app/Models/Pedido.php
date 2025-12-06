@@ -13,6 +13,7 @@ class Pedido extends Model
 
     protected $fillable = [
         'codigo',
+        'fe',
         'cliente_id',
         'fecha',
         'dias_plazo_vencimiento',

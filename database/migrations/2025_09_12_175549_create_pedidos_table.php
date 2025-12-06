@@ -15,6 +15,7 @@ return new class extends Migration
         Schema::create('pedidos', function (Blueprint $table) {
             $table->id();
             $table->string('codigo')->unique()->nullable();
+            $table->string('fe')->nullable();
             $table->foreignId('cliente_id')->constrained('clientes');
             $table->dateTime('fecha')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->integer('dias_plazo_vencimiento')->default(30);

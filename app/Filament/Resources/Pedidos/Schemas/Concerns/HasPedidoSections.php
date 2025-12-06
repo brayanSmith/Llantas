@@ -222,6 +222,9 @@ trait HasPedidoSections
                         ->required()
                         ->preload()
                         ->columnSpan(2),
+                    TextInput::make('fe')
+                        ->label('F.E.')
+                        ->visible(fn($get) => in_array($get('estado'), ['PENDIENTE'])),
 
                         // Toggle informativo (SI / NO). No se persiste en la BD.
                     Toggle::make('retenedor_fuente_flag')
