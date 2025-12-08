@@ -393,17 +393,7 @@ trait HasPedidoSections
                                 ->searchable()
                                 ->required()
                                 ->preload()
-                                ->reactive()
-                                /*->afterStateHydrated(function ($state, $set, $get) {
-                                    // al hidratar fila (editar existente) rellenar código
-                                    $set('codigo_producto', $state ? optional(Producto::find($state))->codigo_producto : null);
-                                    
-                                    // Solo asignar IVA por defecto si no existe un valor guardado
-                                    $ivaActual = $get('iva');
-                                    if (is_null($ivaActual) && $state) {
-                                        $set('iva', optional(Producto::find($state))->iva_producto);
-                                    }
-                                })*/
+                                ->reactive()                                
                                 ->afterStateUpdated(function ($state, $set, $get) {
                                     // recalcular precios/subtotales
                                     self::recalcularFila($set, $get, $get('../../tipo_precio'));
@@ -467,17 +457,7 @@ trait HasPedidoSections
                                     self::recalcularFila($set, $get, $get('../../tipo_precio'));
                                 })                                
                                 ->columnSpan(1),
-
-                            /*TextInput::make('iva')
-                                ->suffix('%')
-                                ->hidden()
-                                ->numeric()
-                                ->default(0)
-                                ->required()
-                                ->live(onBlur: true)
-                                ->afterStateUpdated(fn($state, $set, $get) => self::recalcularFila($set, $get, $get('../../tipo_precio')))
-                                ->columnSpan(1),*/
-                                
+                                                            
                             TextInput::make('subtotal')
                                 ->prefix('$')
                                 ->currencyMask(".", ",", 0)
@@ -494,7 +474,7 @@ trait HasPedidoSections
                         ->deleteAction(fn(\Filament\Actions\Action $action) => $action->after(function ($record, $set, $get) {
                             self::recalcularTodo($set, $get, $get('tipo_precio'));
                         })),
-                ]),
+                ])->disabled(fn($get) => $get('estado') !== 'PENDIENTE'),
         ];
     }
 

@@ -13,7 +13,7 @@ use Filament\Forms\Components\FileUpload;
 
 trait HasActionSections
 {
-    public static function registrarAbonoAction(): Action
+    public static function registrarAbonoAction(): Action 
     {
         return Action::make('crearAbono')
             ->label('Abonar')

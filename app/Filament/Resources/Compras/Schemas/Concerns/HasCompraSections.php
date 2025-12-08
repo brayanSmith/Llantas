@@ -231,7 +231,9 @@ trait HasCompraSections
                     Select::make('tipo_compra')->options([
                         'REMISIONADA' => 'Remisionada',
                         'ELECTRONICA' => 'Electrónica',
-                    ])->required()->columnSpan(2),                    
+                    ])->required()->columnSpan(2),  
+                    
+                    Select::make('bodega_id')->relationship('bodega', 'nombre_bodega')->required()->columnSpan(2),
                 ]),
         ];
     }
@@ -376,7 +378,7 @@ trait HasCompraSections
                         ->deleteAction(fn(\Filament\Actions\Action $action) => $action->after(function ($record, $set, $get) {
                             self::recalcularTodo($set, $get);
                         })),
-                ]),
+                ])->disabled(fn($get) => $get('estado') !== 'PENDIENTE'),
         ];
     }
 

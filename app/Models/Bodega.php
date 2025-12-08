@@ -23,5 +23,13 @@ class Bodega extends Model
     {
         return $this->hasMany(Traslado::class);
     }
+    public function compras()
+    {
+        return $this->hasMany(Compra::class);
+    }
+    public function stockBodegas()
+    {
+        return $this->hasMany(StockBodega::class);
+    }
 
 }

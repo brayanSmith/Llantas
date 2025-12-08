@@ -11,12 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('traslados', function (Blueprint $table) {
+        Schema::create('stock_bodegas', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('bodega_donante_id')->constrained('bodegas');
-            $table->foreignId('bodega_destino_id')->constrained('bodegas');
+            $table->foreignId('bodega_id')->constrained('bodegas');
             $table->foreignId('producto_id')->constrained('productos');
-            $table->integer('cantidad')->default(1);
+            $table->decimal('entradas')->default(0);
+            $table->decimal('salidas')->default(0);
+            $table->decimal('stock')->default(0);
             $table->timestamps();
         });
     }
@@ -26,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('traslados');
+        Schema::dropIfExists('stock_bodegas');
     }
 };

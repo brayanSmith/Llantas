@@ -9,6 +9,7 @@ class Producto extends Model
 {
     //
     use HasFactory;
+    
     protected $fillable = [
         'categoria_producto',
         'codigo_producto',
@@ -78,6 +79,11 @@ class Producto extends Model
     public function traslados()
     {
         return $this->hasMany(Traslado::class);
+    }
+ 
+    public function stockBodegas()
+    {
+        return $this->hasMany(StockBodega::class);
     }
 
     public function getPrecioPorTipo(string $tipo): float

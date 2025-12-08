@@ -55,7 +55,7 @@ class POS extends Component
     public $ciudades = [];
     public $ciudadSeleccionada;
     public $direccionSeleccionada;
-    //public $bodegaSeleccionada;
+    public $bodega = null;
     //public $bodegas = [];
     public $user_id = null;
 
@@ -263,12 +263,17 @@ class POS extends Component
     }
 
     #[Computed]
-    public function filteredProducts()
+    public function filteredProducts() 
     {
+        $bodegaId = $this->bodega ?? 1; // Usa la bodega seleccionada o bodega 1 por defecto
+
         return Producto::query()
-            ->where('stock', '>', 0)
             ->where('activo', 1)
             ->where('categoria_producto', 'PRODUCTO_TERMINADO')
+            ->whereHas('stockBodegas', function ($q) use ($bodegaId) {
+                $q->where('bodega_id', $bodegaId)
+                  ->where('stock', '>', 0);
+            })
             ->when(
                 $this->search,
                 fn($q) =>
@@ -543,17 +548,23 @@ class POS extends Component
     }
 
     /**
-     * Calcular el stock disponible de un producto
+     * Calcular el stock disponible de un producto en la bodega
      * (stock total - cantidad ya agregada al carrito)
      */
     public function getAvailableStock($productoId)
     {
-        $producto = Producto::find($productoId);
-        if (!$producto) {
+        $bodegaId = $this->bodega ?? 1;
+        
+        // Buscar el stock en la bodega específica
+        $stockBodega = \App\Models\StockBodega::where('producto_id', $productoId)
+            ->where('bodega_id', $bodegaId)
+            ->first();
+        
+        if (!$stockBodega) {
             return 0;
         }
 
-        $stockTotal = (float) $producto->stock;
+        $stockTotal = (float) $stockBodega->stock;
 
         // Sumar cantidad del producto si ya está en el carrito
         $cantidadEnCarrito = isset($this->cart[$productoId]) 

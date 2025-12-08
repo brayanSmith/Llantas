@@ -26,6 +26,7 @@ class Compra extends Model
         'total_a_pagar',
         'categoria_compra',
         'item_compra',
+        'bodega_id',
     ];
 
     public function proveedor()
@@ -40,27 +41,11 @@ class Compra extends Model
     {
         return $this->hasMany(AbonoCompra::class);
     }
-
-    /**
-     * 🔹 Recalcula subtotal de la compra
-     */
-    /*public function recalcularTotalesCompra(): void
+    public function bodega()
     {
-        $this->subtotal_compra = $this->detalles()->sum('subtotal') ;
-        $this->total_a_pagar_compra = $this->subtotal_compra - $this->descuento_compra;
-        $this->estado_pago_compra = $this->total_a_pagar_compra <= $this->abono_compra ? 'Pagado' : 'Pendiente';
-        $this->save();
-    }*/
-    /**
-     * 🔹 Recalcular el total a pagar de la compra = (subtotal - Abono - descuento)
-     */
-    /*
-    public function recalcularTotalAPagarCompra(): void
-    {
-        $this->total_a_pagar_compra = $this->subtotal_compra - $this->abono_compra - $this->descuento_compra;
-        $this->save();
-    }*/
-
+        return $this->belongsTo(Bodega::class, 'bodega_id');
+    }
+    
     public function getFechaRecibidoCompra($value)
     {
         if (is_null($value)){

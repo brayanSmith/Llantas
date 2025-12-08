@@ -11,14 +11,19 @@ class Traslado extends Model
     use HasFactory;
 
     protected $fillable = [
-        'bodega_id',
+        'bodega_donante_id',
+        'bodega_destino_id',
         'producto_id',
         'cantidad',
     ];
 
-    public function bodega()
+    public function bodegaDonante()
     {
-        return $this->belongsTo(Bodega::class, 'bodega_id');
+        return $this->belongsTo(Bodega::class, 'bodega_donante_id');
+    }
+    public function bodegaDestino()
+    {
+        return $this->belongsTo(Bodega::class, 'bodega_destino_id');
     }
     public function producto()
     {
