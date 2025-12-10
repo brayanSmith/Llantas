@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Services\CompraCalculoService;
 
 class Compra extends Model
 {
@@ -27,6 +28,7 @@ class Compra extends Model
         'categoria_compra',
         'item_compra',
         'bodega_id',
+        'saldo_pendiente',
     ];
 
     public function proveedor()
@@ -44,6 +46,22 @@ class Compra extends Model
     public function bodega()
     {
         return $this->belongsTo(Bodega::class, 'bodega_id');
+    }
+    public function recalcularTotales()
+    {
+        $data = CompraCalculoService::calcular(
+            $this->detallesCompra->toArray(),
+            $this->abonoCompra->toArray(),
+            $this->descuento ?? 0            
+        );
+        $this->update($data);
+    }
+
+    public function setEstadoPago(){
+        $nuevoEstadoPago = CompraCalculoService::calcularEstadoPago((float) ($this->saldo_pendiente ?? 0));
+        if (($this->estado_pago ?? null) !== $nuevoEstadoPago) {
+            $this->updateQuietly(['estado_pago' => $nuevoEstadoPago]);
+        }
     }
     
     public function getFechaRecibidoCompra($value)

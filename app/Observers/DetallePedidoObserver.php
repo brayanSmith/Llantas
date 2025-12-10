@@ -9,6 +9,29 @@ use App\Services\DetallePedidoStockService;
 
 class DetallePedidoObserver
 {
+    public function creating(DetallePedido $detallePedido): void
+    {
+        //
+        $detalle->subtotal = PedidoCalculoService::calcularDetalles([
+            'producto_id' => $detallePedido->producto_id,
+            'cantidad' => $detallePedido->cantidad,
+            'precio_unitario' => $detallePedido->precio_unitario,
+            'aplicar_iva' => $detallePedido->aplicar_iva,
+            'iva' => $detallePedido->iva,
+        ]);
+    }
+
+    public function updating(DetallePedido $detallePedido): void
+    {
+        //
+        $detalle->subtotal = PedidoCalculoService::calcularDetalles([
+            'producto_id' => $detallePedido->producto_id,
+            'cantidad' => $detallePedido->cantidad,
+            'precio_unitario' => $detallePedido->precio_unitario,
+            'aplicar_iva' => $detallePedido->aplicar_iva,
+            'iva' => $detallePedido->iva,
+        ]);
+    }
     /**
      * Handle the DetallePedido "created" event.
      */

@@ -10,10 +10,12 @@ use App\Models\Pedido;
 use App\Models\DetalleCompra;
 use App\Models\DetallePedido;
 use App\Models\Traslado;
+use App\Models\AbonoCompra;
 
 use App\Observers\CompraObserver;
 use App\Observers\CompraStockBodegaObserver;
 use App\Observers\DetalleCompraObserver;
+use App\Observers\AbonoCompraObserver;
 
 use App\Observers\PedidoObserver;
 use App\Observers\PedidoStockBodegaObserver;
@@ -40,13 +42,14 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Traslado::observe(TrasladoObserver::class);
-        DetalleCompra::observe(DetalleCompraObserver::class);        
+        DetalleCompra::observe(DetalleCompraObserver::class);
+        AbonoCompra::observe(AbonoCompraObserver::class);
         Compra::observe(CompraStockBodegaObserver::class);
 
         DetallePedido::observe(DetallePedidoObserver::class);
         Pedido::observe(PedidoStockBodegaObserver::class);
       
-        Compra::observe(CompraObserver::class);        
+        //Compra::observe(CompraObserver::class);        
         Pedido::observe(PedidoObserver::class);
    
     }

@@ -20,6 +20,8 @@ use Dom\Text;
 use Filament\Forms\Components\Toggle;
 use App\Models\Cliente;
 use Filament\Forms\Components\Checkbox;
+use App\Services\VencimientoService;
+use App\Services\ProximoAbonoService;
 
 use function Livewire\Volt\on;
 
@@ -31,80 +33,24 @@ trait HasPedidoSections
 
         return [
             Placeholder::make('vencimiento_info')
-                ->content(function ($get) {
-                    $fechaVenc = $get('fecha_vencimiento');
-                    if (empty($fechaVenc)) return '';
-                    try {
-                        $hoy = Carbon::today();
-                        $venc = Carbon::parse($fechaVenc)->startOfDay();
-                        $dias = $hoy->diffInDays($venc, false);
-                        if ($dias > 0) return "Quedan {$dias} día" . ($dias === 1 ? '' : 's') . " para vencerse";
-                        if ($dias === 0) return 'Vence hoy';
-                        return "Vencido hace " . abs($dias) . " día" . (abs($dias) === 1 ? '' : 's');
-                    } catch (\Throwable $e) {
-                        return '';
-                    }
-                })
-                ->extraAttributes(function ($get) {
-                    $fechaVenc = $get('fecha_vencimiento');
-                    if (empty($fechaVenc)) return ['class' => 'text-sm mb-2'];
-                    try {
-                        $hoy = Carbon::today();
-                        $venc = Carbon::parse($fechaVenc)->startOfDay();
-                        $dias = $hoy->diffInDays($venc, false);
-                        if ($dias > 3) $class = 'text-sm bg-green-600 text-green-50 mb-2 p-2 rounded';
-                        elseif ($dias >= 1) $class = 'text-sm bg-yellow-600 text-yellow-50 mb-2 p-2 rounded';
-                        elseif ($dias === 0) $class = 'text-sm bg-yellow-600 text-yellow-50 mb-2 p-2 rounded';
-                        else $class = 'text-sm bg-red-600 text-red-50 mb-2 p-2 rounded';
-                        return ['class' => $class];
-                    } catch (\Throwable $e) {
-                        return ['class' => 'text-sm mb-2'];
-                    }
-                })
-                ->visible(fn($get) => $get('estado') === 'PENDIENTE' && ! empty($get('fecha_vencimiento')))
+                ->content(fn($get) => VencimientoService::mensaje($get('fecha_vencimiento')))
+                ->extraAttributes(fn($get) => [
+                    'class' => VencimientoService::estilo($get('fecha_vencimiento'))
+                ])
+                ->visible(fn($get) => $get('estado') === 'PENDIENTE' && !empty($get('fecha_vencimiento')))
                 ->columnSpanFull(),
-
-            Placeholder::make('proximo_abono') 
-                ->content(function ($get) {
-                    $abonos = $get('abonos') ?? [];
-                    if (empty($abonos)) return '';
-                    try {
-                        $last = collect($abonos)->pluck('fecha')->filter()->map(fn($f) => Carbon::parse($f))->sort()->last();
-                        if (! $last) return '';
-                        $proximo = $last->copy()->addDays(30);
-                        $dias = (int) Carbon::today()->diffInDays($proximo, false);
-                        $label = $proximo->format('d/m/Y');
-                        if ($dias > 0) return "Próximo abono: {$label} (en {$dias} día" . ($dias === 1 ? '' : 's') . ")";
-                        if ($dias === 0) return "Próximo abono: {$label} (hoy)";
-                        $vencidos = abs($dias);
-                        return "Próximo abono: {$label} (vencido hace {$vencidos} día" . ($vencidos === 1 ? '' : 's') . ")";
-                    } catch (\Throwable $e) {
-                        return '';
-                    }
-                })
-                ->extraAttributes(function ($get) {
-                    $abonos = $get('abonos') ?? [];
-                    if (empty($abonos)) return ['class' => 'text-sm mb-2'];
-                    try {
-                        $last = collect($abonos)->pluck('fecha')->filter()->map(fn($f) => Carbon::parse($f))->sort()->last();
-                        if (! $last) return ['class' => 'text-sm mb-2'];
-                        $proximo = $last->copy()->addDays(30);
-                        $dias = (int) Carbon::today()->diffInDays($proximo, false);
-                        if ($dias > 7) return ['class' => 'text-sm bg-green-600 text-green-50 mb-2 p-2 rounded'];
-                        if ($dias >= 1) return ['class' => 'text-sm bg-yellow-600 text-yellow-50 mb-2 p-2 rounded'];
-                        return ['class' => 'text-sm bg-red-600 text-red-50 mb-2 p-2 rounded'];
-                    } catch (\Throwable $e) {
-                        return ['class' => 'text-sm mb-2'];
-                    }
-                })
-                ->visible(fn($get) => ! empty($get('abonos')) && ((float) ($get('saldo_pendiente') ?? 0) > 0))
+                
+                Placeholder::make('proximo_abono')
+                ->content(fn($get) => ProximoAbonoService::mensaje($get('abonos') ?? []))
+                ->extraAttributes(fn($get) => [
+                    'class' => ProximoAbonoService::estilo($get('abonos') ?? [])
+                ])
+                ->visible(fn($get) => !empty($get('abonos')) && ($get('total_a_pagar') ?? 0) > 0 && $get('estado') === 'FACTURADO' && $get('estado_pago') !== 'PAGADO')
                 ->columnSpanFull(),
-        ];
+                ];            
     }
 
     // sección datos generales
-    // Permite pasar opciones de estado y un estado por defecto al invocar la función.
-    // Si no se pasan, se usan los valores por defecto definidos aquí.
     protected static function sectionDatosGenerales(bool $full = false, ?array $estadoOptions = null, string $defaultEstado = 'PENDIENTE'): array
     {
         // Opciones por defecto para el Toggle de estado (clave => etiqueta)
@@ -127,7 +73,10 @@ trait HasPedidoSections
         $section = Section::make('Datos del pedido')
             ->columns(4)
             ->schema([
-                    TextInput::make('codigo')->disabled()->columnSpan(1)->label('Remisión'),
+                    TextInput::make('codigo')
+                    ->disabled()
+                    ->columnSpan(1)
+                    ->label('Remisión'),
 
                     Select::make('cliente_id')
                         ->label('Cliente')
@@ -142,20 +91,39 @@ trait HasPedidoSections
                         })
                         ->columnSpan(3),
 
-                    DatePicker::make('fecha')->label('Fecha de Facturación')->required()->columnSpan(2),
+                    DatePicker::make('fecha')
+                    ->label('Fecha de Facturación')
+                    ->required()
+                    ->columnSpan(2)
+                    ->live(onBlur: true)
+                        ->afterStateUpdated(function ($state, $set, $get) {
+                            if ($state) {
+                                try {
+                                    $dias = (int) ($get('dias_plazo_vencimiento') ?? 0);
+                                    $fechaVenc = VencimientoService::calcularFechaVencimiento($state, $dias);
+                                    $set('fecha_vencimiento', $fechaVenc);
+                                } catch (\Throwable $e) {
+                                    // no hacer nada si hay error de parseo
+                                }
+                            } else {
+                                $set('fecha_vencimiento', null);
+                            }
+                        }),
 
                     TextInput::make('ciudad')->default(null)->columnSpan(2),
 
-                    TextInput::make('dias_plazo_vencimiento')->label('Días Plazo Vencimiento')->default(30)->numeric()->required()->reactive()
+                    TextInput::make('dias_plazo_vencimiento')
+                        ->label('Días Plazo Vencimiento')
+                        ->default(30)
+                        ->numeric()
+                        ->required()
                         ->afterStateUpdated(function ($state, $set, $get) {
-                            $fecha = $get('fecha');
-                            if ($fecha && $state !== null) {
-                                try {
-                                    $fechaCarbon = Carbon::parse($fecha);
-                                    $nuevaFechaVenc = $fechaCarbon->copy()->addDays((int) $state);
-                                    $set('fecha_vencimiento', $nuevaFechaVenc->toDateString());
+                            if ($state) {
+                                try {                                    
+                                    $fechaVenc = VencimientoService::calcularFechaVencimiento($get('fecha'), $get('dias_plazo_vencimiento'));
+                                    $set('fecha_vencimiento', $fechaVenc);
                                 } catch (\Throwable $e) {
-                                    // no hacer nada si hay error
+                                    // no hacer nada si hay error de parseo
                                 }
                             } else {
                                 $set('fecha_vencimiento', null);
@@ -164,8 +132,7 @@ trait HasPedidoSections
                         ->live(onBlur: true)
                         ->minValue(0)
                         ->maxValue(365)
-                        ->step(1)
-                        //->helperText('Número de días para calcular la fecha de vencimiento a partir de la fecha de facturación.')
+                        ->step(1)                        
                         ->columnSpan(2),
 
                     Select::make('metodo_pago')->options(['CREDITO' => 'Crédito', 'CONTADO' => 'Contado'])->default('CREDITO')->required()->columnSpan(2),
