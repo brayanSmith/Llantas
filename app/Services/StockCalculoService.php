@@ -6,6 +6,7 @@ use App\Models\DetalleCompra;
 use App\Models\DetallePedido;
 use App\Models\StockBodega;
 use App\Models\Traslado;
+use App\Models\Producto;
 use Illuminate\Support\Facades\DB;
 
 
@@ -21,6 +22,13 @@ class StockCalculoService
      */
     public function calcularEntradasFacturadas(int $productoId, int $bodegaId, ?int $excluirCompraId = null): float
     {         
+        //a a sumar el stock inicial de la tabla productos si la bodega es la bodega principal (id = 1)
+        $totalInicial = Producto::where('id', $productoId)
+            ->when($bodegaId === 'bodega_id', function ($query) {
+                $query->select('stock_inicial')->first();
+            })
+            ->value('stock_inicial') ?? 0;
+
         // Suma las cantidades de DetalleCompra 
         $totalCompras = DetalleCompra::where('item_id', $productoId)
             ->whereHas('compra', function ($q) use ($bodegaId, $excluirCompraId) {
@@ -44,7 +52,7 @@ class StockCalculoService
             ->sum('cantidad');
 
         // Retorna el total calculado
-        return $totalCompras - $totalDonaciones + $totalTraslados;
+        return  $totalInicial + $totalCompras - $totalDonaciones + $totalTraslados;
 
     }
 

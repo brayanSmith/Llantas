@@ -23,7 +23,7 @@ class Producto extends Model
         'valor_ferretero_producto',
         'imagen_producto',
         'bodega_id',
-        'stock',
+        'stock_inicial',
         'entradas',
         'salidas',
         'activo',

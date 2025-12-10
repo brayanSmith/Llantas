@@ -147,11 +147,11 @@ class ProductoForm
                     ->preload()
                     ->required(),
 
-                /*TextInput::make('stock')
-                    ->label('Stock')
+                TextInput::make('stock_inicial')
+                    ->label('Stock Inicial')
                     //->required()
                     ->numeric()
-                    ->default(0),*/
+                    ->default(0),
 
                 TextInput::make('tipo_producto')
                     ->label('Tipo de Producto')

@@ -5,6 +5,7 @@ namespace App\Observers;
 use App\Models\DetallePedido;
 use App\Services\PedidoStockService;
 use App\Services\DetallePedidoStockService;
+use App\Services\PedidoCalculoService;
 
 
 class DetallePedidoObserver
@@ -12,7 +13,7 @@ class DetallePedidoObserver
     public function creating(DetallePedido $detallePedido): void
     {
         //
-        $detalle->subtotal = PedidoCalculoService::calcularDetalles([
+        $detallePedido->subtotal = PedidoCalculoService::calcularDetalles([
             'producto_id' => $detallePedido->producto_id,
             'cantidad' => $detallePedido->cantidad,
             'precio_unitario' => $detallePedido->precio_unitario,
@@ -24,7 +25,7 @@ class DetallePedidoObserver
     public function updating(DetallePedido $detallePedido): void
     {
         //
-        $detalle->subtotal = PedidoCalculoService::calcularDetalles([
+        $detallePedido->subtotal = PedidoCalculoService::calcularDetalles([
             'producto_id' => $detallePedido->producto_id,
             'cantidad' => $detallePedido->cantidad,
             'precio_unitario' => $detallePedido->precio_unitario,

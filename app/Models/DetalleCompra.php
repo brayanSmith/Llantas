@@ -36,8 +36,5 @@ class DetalleCompra extends Model
             'iva' => $this->iva,
         ]);
         $this->update(['subtotal' => $subtotal]);
-    }
-    /*public function esProductoGasto(): string {
-        return CompraCalculoService::esProductoGasto($this);
-    }*/
+    }   
 }
