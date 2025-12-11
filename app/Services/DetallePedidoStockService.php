@@ -17,7 +17,7 @@ class DetallePedidoStockService
     }
     public function creado(DetallePedido $detallePedido): void
     {
-        if (!in_array($detallePedido->estado, ['ENTREGADO', 'FACTURADO', 'EN_RUTA'])) {
+        if (!in_array($detallePedido->estado, ['ENTREGADO', 'FACTURADO', 'EN_RUTA', 'PENDIENTE'])) {
             return;
         }
 

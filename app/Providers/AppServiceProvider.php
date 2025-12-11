@@ -54,7 +54,7 @@ class AppServiceProvider extends ServiceProvider
         Pedido::observe(PedidoStockBodegaObserver::class);
       
         //Compra::observe(CompraObserver::class);        
-        Pedido::observe(PedidoObserver::class);
+        //Pedido::observe(PedidoObserver::class);
    
     }
 }

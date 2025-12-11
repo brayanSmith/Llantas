@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Services\PedidoCalculoService;
+use App\Services\PedidoStockService;
 
 class Pedido extends Model
 {
@@ -100,8 +101,13 @@ class Pedido extends Model
         $nuevoEstadoVencimiento = PedidoCalculoService::calcularEstadoVencimiento($this);        
             $this->updateQuietly(['estado_vencimiento' => $nuevoEstadoVencimiento]);        
     }
-    
 
+    public function setCodigoPedido()
+    {
+        $nuevoCodigo = PedidoCalculoService::generarCodigoPedido($this->id);        
+            $this->updateQuietly(['codigo' => $nuevoCodigo]);        
+    }
+    
     // Atributo: devolver fecha en America/Bogota
     public function getFechaAttribute($value)
     {

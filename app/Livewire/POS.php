@@ -429,7 +429,7 @@ class POS extends Component
 
                 'cliente_id' => $this->cliente_id,
                 'user_id' => $this->user_id,
-                'alistador_id' => $this->user_id, // Asignar el mismo usuario como alistador por defecto
+                'alistador_id' => $this->user_id,
                 'estado' => 'PENDIENTE',
                 'metodo_pago' => $this->metodo_pago,
                 'tipo_precio' => $this->tipo_precio,
@@ -470,6 +470,15 @@ class POS extends Component
                     $inventario->save();
                 }
             }
+            
+            // Recalcular stock después de crear todos los detalles
+            foreach ($this->cart as $producto) {
+                app(\App\Services\StockCalculoService::class)->recalcularStockPorProductoYBodega(
+                    $producto['id'],
+                    $pedido->bodega_id
+                );
+            }
+            
             DB::commit();
 
             //reset cart y otras propiedades

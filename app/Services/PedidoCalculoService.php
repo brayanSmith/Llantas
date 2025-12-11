@@ -7,7 +7,13 @@ use App\Models\Producto;
 
 class PedidoCalculoService
 {
-
+    //obtener codigo del pedido de concatenando PED- con el id del pedido con ceros a la izquierda hasta completar 6 digitos
+    public static function generarCodigoPedido(int $pedidoId): string
+    {
+        return 'PED-' . str_pad($pedidoId, 6, '0', STR_PAD_LEFT);
+    }
+    
+    // Obtiene el valor unitario del producto según el tipo de precio
     public static function obtenerValorUnitario(Producto $producto, string $tipoPrecio): float
     {
         $valorDetal = $producto->valor_detal_producto ?? 0;

@@ -60,7 +60,7 @@ class StockCalculoService
       $totalPedidos = DetallePedido::where('producto_id', $productoId)
             ->whereHas('pedido', function ($q) use ($bodegaId, $excluirVentaId) {
                 $q->where('bodega_id', $bodegaId)
-                  ->whereIn('estado', ['PENDIENTE','FACTURADO','EN_RUTA' ,'ENTREGADO']);
+                  ->whereIn('estado', ['PENDIENTE','FACTURADO','EN_RUTA' ,'ENTREGADO', 'PENDIENTE']);
 
                 if ($excluirVentaId) {
                     $q->where('id', '!=', $excluirVentaId);
@@ -96,7 +96,7 @@ class StockCalculoService
             $stock->entradas = $totalCompras;
             $stock->salidas = $totalPedidos;
             $stock->stock = $existencias;
-            $stock->save();
+            $stock->save(); // Guardar sin disparar eventos
         } else {
             StockBodega::create([
                 'producto_id' => $productoId,
