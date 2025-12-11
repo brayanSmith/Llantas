@@ -11,6 +11,7 @@ use App\Models\DetalleCompra;
 use App\Models\DetallePedido;
 use App\Models\Traslado;
 use App\Models\AbonoCompra;
+use App\Models\Producto;
 
 use App\Observers\CompraObserver;
 use App\Observers\CompraStockBodegaObserver;
@@ -22,6 +23,7 @@ use App\Observers\PedidoStockBodegaObserver;
 use App\Observers\DetallePedidoObserver;
 
 use App\Observers\TrasladoObserver;
+use App\Observers\ProductoObserver;
 
 use App\Policies\PedidoCarteraPolicy;
 use App\Policies\PedidoSaldadoPolicy;
@@ -41,6 +43,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Producto::observe(ProductoObserver::class);
+        
         Traslado::observe(TrasladoObserver::class);
         DetalleCompra::observe(DetalleCompraObserver::class);
         AbonoCompra::observe(AbonoCompraObserver::class);

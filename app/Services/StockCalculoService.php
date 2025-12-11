@@ -22,12 +22,11 @@ class StockCalculoService
      */
     public function calcularEntradasFacturadas(int $productoId, int $bodegaId, ?int $excluirCompraId = null): float
     {         
-        //a a sumar el stock inicial de la tabla productos si la bodega es la bodega principal (id = 1)
-        $totalInicial = Producto::where('id', $productoId)
-            ->when($bodegaId === 'bodega_id', function ($query) {
-                $query->select('stock_inicial')->first();
-            })
-            ->value('stock_inicial') ?? 0;
+        // Obtener el stock inicial del producto en la bodega específica
+        $producto = Producto::where('id', $productoId)->first();
+        $totalInicial = ($producto && $producto->bodega_id === $bodegaId) 
+            ? ($producto->stock_inicial ?? 0) 
+            : 0;
 
         // Suma las cantidades de DetalleCompra 
         $totalCompras = DetalleCompra::where('item_id', $productoId)

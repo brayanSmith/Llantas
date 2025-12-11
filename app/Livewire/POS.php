@@ -6,6 +6,7 @@ use App\Models\Cliente;
 use App\Models\DetallePedido;
 use App\Models\Pedido;
 use App\Models\Producto;
+use App\Models\StockBodega;
 use DragonCode\Contracts\Http\Builder;
 use Exception;
 use Filament\Notifications\Notification;
@@ -13,6 +14,7 @@ use Livewire\Component;
 use Livewire\Attributes\Computed;
 use Illuminate\Support\Facades\DB;
 use Livewire\WithPagination;
+use App\Services\StockCalculoService;
 
 class POS extends Component
 {
@@ -315,8 +317,12 @@ class POS extends Component
     // Agregar producto al carrito (comportamiento original)
     public function addToCart($productoId, $cantidad = 2)
     {
-        $producto = Producto::find($productoId);
-        $inventario = Producto::find($productoId);
+        $producto = Producto::find($productoId);       
+        
+        // Obtener el stock actualizado
+        $inventario = StockBodega::where('producto_id', $productoId)
+            ->where('bodega_id', $this->bodega ?? 1)
+            ->first();
         if (!$inventario || $inventario->stock <= 0) {
             Notification::make()
                 ->title('Este Proucto esta fuera de Stock!')
@@ -423,6 +429,7 @@ class POS extends Component
 
                 'cliente_id' => $this->cliente_id,
                 'user_id' => $this->user_id,
+                'alistador_id' => $this->user_id, // Asignar el mismo usuario como alistador por defecto
                 'estado' => 'PENDIENTE',
                 'metodo_pago' => $this->metodo_pago,
                 'tipo_precio' => $this->tipo_precio,

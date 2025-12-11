@@ -3,6 +3,8 @@
 namespace App\Observers;
 
 use App\Models\Bodega;
+use App\Models\StockBodega;
+use App\Services\ProductoStockService;
 
 class BodegaObserver
 {
@@ -19,7 +21,14 @@ class BodegaObserver
      */
     public function updated(Bodega $bodega): void
     {
-        //
+        // Recalcular stock de todos los productos en esta bodega
+        $productosIds = StockBodega::where('bodega_id', $bodega->id)
+            ->pluck('producto_id')
+            ->toArray();
+        
+        if (!empty($productosIds)) {
+            app(ProductoStockService::class)->recalcularStockMasivo($productosIds, $bodega->id);
+        }
     }
 
     /**

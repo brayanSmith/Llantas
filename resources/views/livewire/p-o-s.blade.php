@@ -400,10 +400,14 @@
                                                         <div class="flex-1">
                                                             <label
                                                                 class="block text-xs md:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cantidad</label>
+                                                            @php($maxStockDisponible = $this->getAvailableStock($product->id))
                                                             <input type="number" min="1"
-                                                                :max="{{ $product->stock ?? 1000 }}"
+                                                                :max="{{ $maxStockDisponible }}"
                                                                 x-model.number="cantidad"
                                                                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-neutral-900 dark:border-neutral-700 dark:text-gray-100 text-xs md:text-base" />
+                                                            <p class="text-[10px] text-gray-500 dark:text-gray-400 mt-1">
+                                                                Máx: {{ $maxStockDisponible }}
+                                                            </p>
                                                         </div>
                                                         <button
                                                             @click="$wire.addToCart({{ $product->id }}, cantidad); open = false"

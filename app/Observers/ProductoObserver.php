@@ -12,17 +12,14 @@ class ProductoObserver
      */
     public function created(Producto $producto): void
     {
-        //
-        app(ProductoStockService::class)->recalcularStockPorProducto($producto->id);
+        app(ProductoStockService::class)->crearProductosBodega($producto);
+        app(ProductoStockService::class)->recalcularStockTodasBodegas($producto->id);
     }
 
-    /**
-     * Handle the Producto "updated" event.
-     */
     public function updated(Producto $producto): void
     {
-        //
-        app(ProductoStockService::class)->recalcularStockPorProducto($producto->id);
+        // Recalcular stock en todas las bodegas del producto
+        app(ProductoStockService::class)->recalcularStockTodasBodegas($producto->id);
     }
 
     /**
