@@ -10,6 +10,11 @@ class EditCompra extends EditRecord
 {
     protected static string $resource = CompraResource::class;
 
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
+
     protected function getHeaderActions(): array
     {
         return [

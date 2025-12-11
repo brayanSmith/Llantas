@@ -8,4 +8,9 @@ use Filament\Resources\Pages\CreateRecord;
 class CreatePedido extends CreateRecord
 {
     protected static string $resource = PedidoResource::class;
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 }

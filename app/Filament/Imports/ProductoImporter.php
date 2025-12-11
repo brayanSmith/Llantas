@@ -22,6 +22,7 @@ class ProductoImporter extends Importer
     {
         return [
             ImportColumn::make('categoria_producto')
+                ->required()
                 ->helperText('Seleccione una de las opciones: MATERIA_PRIMA, PRODUCTO_TERMINADO, OTRO')
                 ->example('PRODUCTO_TERMINADO')
                 ->rules([
@@ -73,6 +74,7 @@ class ProductoImporter extends Importer
                 ]),
 
             ImportColumn::make('bodega') 
+                ->required()
                 ->helperText('Ingrese el nombre de la bodega existente')
                 ->validationAttribute('Bodega inválida')
                 ->relationship(resolveUsing: 'nombre_bodega')
@@ -101,6 +103,7 @@ class ProductoImporter extends Importer
                 ]),
             ImportColumn::make('stock_inicial')
                 ->helperText('Cantidad disponible en stock')
+                ->required()
                 ->numeric()
                 ->example('100')
                 ->rules(['nullable', 'integer', 'min:0']),         

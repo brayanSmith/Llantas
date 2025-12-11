@@ -8,4 +8,9 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateComprasPendientes extends CreateRecord
 {
     protected static string $resource = ComprasPendientesResource::class;
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 }

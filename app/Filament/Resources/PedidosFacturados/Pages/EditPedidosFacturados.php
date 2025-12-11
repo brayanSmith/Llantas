@@ -10,6 +10,10 @@ use Filament\Actions\Action;
 class EditPedidosFacturados extends EditRecord
 {
     protected static string $resource = PedidosFacturadosResource::class;
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 
     protected function getHeaderActions(): array
     {
