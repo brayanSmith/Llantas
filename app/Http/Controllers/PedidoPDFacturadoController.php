@@ -13,10 +13,16 @@ class PedidoPDFacturadoController extends Controller
         $pedido = Pedido::with(['cliente', 'detalles.producto'])->findOrFail($id);
         $empresa = Empresa::first(); // Obtener el primer registro de empresas
 
+        // Ordenar detalles por ubicación y código de producto
+        $detallesOrdenados = $pedido->detalles->sortBy([
+            ['producto.ubicacion', 'asc'],
+            ['producto.codigo_producto', 'asc']
+        ]);
+
         $pdf = Pdf::loadView('pdf.pedidoFacturado', [
             'pedido'   => $pedido,
             'cliente'  => $pedido->cliente,
-            'detalles' => $pedido->detalles,
+            'detalles' => $detallesOrdenados,
             'empresa'  => $empresa,
         ]);
 
@@ -28,10 +34,16 @@ class PedidoPDFacturadoController extends Controller
         $pedido = Pedido::with(['cliente', 'detalles.producto'])->findOrFail($id);
         $empresa = Empresa::first(); // Obtener el primer registro de empresas
 
+        // Ordenar detalles por ubicación y código de producto
+        $detallesOrdenados = $pedido->detalles->sortBy([
+            ['producto.ubicacion', 'asc'],
+            ['producto.codigo_producto', 'asc']
+        ]);
+
         $pdf = Pdf::loadView('pdf.pedidoFacturado', [
             'pedido'   => $pedido,
             'cliente'  => $pedido->cliente,
-            'detalles' => $pedido->detalles, 
+            'detalles' => $detallesOrdenados, 
             'empresa'  => $empresa,
         ]);
 

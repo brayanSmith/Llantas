@@ -81,12 +81,6 @@
     <div><strong>CIUDAD:</strong> {{ $pedido->ciudad ?? 'N/A' }}</div>
   </div>
 
-    {{--<h1>Pedido #{{ $pedido->id }}</h1>
-    <p><strong>Cliente:</strong> {{ $cliente->razon_social ?? 'N/A' }}</p>
-    <p><strong>Fecha:</strong> {{ $pedido->created_at->format('d/m/Y H:i') }}</p>
-    <p><strong>Método de Pago:</strong> {{ $pedido->metodo_pago }}</p>
-    <p><strong>Tipo de Precio:</strong> {{ $pedido->tipo_precio }}</p>--}}
-
     <!-- Productos -->
   <table class="table">
     <thead>

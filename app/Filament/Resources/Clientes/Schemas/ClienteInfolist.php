@@ -29,32 +29,26 @@ class ClienteInfolist
             ->schema([
                 TextEntry::make('codigo')
                     ->label('Pedido')
-                    ->icon('heroicon-o-hashtag')
-                    ->inlineLabel(fn () => \Jenssegers\Agent\Facades\Agent::isMobile()),
+                    ->icon('heroicon-o-hashtag'),
                 TextEntry::make('fecha_vencimiento')
                     ->label('Vence El')
-                    ->icon('heroicon-o-calendar')
-                    ->inlineLabel(fn () => \Jenssegers\Agent\Facades\Agent::isMobile()),
+                    ->icon('heroicon-o-calendar'),
                 TextEntry::make('saldo_pendiente')
                     ->label('Saldo')                    
                     ->icon('heroicon-o-currency-dollar')
-                    ->formatStateUsing(fn($state) => '$' . number_format($state, 0, ',', '.'))
-                    ->inlineLabel(fn () => \Jenssegers\Agent\Facades\Agent::isMobile()),
+                    ->formatStateUsing(fn($state) => '$' . number_format($state, 0, ',', '.')),
                 TextEntry::make('estado_vencimiento')
                     ->label('Estado')
                     ->icon('heroicon-o-exclamation-triangle')
-                    ->color(fn ($state) => $state === 'VENCIDO' ? 'danger' : 'success')
-                    ->inlineLabel(fn () => \Jenssegers\Agent\Facades\Agent::isMobile()),
+                    ->color(fn ($state) => $state === 'VENCIDO' ? 'danger' : 'success'),
                 TextEntry::make('abono')
                     ->label('Abonos')
                     ->icon('heroicon-o-currency-dollar')
-                    ->formatStateUsing(fn($state) => '$' . number_format($state, 0, ',', '.'))
-                    ->inlineLabel(fn () => \Jenssegers\Agent\Facades\Agent::isMobile()),
+                    ->formatStateUsing(fn($state) => '$' . number_format($state, 0, ',', '.')),
                 TextEntry::make('total_a_pagar')
                     ->label('Total')
                     ->icon('heroicon-o-currency-dollar')
-                    ->formatStateUsing(fn($state) => '$' . number_format($state, 0, ',', '.'))
-                    ->inlineLabel(fn () => \Jenssegers\Agent\Facades\Agent::isMobile()),
+                    ->formatStateUsing(fn($state) => '$' . number_format($state, 0, ',', '.')),
             ]);
     }
     
@@ -97,7 +91,7 @@ class ClienteInfolist
                                 self::getPedidosRepeatable('estadoPagoSaldados'),
                             ]),
                     ])
-                     //->vertical(fn () => !\Jenssegers\Agent\Facades\Agent::isMobile()),
+                     ->vertical(fn () => !\Jenssegers\Agent\Facades\Agent::isMobile()),
                 
             ]);
     }

@@ -14,10 +14,16 @@ class PedidoPDFPendienteController extends Controller
         // incrementar contador de impresiones de forma atómica
         $pedido->increment('contador_impresiones');
 
+        // Ordenar detalles por ubicación y código de producto
+        $detallesOrdenados = $pedido->detalles->sortBy([
+            ['producto.ubicacion', 'asc'],
+            ['producto.codigo_producto', 'asc']
+        ]);
+
         $pdf = Pdf::loadView('pdf.pedido', [
             'pedido'   => $pedido,
             'cliente'  => $pedido->cliente,
-            'detalles' => $pedido->detalles,
+            'detalles' => $detallesOrdenados,
         ]);
 
         return $pdf->download("pedido_{$pedido->id}.pdf");
@@ -30,10 +36,16 @@ class PedidoPDFPendienteController extends Controller
         // incrementar contador de impresiones de forma atómica
         $pedido->increment('contador_impresiones');
 
+        // Ordenar detalles por ubicación y código de producto
+        $detallesOrdenados = $pedido->detalles->sortBy([
+            ['producto.ubicacion', 'asc'],
+            ['producto.codigo_producto', 'asc']
+        ]);
+
         $pdf = Pdf::loadView('pdf.pedido', [
             'pedido'   => $pedido,
             'cliente'  => $pedido->cliente,
-            'detalles' => $pedido->detalles,
+            'detalles' => $detallesOrdenados,
         ]);
 
         return $pdf->stream("pedido_{$pedido->id}.pdf");
