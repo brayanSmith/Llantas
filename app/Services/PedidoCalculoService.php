@@ -104,6 +104,7 @@ class PedidoCalculoService
         // Si no aplica IVA, retornar subtotal sin IVA
         return round($subtotal, 2);
     }
+
     public static function calcularTotalesPedido(array $detalles, array $abonos, float $descuento, float $flete): array
     {
         $subtotal = collect($detalles)->sum(function($item){
@@ -125,9 +126,12 @@ class PedidoCalculoService
             'saldo_pendiente' => $saldo,
         ];
     }
-    public static function calcularEstadoPago(float $saldo): string {
+
+    public static function calcularEstadoPago(float $saldo): string 
+    {
         return (round($saldo, 4) <= 0.0001) ? 'SALDADO' : 'EN_CARTERA';
     }
+    
     public static function calcularEstadoVencimiento(Pedido $pedido): string {
         {
             $saldoPendiente = $pedido->saldo_pendiente ?? 0;

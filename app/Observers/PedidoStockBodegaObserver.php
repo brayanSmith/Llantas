@@ -20,6 +20,8 @@ class PedidoStockBodegaObserver
     public function created(Pedido $pedido): void
     {
         $codigo = $pedido->setCodigoPedido();
+        $estadoPago = $pedido->setEstadoPago();
+        //$totales = $pedido->recalcularTotales();        
         app(PedidoStockService::class)->creado($pedido);
     }
 
@@ -28,8 +30,8 @@ class PedidoStockBodegaObserver
      */
     public function updated(Pedido $pedido): void
     {
-        //
-        //$codigo = $pedido->setCodigoPedido();
+        $pedido->recalcularTotales();
+        $estadoPago = $pedido->setEstadoPago();
         app(PedidoStockService::class)->actualizado($pedido);
     }
 

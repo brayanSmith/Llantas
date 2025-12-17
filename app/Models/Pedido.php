@@ -63,7 +63,13 @@ class Pedido extends Model
     }
     public function abonoPedido()
     {
-        return $this->hasOne(Abono::class);
+        return $this->hasMany(Abono::class);
+    }
+    
+    // Alias para compatibilidad - obtener todos los abonos
+    public function abonos()
+    {
+        return $this->hasMany(Abono::class);
     }
     public function bodega()
     {
@@ -80,13 +86,18 @@ class Pedido extends Model
 
     public function recalcularTotales()
     {
+        // Obtener todos los abonos del pedido
+        $abonosArray = $this->abonos()->get()->toArray();
+        
         $data = PedidoCalculoService::calcularTotalesPedido(
             $this->detalles->toArray(),
-            $this->abonoPedido ? [$this->abonoPedido->toArray()] : [],
+            $abonosArray,
             $this->descuento ?? 0,
-            $this->flete ?? 0
+            $this->flete ?? 0            
         );
-        $this->update($data);
+
+        // Usar updateQuietly para evitar disparar el observer y crear un loop infinito
+        $this->updateQuietly($data);
     }
 
     public function setEstadoPago(){
@@ -107,6 +118,19 @@ class Pedido extends Model
         $nuevoCodigo = PedidoCalculoService::generarCodigoPedido($this->id);        
             $this->updateQuietly(['codigo' => $nuevoCodigo]);        
     }
+    
+    /**
+     * Obtener el estado de pago formateado para mostrar
+     */
+    /*public function getEstadoPagoFactura(): string
+    {
+        return match($this->estado_pago) {
+            'SALDADO' => 'Pagado',
+            'EN_CARTERA' => 'Pendiente',
+            default => $this->estado_pago ?? 'Desconocido'
+        };
+    }*/
+
     
     // Atributo: devolver fecha en America/Bogota
     public function getFechaAttribute($value)

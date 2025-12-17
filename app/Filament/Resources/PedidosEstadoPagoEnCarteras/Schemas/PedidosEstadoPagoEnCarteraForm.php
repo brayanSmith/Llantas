@@ -17,7 +17,7 @@ class PedidosEstadoPagoEnCarteraForm
         // y "Recibido" (sección de recibido).
 
         // Tomar la primera Section devuelta por cada helper (devuelven arrays de Section)
-        $datosSections = self::sectionDatosGenerales(false); 
+        $datosSections = self::sectionDatosGenerales(false, ['FACTURADO' => 'Facturado', 'EN_RUTA' => 'En Ruta', 'ENTREGADO' => 'Entregado']); 
         $resumenSections = self::sectionResumen();
 
         $datosSection = $datosSections[0] ?? null;
@@ -53,7 +53,7 @@ class PedidosEstadoPagoEnCarteraForm
         }
 
         $tab1 = $generalContents;
-        //$tab2 = self::sectionDetalles();
+        $tab2 = self::sectionDetalles();
         $tab3 = self::sectionAbonos();
         $tab4 = self::sectionRecibido();
 
@@ -61,8 +61,8 @@ class PedidosEstadoPagoEnCarteraForm
             ->tabs([
                 Tab::make('General')
                     ->schema($tab1),
-                //Tab::make('Detalles')
-                //    ->schema($tab2),
+                Tab::make('Detalles')
+                    ->schema($tab2),
                 Tab::make('Abonos')
                     ->schema($tab3),
                 Tab::make('Recibido')

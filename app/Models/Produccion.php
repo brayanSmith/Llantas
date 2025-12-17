@@ -11,12 +11,12 @@ class Produccion extends Model
     use HasFactory;
 
     protected $fillable = [
+        'formula_id',
         'cantidad',
         'lote',
         'fecha_produccion',
         'fecha_caducidad',
-        'Observaciones',
-        'formula_id',
+        'observaciones',        
     ];
     public function formula()
     {

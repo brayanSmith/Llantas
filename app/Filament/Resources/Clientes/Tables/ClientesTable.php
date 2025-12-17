@@ -18,6 +18,14 @@ class ClientesTable
     public static function configure(Table $table): Table
     {   
         return $table
+            ->modifyQueryUsing(function ($query) {
+                // Si el usuario no es super_admin, mostrar solo sus clientes
+                if (!auth()->user()->hasRole('super_admin')) {
+                    $query->where('comercial_id', auth()->id());
+                }
+                
+                return $query;
+            })
             ->columns([
                 Split::make([
                 TextColumn::make('ciudad')

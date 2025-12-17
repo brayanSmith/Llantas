@@ -71,47 +71,15 @@ return new class extends Migration
             $table->enum('tipo_compra',['NACIONAL','IMPORTADO'])->nullable();
             $table->string('concatenar_codigo_nombre')->nullable();
             $table->timestamps();
-        });
-
-        Schema::create('formulas', function (Blueprint $table) {
-            $table->id();
-            $table->string('nombre_formula')->unique();
-            $table->text('descripcion_formula')->nullable();
-            $table->timestamps();
-        });
-
-        Schema::create('produccions', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('formula_id')->constrained('formulas')->onDelete('cascade');
-            $table->integer('cantidad');
-            $table->string('lote');
-            $table->date('fecha_produccion');
-            $table->date('fecha_caducidad');
-            $table->text('Observaciones')->nullable();
-            $table->timestamps();
-        });
-
-        Schema::create('detalle_produccions', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('produccion_id')->constrained('produccions')->onDelete('cascade');
-            $table->foreignId('producto_id')->constrained('productos')->onDelete('cascade');
-            $table->foreignId('medida_id')->constrained('medidas')->onDelete('cascade');
-            $table->date('fecha_produccion');
-            $table->text('Observaciones')->nullable();
-            $table->decimal('cantidad', 10, 2);
-            $table->string('lote')->nullable();
-            $table->timestamps();
-        });
+        });        
+        
     }
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
-    {
-        Schema::dropIfExists('detalle_produccions');
-        Schema::dropIfExists('produccions');
-        Schema::dropIfExists('formulas');
+    {               
         Schema::dropIfExists('productos');
         Schema::dropIfExists('sub_categorias');
         Schema::dropIfExists('categorias');

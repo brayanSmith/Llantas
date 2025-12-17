@@ -18,7 +18,7 @@ class PedidosFacturadosForm
         // y "Recibido" (sección de recibido).
 
         // Tomar la primera Section devuelta por cada helper (devuelven arrays de Section)
-        $datosSections = self::sectionDatosGenerales(false, ['FACTURADO' => 'Facturado', 'EN_RUTA' => 'En Ruta']);
+        $datosSections = self::sectionDatosGenerales(false, ['FACTURADO' => 'Facturado', 'EN_RUTA' => 'En Ruta', 'ANULADO' => 'Anulado' ]);
         $resumenSections = self::sectionResumen();
 
         $datosSection = $datosSections[0] ?? null;

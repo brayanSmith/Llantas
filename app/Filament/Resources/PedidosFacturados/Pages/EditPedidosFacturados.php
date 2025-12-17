@@ -18,8 +18,8 @@ class EditPedidosFacturados extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            DeleteAction::make()
-                ->visible(fn() => static::getResource()::canDelete($this->record)),
+            //DeleteAction::make()
+            //    ->visible(fn() => static::getResource()::canDelete($this->record)),
             //este solo va a aparece cuando el estado sea igual a PENDIENTE
             Action::make('download_pdf')
                 ->label(fn () => 'Descargar PDF (' . ($this->record->contador_impresiones ?? 0) . ')')

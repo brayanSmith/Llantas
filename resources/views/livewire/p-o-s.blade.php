@@ -230,7 +230,7 @@
 
                             <div class="flex justify-between items-center mb-2 text-lg font-bold">
                                 <span>Total a Pagar:</span>
-                                <span>COP {{ number_format(num: $this->subtotal(), decimals: 0) }}</span>
+                                <span>COP {{ number_format(num: $this->subtotal() + $this->flete, decimals: 0) }}</span>
                             </div>
 
                         </div>

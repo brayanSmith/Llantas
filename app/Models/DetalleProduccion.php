@@ -14,9 +14,9 @@ class DetalleProduccion extends Model
         'produccion_id',
         'producto_id',
         'medida_id',
-        'fecha_produccion',
-        'observaciones',
         'cantidad',
+        'fecha_produccion',
+        'observaciones',        
         'lote',
     ];
 

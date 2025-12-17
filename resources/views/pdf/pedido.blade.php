@@ -109,7 +109,7 @@
                     <td>{{ $detalle->producto->nombre_producto ?? 'N/A' }}</td>
                     <td>{{ $detalle->cantidad }}</td>
                     <td></td>
-                    <td>${{ number_format($detalle->precio_unitario, 2) }}</td>
+                    <td>${{ number_format(($detalle->subtotal / $detalle->cantidad), 2) }}</td>
                     <td>${{ number_format($detalle->subtotal, 2) }}</td>
                     <td></td>
                 </tr>

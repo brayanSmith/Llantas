@@ -16,6 +16,10 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Repeater\TableColumn;
+
 use UnitEnum;
 
 class FormulaResource extends Resource
@@ -36,6 +40,38 @@ class FormulaResource extends Resource
                 Textarea::make('descripcion_formula')
                     ->default(null)
                     ->columnSpanFull(),
+                
+                Repeater::make('detalleFormulas')
+                    ->table([
+                        TableColumn::make('MP'),
+                        TableColumn::make('Cantidad'),
+                    ])
+                    ->relationship()
+                    ->schema([
+                        Select::make('producto_id')
+                            ->label('Producto')
+                            ->relationship(
+                                name: 'producto',
+                                titleAttribute: 'concatenar_codigo_nombre',
+                                modifyQueryUsing: fn ($query) =>
+                                    $query->where('categoria_producto', 'MATERIA_PRIMA')
+                            )                            
+                            ->searchable()
+                            ->preload()
+                            ->required(),
+                        TextInput::make('cantidad_producto')
+                            ->label('Cantidad')
+                            ->numeric()
+                            ->required(),
+                    ])
+                    ->collapsible()                    
+                    ->compact()
+                    ->columns(2)
+                    ->columnSpanFull()
+                    ->defaultItems(1)
+                    ->minItems(1)
+                    ->required(),
+                
             ]);
     }
 
@@ -46,6 +82,9 @@ class FormulaResource extends Resource
             ->columns([
                 TextColumn::make('nombre_formula')
                     ->searchable(),
+                TextColumn::make('descripcion_formula')
+                    ->limit(50)
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

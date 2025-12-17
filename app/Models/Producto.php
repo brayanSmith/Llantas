@@ -51,6 +51,12 @@ class Producto extends Model
     {
         return $this->hasMany(DetallePedido::class);
     }
+
+    public function detalleFormulas()
+    {
+        return $this->hasMany(DetalleFormula::class);
+    }
+    
     public function medida()
     {
         return $this->belongsTo(Medida::class, 'medida_id');

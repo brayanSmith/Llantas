@@ -15,6 +15,8 @@ use Livewire\Attributes\Computed;
 use Illuminate\Support\Facades\DB;
 use Livewire\WithPagination;
 use App\Services\StockCalculoService;
+use App\Services\CompraCalculoService;
+use App\Services\PedidoCalculoService;
 
 class POS extends Component
 {
@@ -87,6 +89,8 @@ class POS extends Component
         if (!empty($posData)) {
             $this->cart = $posData['cart'] ?? [];
             $this->cliente_id = $posData['cliente_id'] ?? null;
+            $this->ciudadSeleccionada = $posData['ciudadSeleccionada'] ?? '';
+            $this->direccionSeleccionada = $posData['direccionSeleccionada'] ?? '';
             $this->metodo_pago = $posData['metodo_pago'] ?? 'CREDITO';
             $this->tipo_precio = $posData['tipo_precio'] ?? 'FERRETERO';
             $this->tipo_venta = $posData['tipo_venta'] ?? 'REMISIONADA';
@@ -290,29 +294,21 @@ class POS extends Component
     }
 
     #[Computed]
-    public function subtotal()
+    public function subtotal() 
     {
         // Subtotal CON IVA para mostrar en pantalla
         $subtotalProductos = collect($this->cart)->sum(function ($producto) {
-            return $this->getPrecioProducto($producto, true) * $producto['cantidad'];
+            $precioBase = $this->getPrecioBase($producto);
+            return PedidoCalculoService::calcularDetalles([
+                'producto_id' => $producto['id'],
+                'cantidad' => $producto['cantidad'],
+                'precio_unitario' => $precioBase,
+                'aplicar_iva' => true,
+                'iva' => $producto['iva_producto'] ?? 0,
+            ]);
         });
-        
-        return $subtotalProductos + $this->flete;
-    }
-    
-    /**
-     * Calcula el subtotal SIN IVA para guardar en la base de datos
-     * El flete se maneja por separado en el modelo Pedido
-     */
-    private function subtotalSinIva()
-    {
-        $subtotalProductos = collect($this->cart)->sum(function ($producto) {
-            return $this->getPrecioProducto($producto, false) * $producto['cantidad'];
-        });
-        
-        return $subtotalProductos; // Solo productos, sin flete
-    }
-
+        return $subtotalProductos;
+    }   
 
     // Agregar producto al carrito (comportamiento original)
     public function addToCart($productoId, $cantidad = 2)
@@ -438,7 +434,9 @@ class POS extends Component
                 'primer_comentario' => $this->primer_comentario,
                 'segundo_comentario' => $this->segundo_comentario,
                 'flete' => $this->flete,
-                'subtotal' => $this->subtotalSinIva(), // Guardar subtotal SIN IVA
+                'subtotal' => $this->subtotal(), // Guardar subtotal SIN IVA
+                'total_a_pagar' => $this->subtotal() + $this->flete, // Total CON IVA
+                'saldo_pendiente' => $this->subtotal() + $this->flete, // Inicialmente igual al total a pagar
                 //'ciudad' => $this->ciudad,
                 'ciudad' => $this->ciudadSeleccionada,
                 //vamos a hacer que la fecha de vencimiento sea 30 dias despues de la fecha actual
@@ -450,7 +448,7 @@ class POS extends Component
             //Crear Productos Vendidos
 
             foreach ($this->cart as $producto) {
-                $precio_unitario = $this->getPrecioProducto($producto, false); // Sin IVA para guardar en BD
+                $precio_unitario = $this->getPrecioBase($producto); // Sin IVA para guardar en BD
                 $ivaProducto = $producto['iva_producto'] ?? 0;
                 
                 DetallePedido::create([
@@ -521,30 +519,41 @@ class POS extends Component
         }
     }
 
-    public function getPrecioProducto($producto, $conIva = true)
+    /**
+     * Obtener el precio base del producto según el tipo de precio
+     * (sin IVA)
+     */
+    private function getPrecioBase($producto)
     {
-        $precioBase = 0;
-        $ivaProducto = $producto['iva_producto'] ?? 0;
-        
         switch ($this->tipo_precio) {
             case 'FERRETERO':
-                $precioBase = $producto['valor_ferretero_producto'];
-                break;
+                return $producto['valor_ferretero_producto'];
             case 'MAYORISTA':
-                $precioBase = $producto['valor_mayorista_producto'];
-                break;
+                return $producto['valor_mayorista_producto'];
             case 'DETAL':
             default:
-                $precioBase = $producto['valor_detal_producto'];
-                break;
+                return $producto['valor_detal_producto'];
         }
+    }
+    
+    /**
+     * Calcula el precio del producto con o sin IVA usando PedidoCalculoService
+     * @deprecated Usar getPrecioBase() y PedidoCalculoService::calcularDetalles() directamente
+     */
+    public function getPrecioProducto($producto, $conIva = true)
+    {
+        $precioBase = $this->getPrecioBase($producto);
         
-        // Aplicar IVA solo si se solicita (para mostrar en pantalla)
         if ($conIva) {
-            return $precioBase * ($ivaProducto / 100 + 1);
+            return PedidoCalculoService::calcularDetalles([
+                'producto_id' => $producto['id'],
+                'cantidad' => 1,
+                'precio_unitario' => $precioBase,
+                'aplicar_iva' => true,
+                'iva' => $producto['iva_producto'] ?? 0,
+            ]);
         }
         
-        // Retornar precio sin IVA (para guardar en BD)
         return $precioBase;
     }
 

@@ -7,7 +7,8 @@ use App\Models\DetalleCompra;
 class CompraCalculoService
 {
     //Calcula el subtotal por item
-    public static function calcularDetalles(array $item): float {
+    public static function calcularDetalles(array $item): float 
+    {
         $itemId = $item['item_id'] ?? null;
         $descripcion = $item['descripcion_item'] ?? '';
         $cantidad = $item['cantidad'] ?? 0;
@@ -18,7 +19,8 @@ class CompraCalculoService
         return $subtotal;
     }
     
-    public static function calcularAbonos(array $abonos): float {
+    public static function calcularAbonos(array $abonos): float 
+    {
         return collect($abonos)->sum(function($item){
             $monto = $item['monto_abono_compra'] ?? $item['monto'] ?? 0;
             return (float) $monto;
@@ -26,7 +28,8 @@ class CompraCalculoService
     }
 
     //Calcula subtotal, abono, total a pagar y saldo pendiente
-    public static function calcular(array $detalles, array $abonos, float $descuento){
+    public static function calcular(array $detalles, array $abonos, float $descuento)
+    {
         $subtotal = collect($detalles)->sum(function($item){
             return self::calcularDetalles($item);
         });
@@ -46,16 +49,18 @@ class CompraCalculoService
         ];
     }
 
-    public static function calcularEstadoPago(float $saldo): string {
+    public static function calcularEstadoPago(float $saldo): string 
+    {
         return (round($saldo, 4) <= 0.0001) ? 'SALDADO' : 'EN_CARTERA';
     }    
     //esta funcion determina si el detalle de compra es de tipo producto o gasto
-    public static function esProductoGasto(DetalleCompra $detalleCompra): string {
+    public static function esProductoGasto(DetalleCompra $detalleCompra): string 
+    {
         if($detalleCompra->compra->item_compra === 'PRODUCTO') {
             return 'PRODUCTO';
         } else {
             return 'GASTO';
         }
     }
-
+    
 }

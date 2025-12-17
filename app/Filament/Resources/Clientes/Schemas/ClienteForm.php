@@ -49,16 +49,19 @@ class ClienteForm
                 TextInput::make('saldo_pendiente')
                     ->label('Saldo')
                     ->formatStateUsing(fn($state) => number_format($state, 0))
-                    ->disabled(),
-                \Filament\Forms\Components\Placeholder::make('estado_pago_display')
+                    ->disabled(),               
+
+                Placeholder::make('estado_pago_display')
                     ->label('Estado')
-                    ->content(function ($record) {
-                        return $record ? $record->getEstadoPagoFactura() : 'N/A';
+                    ->content(function ($get) {
+                        $estadoVencimiento = $get('estado_vencimiento');
+                        return $estadoVencimiento;
                     })
-                    ->extraAttributes(function ($record) {
-                        if (!$record) return ['class' => 'text-gray-500 font-bold text-sm'];
+                    ->extraAttributes(function ($get) {
+                        $estadoVencimiento = $get('estado_vencimiento');
+                        if (!$estadoVencimiento) return ['class' => 'text-gray-500 font-bold text-sm'];
                         
-                        $estado = $record->getEstadoPagoFactura();
+                        $estado = $estadoVencimiento;
                         return match ($estado) {
                             'SALDADO' => ['class' => 'text-green-600 font-bold text-sm'],
                             'VENCIDO' => ['class' => 'text-red-600 font-bold text-sm'],
@@ -74,6 +77,9 @@ class ClienteForm
                     ->label('Total')
                     ->formatStateUsing(fn($state) => number_format($state, 0))
                     ->disabled(),
+                
+                TextInput::make('estado_vencimiento')
+                    ->hidden(),
             ]);
     }
 

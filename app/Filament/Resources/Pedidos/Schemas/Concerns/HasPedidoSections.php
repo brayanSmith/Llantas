@@ -172,6 +172,7 @@ trait HasPedidoSections
                         ->default($defaultEstado)
                         ->required()
                         ->columnSpan(4)
+                        ->live()
                         ->grouped(),
 
                     Select::make('tipo_venta')->options([
@@ -204,9 +205,11 @@ trait HasPedidoSections
                             modifyQueryUsing: fn ($query) => $query->whereHas('roles', fn ($q) => $q->where('name', 'Logistica'))
                         )
                         ->searchable()
-                        ->required()
+                        ->required(fn($get) => in_array($get('estado'), ['FACTURADO','EN_RUTA', 'ENTREGADO']))
                         ->preload()
-                        ->columnSpan(2),
+                        ->columnSpan(2)
+                        //->visible(fn($get) => in_array($get('estado'), ['FACTURADO','EN_RUTA', 'ENTREGADO']))
+                        ->live(),
                     TextInput::make('fe')
                         ->label('F.E.')
                         ->visible(fn($get) => in_array($get('estado'), ['PENDIENTE'])),
@@ -234,32 +237,30 @@ trait HasPedidoSections
         return [
             Section::make('Resumen')
                 ->schema([
+                    Placeholder::make('subtotal_display')
+                        ->label('Subtotal')
+                        ->extraAttributes(['class' => 'text-lg font-semibold'])
+                        ->content(function ($get) {                            
+                            $subtotal = (float) ($get('subtotal') ?? 0);
+                            return '$' . number_format($subtotal, 0, ',', '.');
+                        }),
+
                     TextInput::make('subtotal')
-                        ->currencyMask(".", ",", 0)
-                        ->prefix('$')
-                        ->readOnly()
-                        ->numeric(),
+                        ->hidden(),
                     
                     Placeholder::make('abono_display')
                         ->label('Abono')
                         ->extraAttributes(['class' => 'text-lg font-semibold text-blue-600'])
-                        ->content(function ($get, $record) {
+                        ->content(function ($get) {
                             // Calcular desde el repeater de abonos si existe
-                            $abonos = $get('abonos') ?? [];
-                            $totalAbonos = collect($abonos)->sum(fn($abono) => (float) ($abono['monto'] ?? 0));
-                            
-                            // Si no hay abonos en el repeater y hay record, consultar la BD
-                            if ($totalAbonos <= 0 && $record) {
-                                $totalAbonos = $record->abonoPedido()->sum('monto') ?? 0;
-                            }
-                            
+                            $totalAbonos = (float) ($get('abono') ?? []);                            
                             return '$' . number_format($totalAbonos, 0, ',', '.');
                         }),
                     
                     // Campo oculto para mantener el valor en BD
                     TextInput::make('abono')
-                        ->hidden()
-                        ->dehydrated(true),
+                        ->hidden(),
+                        //->dehydrated(true),
                     
                     TextInput::make('descuento')
                         ->prefix('$')
