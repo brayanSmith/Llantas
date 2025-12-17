@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Clientes;
 use App\Filament\Resources\Clientes\Pages\CreateCliente;
 use App\Filament\Resources\Clientes\Pages\EditCliente;
 use App\Filament\Resources\Clientes\Pages\ListClientes;
+use App\Filament\Resources\Clientes\Pages\ViewCliente;
 use App\Filament\Resources\Clientes\Schemas\ClienteForm;
 use App\Filament\Resources\Clientes\Tables\ClientesTable;
 use App\Models\Cliente;
@@ -52,6 +53,7 @@ class ClienteResource extends Resource
             'index' => ListClientes::route('/'),
             'create' => CreateCliente::route('/create'),
             'edit' => EditCliente::route('/{record}/edit'),
+            'view' => ViewCliente::route('/{record}/view'),
         ];
     }
 }

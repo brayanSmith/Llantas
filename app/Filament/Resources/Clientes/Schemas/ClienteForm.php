@@ -22,7 +22,8 @@ class ClienteForm
      */
     private static function getPedidosRepeater(?string $estado = null): Repeater
     {
-        return Repeater::make($estado ? 'pedidos_' . strtolower($estado) : 'pedidos')
+        return 
+        Repeater::make($estado ? 'pedidos_' . strtolower($estado) : 'pedidos')
             ->columnSpanFull()
             ->relationship('pedidos', modifyQueryUsing: $estado ? 
                 fn ($query) => $query->where('estado_pago', $estado) : 
@@ -40,16 +41,24 @@ class ClienteForm
             ])
             ->compact()
             ->schema([
-                TextInput::make('codigo')
+                Placeholder::make('codigo_display')
                     ->label('Pedido')
-                    ->disabled(),
-                TextInput::make('fecha_vencimiento')
+                    ->content(function ($get) {
+                        $codigo = $get('codigo');
+                        return $codigo;
+                    }),
+                Placeholder::make('fecha_vencimiento_display')
                     ->label('Vence El')
-                    ->disabled(),
-                TextInput::make('saldo_pendiente')
+                    ->content(function ($get) {
+                        $fechaVencimiento = $get('fecha_vencimiento');
+                        return $fechaVencimiento ? date('d/m/Y', strtotime($fechaVencimiento)) : '';
+                    }),
+                Placeholder::make('saldo_pendiente_display')
                     ->label('Saldo')
-                    ->formatStateUsing(fn($state) => number_format($state, 0))
-                    ->disabled(),               
+                    ->content(function ($get) {
+                        $saldo = $get('saldo_pendiente');
+                        return number_format($saldo, 0);
+                    }),                              
 
                 Placeholder::make('estado_pago_display')
                     ->label('Estado')
@@ -69,16 +78,36 @@ class ClienteForm
                             default => ['class' => 'text-gray-500 font-bold text-sm'],
                         };
                     }),
+
+                Placeholder::make('abono_display')
+                    ->label('Abonos')
+                    ->content(function ($get) {
+                        $abono = $get('abono');
+                        return number_format($abono, 0);
+                    }),
+                Placeholder::make('total_a_pagar_display')
+                    ->label('Total')
+                    ->content(function ($get) {
+                        $total = $get('total_a_pagar');
+                        return number_format($total, 0);
+                    }),                
+
+                TextInput::make('codigo')
+                    ->label('Pedido')
+                    ->hidden(),
+                TextInput::make('fecha_vencimiento')
+                    ->label('Vence El')
+                    ->hidden(),
+                TextInput::make('saldo_pendiente')
+                    ->label('Saldo')                    
+                    ->hidden(),
+                TextInput::make('estado_vencimiento')
+                    ->hidden(),
                 TextInput::make('abono')
                     ->label('Abonos')
-                    ->formatStateUsing(fn($state) => number_format($state, 0))
-                    ->disabled(),
+                    ->hidden(),
                 TextInput::make('total_a_pagar')
                     ->label('Total')
-                    ->formatStateUsing(fn($state) => number_format($state, 0))
-                    ->disabled(),
-                
-                TextInput::make('estado_vencimiento')
                     ->hidden(),
             ]);
     }
