@@ -30,7 +30,7 @@ class Cliente extends Model
     public function pedidos()
     {
         return $this->hasMany(Pedido::class);
-    }
+    }    
     public function ruta()
     {
         return $this->belongsTo(Ruta::class, 'ruta_id');
@@ -38,6 +38,16 @@ class Cliente extends Model
     public function comercial()
     {
         return $this->belongsTo(User::class, 'comercial_id');
+    }
+    public function estadoPagoEnCartera()
+    {
+        return $this->hasMany(Pedido::class)
+                    ->where('estado_pago', 'EN_CARTERA');
+    }
+    public function estadoPagoSaldados()
+    {
+        return $this->hasMany(Pedido::class)
+                    ->where('estado_pago', 'SALDADO');
     }
 
     /**

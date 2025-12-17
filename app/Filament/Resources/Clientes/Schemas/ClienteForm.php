@@ -3,8 +3,6 @@
 namespace App\Filament\Resources\Clientes\Schemas;
 
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Repeater\TableColumn;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -12,106 +10,9 @@ use Filament\Forms\Components\ToggleButtons;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Fieldset;
-use Filament\Forms\Components\Placeholder;
 
 class ClienteForm
 {
-    /**
-     * Genera el schema del repeater de pedidos filtrado por estado
-     */
-    private static function getPedidosRepeater(?string $estado = null): Repeater
-    {
-        return 
-        Repeater::make($estado ? 'pedidos_' . strtolower($estado) : 'pedidos')
-            ->columnSpanFull()
-            ->relationship('pedidos', modifyQueryUsing: $estado ? 
-                fn ($query) => $query->where('estado_pago', $estado) : 
-                null
-            )
-            ->deletable(false)
-            ->addable(false)
-            ->table([
-                TableColumn::make('Pedido')->width('100px'),
-                TableColumn::make('Vence El')->width('100px'),
-                TableColumn::make('Saldo')->width('100px'),
-                TableColumn::make('Estado')->width('100px'),
-                TableColumn::make('Abonos')->width('100px'),
-                TableColumn::make('Total')->width('100px'),
-            ])
-            ->compact()
-            ->schema([
-                Placeholder::make('codigo_display')
-                    ->label('Pedido')
-                    ->content(function ($get) {
-                        $codigo = $get('codigo');
-                        return $codigo;
-                    }),
-                Placeholder::make('fecha_vencimiento_display')
-                    ->label('Vence El')
-                    ->content(function ($get) {
-                        $fechaVencimiento = $get('fecha_vencimiento');
-                        return $fechaVencimiento ? date('d/m/Y', strtotime($fechaVencimiento)) : '';
-                    }),
-                Placeholder::make('saldo_pendiente_display')
-                    ->label('Saldo')
-                    ->content(function ($get) {
-                        $saldo = $get('saldo_pendiente');
-                        return number_format($saldo, 0);
-                    }),                              
-
-                Placeholder::make('estado_pago_display')
-                    ->label('Estado')
-                    ->content(function ($get) {
-                        $estadoVencimiento = $get('estado_vencimiento');
-                        return $estadoVencimiento;
-                    })
-                    ->extraAttributes(function ($get) {
-                        $estadoVencimiento = $get('estado_vencimiento');
-                        if (!$estadoVencimiento) return ['class' => 'text-gray-500 font-bold text-sm'];
-                        
-                        $estado = $estadoVencimiento;
-                        return match ($estado) {
-                            'SALDADO' => ['class' => 'text-green-600 font-bold text-sm'],
-                            'VENCIDO' => ['class' => 'text-red-600 font-bold text-sm'],
-                            'AL_DIA' => ['class' => 'text-blue-600 font-bold text-sm'],
-                            default => ['class' => 'text-gray-500 font-bold text-sm'],
-                        };
-                    }),
-
-                Placeholder::make('abono_display')
-                    ->label('Abonos')
-                    ->content(function ($get) {
-                        $abono = $get('abono');
-                        return number_format($abono, 0);
-                    }),
-                Placeholder::make('total_a_pagar_display')
-                    ->label('Total')
-                    ->content(function ($get) {
-                        $total = $get('total_a_pagar');
-                        return number_format($total, 0);
-                    }),                
-
-                TextInput::make('codigo')
-                    ->label('Pedido')
-                    ->hidden(),
-                TextInput::make('fecha_vencimiento')
-                    ->label('Vence El')
-                    ->hidden(),
-                TextInput::make('saldo_pendiente')
-                    ->label('Saldo')                    
-                    ->hidden(),
-                TextInput::make('estado_vencimiento')
-                    ->hidden(),
-                TextInput::make('abono')
-                    ->label('Abonos')
-                    ->hidden(),
-                TextInput::make('total_a_pagar')
-                    ->label('Total')
-                    ->hidden(),
-            ]);
-    }
-
     public static function configure(Schema $schema): Schema
     {
         return $schema
@@ -199,28 +100,8 @@ class ClienteForm
                                     ->default(true),
 
                             ]),
-
-                        Tab::make('Todos los Pedidos')
-                            ->schema([
-                                self::getPedidosRepeater()
-                            ]),                          
-                            
-                        Tab::make('Pedidos en Cartera')
-                            ->icon('heroicon-o-clock')
-                            ->badge(fn ($record) => $record?->pedidos()?->where('estado_pago', 'EN_CARTERA')->count() ?? 0)
-                            ->schema([
-                                self::getPedidosRepeater('EN_CARTERA')
-                            ]),
-                            
-                        Tab::make('Pedidos Saldados')
-                            ->icon('heroicon-o-check-circle')
-                            ->badge(fn ($record) => $record?->pedidos()?->where('estado_pago', 'SALDADO')->count() ?? 0)
-                            ->schema([
-                                self::getPedidosRepeater('SALDADO')
-                            ]),
-                    ])
-                    //Solo va a ser verical en pantallas grandes
-                    ->vertical(fn () => !\Jenssegers\Agent\Facades\Agent::isMobile()),
+                        ]),
+                    
             ]);
 
     }
