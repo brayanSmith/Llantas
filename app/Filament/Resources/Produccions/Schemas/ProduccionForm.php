@@ -16,25 +16,35 @@ class ProduccionForm
     {
         return $schema
             ->components([
-                Select::make('formula')
+                Select::make('formula_id')
                     ->relationship('formula', 'nombre_formula')
                     ->required()
                     ->searchable()
                     ->preload()
                     ->label('Fórmula'),                    
                 TextInput::make('cantidad')
+                    ->default(1)
                     ->required()
                     ->numeric(),
+                Select::make('bodega_id')
+                    ->label('Bodega')
+                    ->required()
+                    ->relationship('bodega', 'nombre_bodega')
+                    ->default(1)
+                    ->searchable()
+                    ->preload(),
                 TextInput::make('lote')
                     ->required(),
                 DatePicker::make('fecha_produccion')
+                    ->default(today())
                     ->required(),
                 DatePicker::make('fecha_caducidad')
+                    ->default(today()->addDays(30))
                     ->required(),
                 Textarea::make('Observaciones')
                     ->default(null)
                     ->columnSpanFull(),
-                Repeater::make('detalleProducciones')
+                Repeater::make('detallesProduccionEntradas')
                     ->table([
                         TableColumn::make('Producto Terminado')->width('40%'),
                         TableColumn::make('cantidad')->width('10%'),
@@ -48,7 +58,7 @@ class ProduccionForm
                         Select::make('producto_id')
                             ->relationship(
                                 name: 'producto', 
-                                titleAttribute: 'nombre_producto',
+                                titleAttribute: 'concatenar_codigo_nombre',
                                 modifyQueryUsing: fn ($query) =>
                                     $query->where('categoria_producto', 'PRODUCTO_TERMINADO')
                                 )
@@ -56,7 +66,8 @@ class ProduccionForm
                             ->searchable()
                             ->preload()
                             ->label('Producto Terminado'),
-                        TextInput::make('cantidad')
+                        TextInput::make('cantidad_producto')
+                            ->default(1)
                             ->required()
                             ->numeric(),
                         TextInput::make('lote')
@@ -68,7 +79,7 @@ class ProduccionForm
                     ])
                     ->minItems(1)
                     ->columnSpanFull()
-                    ->label('Detalle de Materias Primas Utilizadas'),
+                    ->label('Detalle Productos Producidos'),               
                 
             ]);
     }

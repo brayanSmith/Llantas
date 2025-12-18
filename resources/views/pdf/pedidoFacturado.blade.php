@@ -155,8 +155,8 @@
                     <td>{{ $detalle->producto->codigo_producto ?? 'N/A' }}</td>
                     <td>{{ $detalle->producto->nombre_producto ?? 'N/A' }}</td>                    
                     <td>{{ $detalle->cantidad }}</td>
-                    <td>${{ number_format($detalle->subtotal / $detalle->cantidad, 2) }}</td>
-                    <td>${{ number_format($detalle->subtotal, 2) }}</td>
+                    <td>${{ number_format($detalle->subtotal / $detalle->cantidad, 0) }}</td>
+                    <td>${{ number_format($detalle->subtotal, 0) }}</td>
                 </tr>
             @endforeach
     </tbody>
@@ -166,26 +166,26 @@
   <table class="table totals" style="width: 60%; float: right; margin-top: 10px;">
     <tr>
       <td><strong>Sub Total</strong></td>
-      <td><span>{{ number_format($pedido->subtotal, 2) }}</span></td>
+      <td><span>{{ number_format($pedido->subtotal, 0) }}</span></td>
     </tr>
     <tr>
       <td><strong>Descuento</strong></td>
-      <td><span>{{ number_format($pedido->descuento, 2) }}</span></td>
+      <td><span>{{ number_format($pedido->descuento, 0) }}</span></td>
     </tr>
     <tr>
       <td><strong>Flete</strong></td>
-      <td><span>{{ number_format($pedido->flete, 2) }}</span></td>
+      <td><span>{{ number_format($pedido->flete, 0) }}</span></td>
     </tr>
     <tr>
       <td><strong>Total</strong></td>
-      <td><strong id="total">{{ number_format($pedido->total_a_pagar, 2) }}</strong></td>
+      <td><strong id="total">{{ number_format($pedido->total_a_pagar, 0) }}</strong></td>
     </tr>
   </table>
     
  <!-- Observaciones -->
   <div class="observacion">
-    <div><strong>OBSERVACIÓN 1:</strong><span id="comentario1">{{ $pedido->comentario1 ?? 'N/A' }}</span></div>
-    <div><strong>OBSERVACIÓN 2:</strong><span id="comentario2">{{ $pedido->comentario2 ?? 'N/A' }}</span></div>
+    <div><strong>OBSERVACIÓN 1:</strong><span id="comentario1">{{ $pedido->primer_comentario ?? 'N/A' }}</span></div>
+    <div><strong>OBSERVACIÓN 2:</strong><span id="comentario2">{{ $pedido->segundo_comentario ?? 'N/A' }}</span></div>
   </div>
 
   <!-- Pie de página -->

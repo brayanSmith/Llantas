@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('nombre_formula')->unique();
             $table->text('descripcion_formula')->nullable();
+            //$table->foreignId('unidad_medida_id')->constrained('unidades_medida')->onDelete('cascade');
             $table->timestamps();
         });
     }

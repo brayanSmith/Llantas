@@ -351,6 +351,7 @@ class POS extends Component
                 //Se agrega el id del producto
                 'nombre_producto' => $producto->nombre_producto,
                 'codigo_producto' => $producto->codigo_producto,
+                'ubicacion_producto' => $producto->ubicacion_producto,
 
                 'valor_detal_producto' => $producto->valor_detal_producto,
                 'valor_ferretero_producto' => $producto->valor_ferretero_producto,
@@ -361,10 +362,35 @@ class POS extends Component
             ];
         }
         
+        // Ordenar el carrito por código y ubicación
+        $this->sortCart();
+        
         // Guardar en sesión después de agregar al carrito
         $this->saveToSession();
     }
     
+    /**
+     * Ordenar el carrito por codigo_producto y ubicacion_producto
+     */
+    private function sortCart()
+    {
+        if (empty($this->cart)) {
+            return;
+        }
+
+        // Convertir el carrito a un array ordenado
+        $cartArray = collect($this->cart)->sortBy([
+            ['codigo_producto', 'asc'],
+            ['ubicacion_producto', 'asc'],
+        ])->toArray();
+
+        // Reconstruir el carrito manteniendo las claves (IDs de productos)
+        $this->cart = [];
+        foreach ($cartArray as $item) {
+            $this->cart[$item['id']] = $item;
+        }
+    }
+
     //remover productos del carro
     public function removeFromCart($productoId)
     {

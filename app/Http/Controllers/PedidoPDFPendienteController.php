@@ -16,7 +16,7 @@ class PedidoPDFPendienteController extends Controller
 
         // Ordenar detalles por ubicación y código de producto
         $detallesOrdenados = $pedido->detalles->sortBy([
-            ['producto.ubicacion', 'asc'],
+            ['producto.ubicacion_producto', 'asc'],
             ['producto.codigo_producto', 'asc']
         ]);
 
@@ -38,7 +38,7 @@ class PedidoPDFPendienteController extends Controller
 
         // Ordenar detalles por ubicación y código de producto
         $detallesOrdenados = $pedido->detalles->sortBy([
-            ['producto.ubicacion', 'asc'],
+            ['producto.ubicacion_producto', 'asc'],
             ['producto.codigo_producto', 'asc']
         ]);
 

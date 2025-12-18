@@ -12,11 +12,17 @@ use App\Models\DetallePedido;
 use App\Models\Traslado;
 use App\Models\AbonoCompra;
 use App\Models\Producto;
+use App\Models\Produccion;
+use App\Models\DetalleProduccionSalida;
+use App\Models\DetalleProduccionEntrada;
 
 use App\Observers\CompraObserver;
 use App\Observers\CompraStockBodegaObserver;
 use App\Observers\DetalleCompraObserver;
 use App\Observers\AbonoCompraObserver;
+use App\Observers\ProduccionObserver;
+use App\Observers\DetalleProduccionSalidaObserver;
+use App\Observers\DetalleProduccionEntradaObserver;
 
 use App\Observers\PedidoObserver;
 use App\Observers\PedidoStockBodegaObserver;
@@ -51,10 +57,10 @@ class AppServiceProvider extends ServiceProvider
         Compra::observe(CompraStockBodegaObserver::class);
 
         DetallePedido::observe(DetallePedidoObserver::class);
-        Pedido::observe(PedidoStockBodegaObserver::class);
-      
-        //Compra::observe(CompraObserver::class);        
-        //Pedido::observe(PedidoObserver::class);
-   
+        Pedido::observe(PedidoStockBodegaObserver::class);    
+        
+        Produccion::observe(ProduccionObserver::class);
+        DetalleProduccionSalida::observe(DetalleProduccionSalidaObserver::class);
+        DetalleProduccionEntrada::observe(DetalleProduccionEntradaObserver::class);
     }
 }

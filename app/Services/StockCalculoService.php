@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Models\DetalleCompra;
 use App\Models\DetallePedido;
+use App\Models\DetalleProduccionEntrada;
+use App\Models\DetalleProduccionSalida;
 use App\Models\StockBodega;
 use App\Models\Traslado;
 use App\Models\Producto;
@@ -28,6 +30,14 @@ class StockCalculoService
             ? ($producto->stock_inicial ?? 0) 
             : 0;
 
+        // Suma Las cantidades de DetalleProduccionEntrada
+        $totalDetProdEntrada = DetalleProduccionEntrada::where('producto_id', $productoId)
+            ->whereHas('produccion', function ($q) use ($bodegaId) {
+                $q->where('bodega_id', $bodegaId);                  
+            })
+            ->sum('cantidad_producto');
+        
+
         // Suma las cantidades de DetalleCompra 
         $totalCompras = DetalleCompra::where('item_id', $productoId)
             ->whereHas('compra', function ($q) use ($bodegaId, $excluirCompraId) {
@@ -51,12 +61,20 @@ class StockCalculoService
             ->sum('cantidad');
 
         // Retorna el total calculado
-        return  $totalInicial + $totalCompras - $totalDonaciones + $totalTraslados;
+        return  $totalInicial + $totalCompras + $totalDetProdEntrada - $totalDonaciones + $totalTraslados;
 
     }
 
     public function calcularSalidasFacturadas(int $productoId, int $bodegaId, ?int $excluirVentaId = null): float
     {
+    // Suma Las cantidades de DetalleProduccionSalida
+      $totalDetProdSalida = DetalleProduccionSalida::where('producto_id', $productoId)
+            ->whereHas('produccion', function ($q) use ($bodegaId) {
+                $q->where('bodega_id', $bodegaId);                  
+            })
+            ->sum('cantidad_producto');
+
+    // Suma las cantidades de DetallePedido        
       $totalPedidos = DetallePedido::where('producto_id', $productoId)
             ->whereHas('pedido', function ($q) use ($bodegaId, $excluirVentaId) {
                 $q->where('bodega_id', $bodegaId)
@@ -69,7 +87,7 @@ class StockCalculoService
             ->sum('cantidad');
 
         // Retorna el total calculado
-        return $totalPedidos;
+        return $totalPedidos + $totalDetProdSalida;
 
     }
 

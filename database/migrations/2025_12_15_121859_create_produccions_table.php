@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('produccions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('formula_id')->constrained('formulas')->onDelete('cascade');
+            $table->foreignId('bodega_id')->constrained('bodegas')->onDelete('cascade');
             $table->integer('cantidad');
             $table->string('lote');
             $table->date('fecha_produccion');

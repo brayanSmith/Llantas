@@ -11,15 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('detalle_produccions', function (Blueprint $table) {
+        Schema::create('detalle_produccion_salidas', function (Blueprint $table) {
             $table->id();
             $table->foreignId('produccion_id')->constrained('produccions')->onDelete('cascade');
             $table->foreignId('producto_id')->constrained('productos')->onDelete('cascade');
-            $table->foreignId('medida_id')->constrained('medidas')->onDelete('cascade');
-            $table->decimal('cantidad', 10, 2);
-            $table->date('fecha_produccion');
-            $table->text('observaciones')->nullable();            
-            $table->string('lote')->nullable();
+            $table->decimal('cantidad_producto', 10, 2)->default(0);
+            $table->date('fecha_produccion')->nullable();
             $table->timestamps();
         });
     }
@@ -29,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('detalle_produccions');
+        Schema::dropIfExists('detalle_produccion_salidas');
     }
 };

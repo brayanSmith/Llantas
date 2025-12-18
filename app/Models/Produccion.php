@@ -12,6 +12,7 @@ class Produccion extends Model
 
     protected $fillable = [
         'formula_id',
+        'bodega_id',
         'cantidad',
         'lote',
         'fecha_produccion',
@@ -21,10 +22,18 @@ class Produccion extends Model
     public function formula()
     {
         return $this->belongsTo(Formula::class);
-    }
-    public function detalleProducciones()
+    }    
+    public function bodega()
     {
-        return $this->hasMany(DetalleProduccion::class);
+        return $this->belongsTo(Bodega::class);
+    }
+    public function detallesProduccionEntradas()
+    {
+        return $this->hasMany(DetalleProduccionEntrada::class, 'produccion_id');
+    }
+    public function detallesProduccionSalidas()
+    {
+        return $this->hasMany(DetalleProduccionSalida::class, 'produccion_id');
     }
 
 }

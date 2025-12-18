@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Produccions\Pages;
 
 use App\Filament\Resources\Produccions\ProduccionResource;
 use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\ViewRecord;
 
 class ViewProduccion extends ViewRecord
@@ -13,7 +14,7 @@ class ViewProduccion extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
-            EditAction::make(),
+            DeleteAction::make(),
         ];
     }
 }

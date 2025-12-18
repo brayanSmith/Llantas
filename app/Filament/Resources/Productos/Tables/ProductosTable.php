@@ -26,6 +26,10 @@ class ProductosTable
                     ->disk('public')
                     ->size(50)
                     ->circular(),
+                TextColumn::make('ubicacion_producto')
+                    ->label('Ubicación')
+                    ->sortable()
+                    ->searchable(),
                 TextColumn::make('codigo_producto')
                     ->label('Código')
                     ->sortable()

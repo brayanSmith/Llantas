@@ -43,8 +43,8 @@ class FormulaResource extends Resource
                 
                 Repeater::make('detalleFormulas')
                     ->table([
-                        TableColumn::make('MP'),
-                        TableColumn::make('Cantidad'),
+                        TableColumn::make('MP')->width('80%'),
+                        TableColumn::make('Cantidad')->width('20%'),                        
                     ])
                     ->relationship()
                     ->schema([
@@ -62,7 +62,8 @@ class FormulaResource extends Resource
                         TextInput::make('cantidad_producto')
                             ->label('Cantidad')
                             ->numeric()
-                            ->required(),
+                            ->default(1)
+                            ->required(),                        
                     ])
                     ->collapsible()                    
                     ->compact()

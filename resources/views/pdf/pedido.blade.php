@@ -99,13 +99,13 @@
             @foreach($detalles as $detalle)
                 <tr>
                     <td>{{ $detalle->producto->codigo_producto ?? 'N/A' }}</td>
-                    <td>{{ $detalle->producto->ubicacion ?? 'N/A' }}</td>
+                    <td>{{ $detalle->producto->ubicacion_producto ?? 'N/A' }}</td>
                     <td>{{ $detalle->producto->nombre_producto ?? 'N/A' }}</td>
                     <td>{{ $detalle->cantidad }}</td>
                     <td></td>
-                    <td>${{ number_format(($detalle->subtotal / $detalle->cantidad), 2) }}</td>
-                    <td>${{ number_format($detalle->subtotal, 2) }}</td>
-                    <td></td>
+                    <td>${{ number_format(($detalle->subtotal / $detalle->cantidad), 0) }}</td>
+                    <td>${{ number_format($detalle->subtotal, 0) }}</td>
+                    <td>{{ number_format($detalle->producto->stockBodegaPrincipal->stock ?? 'N/A') }}</td>
                 </tr>
             @endforeach
         </tbody>

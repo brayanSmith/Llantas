@@ -92,6 +92,12 @@ class Producto extends Model
         return $this->hasMany(StockBodega::class);
     }
 
+    public function stockBodegaPrincipal()
+    {
+        return $this->hasOne(StockBodega::class)
+            ->where('bodega_id', 1); // Suponiendo que la bodega principal tiene ID 1
+    }
+
     public function getPrecioPorTipo(string $tipo): float
     {
         return match ($tipo) {
