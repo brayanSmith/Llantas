@@ -14,11 +14,12 @@ class PedidoCalculoService
     }
     
     // Obtiene el valor unitario del producto según el tipo de precio
-    public static function obtenerValorUnitario(Producto $producto, string $tipoPrecio): float
+    public static function obtenerValorUnitario(Producto|array $producto, string $tipoPrecio): float
     {
-        $valorDetal = $producto->valor_detal_producto ?? 0;
-        $valorMayorista = $producto->valor_mayorista_producto ?? 0;
-        $valorFerretero = $producto->valor_ferretero_producto ?? 0;
+        // Soportar tanto objetos Producto como arrays
+        $valorDetal = is_array($producto) ? ($producto['valor_detal_producto'] ?? 0) : ($producto->valor_detal_producto ?? 0);
+        $valorMayorista = is_array($producto) ? ($producto['valor_mayorista_producto'] ?? 0) : ($producto->valor_mayorista_producto ?? 0);
+        $valorFerretero = is_array($producto) ? ($producto['valor_ferretero_producto'] ?? 0) : ($producto->valor_ferretero_producto ?? 0);
 
         if ($tipoPrecio === 'DETAL') {
             return $valorDetal;
@@ -80,6 +81,8 @@ class PedidoCalculoService
             'iva' => $producto->iva_producto,
         ];
     }
+
+    
 
      /**
      * 🔹 Calcula el total del detalle del pedido

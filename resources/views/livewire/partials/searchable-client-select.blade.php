@@ -18,7 +18,7 @@
                class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900
                       placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent
                       dark:bg-gray-900 dark:text-gray-100 dark:border-gray-700 dark:placeholder-gray-500"
-               wire:model="ciudadSeleccionada"
+               wire:model.live="ciudad"
                readonly>
     </div>
 

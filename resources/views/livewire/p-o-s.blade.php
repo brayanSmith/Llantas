@@ -54,7 +54,7 @@
                                 </div>
 
                                 <div class="flex items-center space-x-2">
-                                    @php($maxStock = \App\Models\Producto::find($cartProduct['id'])->stock ?? 1)
+                                    @php($maxStock = \App\Models\StockBodega::where('producto_id', $cartProduct['id'])->where('bodega_id', $this->bodega ?? 1)->first()->stock ?? 1)
                                     <input type="number" min="1" max="{{ (int) $maxStock }}"
                                         wire:model.live.debounce.500ms="cart.{{ $cartProduct['id'] }}.cantidad"
                                         @change="if(this.value > {{ (int) $maxStock }}) this.value = {{ (int) $maxStock }}"
@@ -221,7 +221,8 @@
                         <div class="mt-4">
                             <label for="flete"
                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Flete (COP)</label>
-                            <input type="text" id="flete" wire:model.blur="flete" 
+                            <input type="number" id="flete" wire:model.blur="flete" 
+                                min="0" step="0.01"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-neutral-900 dark:border-neutral-700 dark:text-gray-100"
                                 placeholder="Ingresa el valor del flete..." />
                         </div>  

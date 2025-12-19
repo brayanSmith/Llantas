@@ -22,14 +22,13 @@ Route::middleware(['auth'])->group(function () {
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/manage-productos', \App\Livewire\Productos\ListProductos::class)->name('productos.index');
-    Route::get('/edit-producto{record}', \App\Livewire\Productos\EditProducto::class)->name('producto.edit');
-    Route::get('/create-producto', \App\Livewire\Productos\CreateProducto::class)->name('producto.create');
-
-    //Route::get('/manage-pedidos', \App\Livewire\Pedidos\ListPedidos::class)->name('pedidos.index');
-    //Route::get('productos/create', \App\Livewire\Productos\CreateProducto::class)->name('productos.create');
-    //Route::get('productos/{producto}/edit', \App\Livewire\Productos\EditProducto::class)->name('productos.edit');
+    
     Route::get('/pos', \App\Livewire\POS::class)->name('pos');
+    
+    // Ruta para el índice de pedidos
+    Route::get('/pedidos', function () {
+        return redirect('/admin/pedidos');
+    })->name('pedidos.index');
 
     Route::get('/pedido/{id}/pdf', [PedidoPDFPendienteController::class, 'stream'])->name('pedidos.pdf.stream');
     Route::get('/pedido/{id}/pdf/download', [PedidoPDFPendienteController::class, 'download'])->name('pedidos.pdf.download');

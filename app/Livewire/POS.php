@@ -24,21 +24,17 @@ class POS extends Component
 
     // Tema de paginación (Tailwind por Filament)
     protected $paginationTheme = 'tailwind';
-
     // Modal de confirmación de venta
     public $showConfirmModal = false;
     public $confirmModalTitle = '';
     public $confirmModalBody = '';
-
     //Propiedades
     public $productos;
     public $clientes = [];
     public $search = '';
     public $cart = [];
-
     //propiedades para validar
     public $cliente_id = null;
-
     public $valor_decuento = 0; //
     public $flete = 0; // Valor del flete
     public $metodo_pago = "CREDITO";
@@ -46,7 +42,6 @@ class POS extends Component
     public $tipo_venta = "REMISIONADA";
     public $estado_venta = "VENTA";
     public $iva = 0;
-
     public $valor_producto = 0;
     // Comentarios
     public $primer_comentario = '';
@@ -57,12 +52,9 @@ class POS extends Component
     public $perPage = 10;
     public $contador_impresiones = 0;
     public $ciudades = [];
-    public $ciudadSeleccionada;
-    public $direccionSeleccionada;
     public $bodega = null;
     //public $bodegas = [];
     public $user_id = null;
-
 
     public function mount()
     {
@@ -89,8 +81,6 @@ class POS extends Component
         if (!empty($posData)) {
             $this->cart = $posData['cart'] ?? [];
             $this->cliente_id = $posData['cliente_id'] ?? null;
-            $this->ciudadSeleccionada = $posData['ciudadSeleccionada'] ?? '';
-            $this->direccionSeleccionada = $posData['direccionSeleccionada'] ?? '';
             $this->metodo_pago = $posData['metodo_pago'] ?? 'CREDITO';
             $this->tipo_precio = $posData['tipo_precio'] ?? 'FERRETERO';
             $this->tipo_venta = $posData['tipo_venta'] ?? 'REMISIONADA';
@@ -100,8 +90,6 @@ class POS extends Component
             $this->flete = $posData['flete'] ?? 0;
             $this->ciudad = $posData['ciudad'] ?? '';
             $this->direccion = $posData['direccion'] ?? '';
-            $this->ciudadSeleccionada = $posData['ciudadSeleccionada'] ?? '';
-            $this->direccionSeleccionada = $posData['direccionSeleccionada'] ?? '';
             $this->user_id = $posData['user_id'] ?? null;
         }
     }
@@ -123,8 +111,6 @@ class POS extends Component
             'flete' => $this->flete,
             'ciudad' => $this->ciudad,
             'direccion' => $this->direccion,
-            'ciudadSeleccionada' => $this->ciudadSeleccionada,
-            'direccionSeleccionada' => $this->direccionSeleccionada,
             'user_id' => $this->user_id,
         ];
         
@@ -148,122 +134,69 @@ class POS extends Component
         $this->flete = 0;
         $this->ciudad = '';
         $this->direccion = '';
-        $this->ciudadSeleccionada = '';
-        $this->direccionSeleccionada = '';
         $this->user_id = auth()->id(); // Mantener el usuario logueado
     }
 
-    // Actualizar ciudad cuando se selecciona un cliente
+    // Actualizar ciudad y dirección cuando se selecciona un cliente
     public function updatedClienteId($value): void
-{
-    // 1) Reset dependientes
-    $this->ciudadSeleccionada = '';
-    $this->direccionSeleccionada = '';
-    if (property_exists($this, 'ciudad')) {
+    {
+        // Reset campos
         $this->ciudad = '';
-    }
-    if (property_exists($this, 'direccion')) {
         $this->direccion = '';
-    }
 
-    // 2) Normaliza ID (evita '0', '', 'abc', etc.)
-    $id = filter_var($value, FILTER_VALIDATE_INT) ?: null;
-    if (!$id) {
-        $this->saveToSession(); // Guardar cambios
-        return; // selección vacía o inválida
-    }
-
-    // 3) Si ya tienes la colección $clientes, úsala y evita ir a BD
-    if (property_exists($this, 'clientes') && !empty($this->clientes)) {
-        $c = collect($this->clientes)->firstWhere('id', $id);
-        if ($c) {
-            $this->ciudadSeleccionada = $c['ciudad'] ?? $c['municipio'] ?? '';
-            $this->direccionSeleccionada = $c['direccion'] ?? $c['direccion'] ?? '';
-            if (property_exists($this, 'ciudad')) {
-                $this->ciudad = $this->ciudadSeleccionada;
-            }
-            if (property_exists($this, 'direccion')) {
-                $this->direccion = $this->direccionSeleccionada;
-            }
-            $this->saveToSession(); // Guardar cambios
+        // Normaliza ID (evita '0', '', 'abc', etc.)
+        $id = filter_var($value, FILTER_VALIDATE_INT) ?: null;
+        if (!$id) {
+            $this->saveToSession();
             return;
         }
-    }
 
-    // 4) Fallback: obtener sólo lo necesario de BD
-    $cliente = $this->getClientesQuery()
-        ->select(['id', 'ciudad', 'municipio' ,'direccion'])
-        ->find($id);
-
-    if (!$cliente) {
-        // Si usas Tom Select / Select2 puedes limpiar el widget en el front:
-        // $this->dispatch('reset-cliente-select'); // JS hará ts.clear() / $el.val(null).trigger('change')
-        $this->saveToSession(); // Guardar cambios
-        return;
-    }
-
-    // 5) Asignar ciudad
-     $this->ciudadSeleccionada = $cliente->ciudad ?: $cliente->municipio ?: '';
-       $this->direccionSeleccionada = $cliente->direccion ?? $cliente->direccion1 ?? $cliente->direccion_1 ?? '';
-        if (property_exists($this, 'ciudad')) {
-            $this->ciudad = $this->ciudadSeleccionada;
+        // Buscar en la colección primero (evita consulta a BD)
+        if (!empty($this->clientes)) {
+            $cliente = collect($this->clientes)->firstWhere('id', $id);
+            if ($cliente) {
+                $this->ciudad = $cliente['ciudad'] ?? $cliente['municipio'] ?? '';
+                $this->direccion = $cliente['direccion'] ?? '';
+                $this->saveToSession();
+                return;
+            }
         }
-        if (property_exists($this, 'direccion')) {
-            $this->direccion = $this->direccionSeleccionada;
+
+        // Fallback: consultar BD si no está en la colección
+        $cliente = $this->getClientesQuery()
+            ->select(['id', 'ciudad', 'municipio', 'direccion'])
+            ->find($id);
+
+        if ($cliente) {
+            $this->ciudad = $cliente->ciudad ?: $cliente->municipio ?: '';
+            $this->direccion = $cliente->direccion ?? '';
         }
         
-        $this->saveToSession(); // Guardar cambios
-    }
-
-    // Interceptar cambios en propiedades importantes para guardar en sesión
-    public function updatedMetodoPago()
-    {
         $this->saveToSession();
-    }
+    }    
 
-    public function updatedTipoPrecio()
+    // Interceptor global para auto-guardado y control de paginación
+    public function updated($property, $value)
     {
-        $this->saveToSession();
-    }
-
-    public function updatedTipoVenta()
-    {
-        $this->saveToSession();
-    }
-
-    public function updatedPrimerComentario()
-    {
-        $this->saveToSession();
-    }
-
-    public function updatedSegundoComentario()
-    {
-        $this->saveToSession();
-    }
-
-    public function updatedFlete($value)
-    {
-        // Limpiar el valor: remover caracteres no numéricos excepto punto y coma
-        $cleanValue = preg_replace('/[^\d,.]/', '', $value);
+        // Propiedades que deben guardarse automáticamente en sesión
+        $autoSaveProps = [
+            'metodo_pago', 
+            'tipo_precio', 
+            'tipo_venta', 
+            'estado_venta',
+            'primer_comentario', 
+            'segundo_comentario',
+            'cart',
+            'ciudad',
+            'direccion'
+        ];
         
-        // Reemplazar coma por punto para decimales
-        $cleanValue = str_replace(',', '.', $cleanValue);
+        if (in_array($property, $autoSaveProps)) {
+            $this->saveToSession();
+        }
         
-        // Convertir a float y asegurar que no sea negativo
-        $this->flete = max(0, (float) $cleanValue);
-        
-        $this->saveToSession();
-    }
-
-    public function updatedCart()
-    {
-        $this->saveToSession();
-    }
-
-    // Resetear la página cuando cambia el buscador o el tamaño de página
-    public function updated($name, $value)
-    {
-        if (in_array($name, ['search', 'perPage'])) {
+        // Resetear paginación cuando cambia búsqueda o tamaño de página
+        if (in_array($property, ['search', 'perPage'])) {
             $this->resetPage();
         }
     }
@@ -298,7 +231,7 @@ class POS extends Component
     {
         // Subtotal CON IVA para mostrar en pantalla
         $subtotalProductos = collect($this->cart)->sum(function ($producto) {
-            $precioBase = $this->getPrecioBase($producto);
+            $precioBase = $precioBase = PedidoCalculoService::obtenerValorUnitario($producto, $this->tipo_precio);
             return PedidoCalculoService::calcularDetalles([
                 'producto_id' => $producto['id'],
                 'cantidad' => $producto['cantidad'],
@@ -380,8 +313,8 @@ class POS extends Component
 
         // Convertir el carrito a un array ordenado
         $cartArray = collect($this->cart)->sortBy([
-            ['codigo_producto', 'asc'],
             ['ubicacion_producto', 'asc'],
+            ['codigo_producto', 'asc'],            
         ])->toArray();
 
         // Reconstruir el carrito manteniendo las claves (IDs de productos)
@@ -399,37 +332,7 @@ class POS extends Component
         // Guardar en sesión después de remover del carrito
         $this->saveToSession();
     }
-
-    //actualizar la cantidad en el producto del carro por item
-    public function updateQuantity($productoId, $cantidad)
-    {
-        //cuando la cantidad de un item es menor a 1
-        $cantidad = max(1, (int) $cantidad);
-
-        //obtener el inventario
-        $inventario = Producto::find($productoId);
-        
-        if (!$inventario) {
-            return;
-        }
-
-        // Validar que la cantidad no supere el stock disponible
-        if ($cantidad > $inventario->stock) {
-            Notification::make()
-                ->title('No hay suficiente stock')
-                ->body("Stock disponible: {$inventario->stock}")
-                ->danger()
-                ->send();
-            // Limitar a lo que hay disponible
-            $this->cart[$productoId]['cantidad'] = $inventario->stock;
-        } else {
-            $this->cart[$productoId]['cantidad'] = $cantidad;
-        }
-        
-        // Guardar cambios en sesión
-        $this->saveToSession();
-    }
-
+    
     //Verificar que el carro no este vacio
     public function checkout()
     {
@@ -463,8 +366,7 @@ class POS extends Component
                 'subtotal' => $this->subtotal(), // Guardar subtotal SIN IVA
                 'total_a_pagar' => $this->subtotal() + $this->flete, // Total CON IVA
                 'saldo_pendiente' => $this->subtotal() + $this->flete, // Inicialmente igual al total a pagar
-                //'ciudad' => $this->ciudad,
-                'ciudad' => $this->ciudadSeleccionada,
+                'ciudad' => $this->ciudad,
                 //vamos a hacer que la fecha de vencimiento sea 30 dias despues de la fecha actual
                 'fecha_vencimiento' => now()->addDays(30)->toDateString(),
                 'bodega_id' => 1, //por defecto bodega 1
@@ -474,7 +376,7 @@ class POS extends Component
             //Crear Productos Vendidos
 
             foreach ($this->cart as $producto) {
-                $precio_unitario = $this->getPrecioBase($producto); // Sin IVA para guardar en BD
+                $precio_unitario = PedidoCalculoService::obtenerValorUnitario($producto, $this->tipo_precio); // Sin IVA para guardar en BD
                 $ivaProducto = $producto['iva_producto'] ?? 0;
                 
                 DetallePedido::create([
@@ -515,8 +417,8 @@ class POS extends Component
             $this->estado_venta = "VENTA";
             $this->primer_comentario = '';
             $this->segundo_comentario = '';
-            $this->ciudadSeleccionada = '';
-            $this->direccionSeleccionada = '';
+            $this->ciudad = '';
+            $this->direccion = '';
             $this->flete = 0;
             $this->user_id = auth()->id(); // Mantener el usuario logueado
             //$this->bodegaSeleccionada = '';
@@ -543,32 +445,15 @@ class POS extends Component
                 ->danger()
                 ->send();
         }
-    }
-
-    /**
-     * Obtener el precio base del producto según el tipo de precio
-     * (sin IVA)
-     */
-    private function getPrecioBase($producto)
-    {
-        switch ($this->tipo_precio) {
-            case 'FERRETERO':
-                return $producto['valor_ferretero_producto'];
-            case 'MAYORISTA':
-                return $producto['valor_mayorista_producto'];
-            case 'DETAL':
-            default:
-                return $producto['valor_detal_producto'];
-        }
-    }
+    }    
     
     /**
      * Calcula el precio del producto con o sin IVA usando PedidoCalculoService
      * @deprecated Usar getPrecioBase() y PedidoCalculoService::calcularDetalles() directamente
      */
     public function getPrecioProducto($producto, $conIva = true)
-    {
-        $precioBase = $this->getPrecioBase($producto);
+    {        
+        $precioBase = PedidoCalculoService::obtenerValorUnitario($producto, $this->tipo_precio);
         
         if ($conIva) {
             return PedidoCalculoService::calcularDetalles([
