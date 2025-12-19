@@ -42,7 +42,8 @@ class ProduccionInfolist
                     ->table([
                         tableColumn::make('Producto Terminado')->width('40%'),
                         tableColumn::make('Cantidad')->width('10%'),
-                        tableColumn::make('Lote')->width('20%'),
+                        tableColumn::make('Medida')->width('10%'),
+                        tableColumn::make('Lote')->width('10%'),
                         tableColumn::make('Fecha Producción')->width('10%'),
                         tableColumn::make('Observaciones')->width('40%'),
                     ])
@@ -54,6 +55,9 @@ class ProduccionInfolist
                             ->icon('heroicon-o-calculator')
                             ->label('Cantidad')
                             ->color('success'),
+                        TextEntry::make('producto.medida.nombre_medida')
+                            ->icon('heroicon-o-calculator')                        
+                            ->label('Medida'),
                         TextEntry::make('lote')
                             ->icon('heroicon-o-tag'),
                         TextEntry::make('fecha_produccion')
@@ -67,8 +71,9 @@ class ProduccionInfolist
                     ->label('Detalles Materia Prima Utilizada')
                     ->columnSpanFull()
                     ->table([
-                        tableColumn::make('Producto')->width('90%'),
-                        tableColumn::make('Cantidad')->width('10%'),                        
+                        tableColumn::make('Producto')->width('70%'),
+                        tableColumn::make('Cantidad')->width('10%'),  
+                        tableColumn::make('Medida')->width('20%'),                      
                     ])
                     ->schema([
                         TextEntry::make('producto.nombre_producto')
@@ -77,7 +82,10 @@ class ProduccionInfolist
                         TextEntry::make('cantidad_producto')
                             ->icon('heroicon-o-calculator')
                             ->label('Cantidad')
-                            ->color('danger'),                        
+                            ->color('danger'),               
+                        TextEntry::make('producto.medida.nombre_medida')
+                            ->icon('heroicon-o-calculator')                        
+                            ->label('Medida'),         
                     ]),
             ]);
     }

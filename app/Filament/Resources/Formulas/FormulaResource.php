@@ -43,8 +43,9 @@ class FormulaResource extends Resource
                 
                 Repeater::make('detalleFormulas')
                     ->table([
-                        TableColumn::make('MP')->width('80%'),
-                        TableColumn::make('Cantidad')->width('20%'),                        
+                        TableColumn::make('MP')->width('60%'),
+                        TableColumn::make('Cantidad')->width('10%'),
+                        TableColumn::make('Medida')->width('30%'),                        
                     ])
                     ->relationship()
                     ->schema([
@@ -55,15 +56,37 @@ class FormulaResource extends Resource
                                 titleAttribute: 'concatenar_codigo_nombre',
                                 modifyQueryUsing: fn ($query) =>
                                     $query->where('categoria_producto', 'MATERIA_PRIMA')
-                            )                            
+                            )
+                            ->afterStateHydrated(function (callable $set, $state) {
+                                if ($state) {
+                                    $producto = \App\Models\Producto::find($state);
+                                    if ($producto) {
+                                        $set('medida', $producto->medida->nombre_medida);
+                                    }
+                                }
+                            })
+                            ->afterStateUpdated(function (callable $set, $state) {
+                                $producto = \App\Models\Producto::find($state);
+                                if ($producto) {
+                                    $set('medida', $producto->medida->nombre_medida);
+                                } else {
+                                    $set('medida', null);
+                                }
+                            })                          
                             ->searchable()
                             ->preload()
-                            ->required(),
+                            ->required()
+                            ->live(),
                         TextInput::make('cantidad_producto')
                             ->label('Cantidad')
                             ->numeric()
                             ->default(1)
-                            ->required(),                        
+                            ->required(),
+                        
+                        TextInput::make('medida')
+                            ->label('Medida')
+                            ->disabled()
+                            ->dehydrated()                            
                     ])
                     ->collapsible()                    
                     ->compact()
