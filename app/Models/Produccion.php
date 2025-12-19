@@ -17,7 +17,12 @@ class Produccion extends Model
         'lote',
         'fecha_produccion',
         'fecha_caducidad',
-        'observaciones',        
+        'observaciones',
+        'ph',
+        'biscocidad',
+        'homogeneidad',  
+        'responsable_lote_id',
+        'responsable_cc_id',      
     ];
     public function formula()
     {
@@ -34,6 +39,20 @@ class Produccion extends Model
     public function detallesProduccionSalidas()
     {
         return $this->hasMany(DetalleProduccionSalida::class, 'produccion_id');
+    }
+    public function responsableLote()
+    {
+        return $this->belongsTo(User::class, 'responsable_lote_id')
+            ->whereDoesntHave('roles', function ($query) {
+                $query->whereIn('name', ['comercial', 'cliente']);
+            });
+    }
+    public function responsableCC()
+    {
+        return $this->belongsTo(User::class, 'responsable_cc_id')
+            ->whereDoesntHave('roles', function ($query) {
+                $query->whereIn('name', ['comercial', 'cliente']);
+            });
     }
 
 }

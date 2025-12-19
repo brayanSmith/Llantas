@@ -82,4 +82,14 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->hasMany(Pedido::class, 'user_id');
     }
+
+    public function produccionesResponsableLote()
+    {
+        return $this->hasMany(Produccion::class, 'responsable_lote_id');
+    }
+
+    public function produccionesResponsableCC()
+    {
+        return $this->hasMany(Produccion::class, 'responsable_cc_id');
+    }
 }

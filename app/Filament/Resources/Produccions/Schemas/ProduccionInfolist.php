@@ -33,6 +33,21 @@ class ProduccionInfolist
                 TextEntry::make('fecha_caducidad')
                     ->date(),
                     ]),
+                Section::make('Parámetros de Calidad')
+                    ->columns(3)
+                    ->schema([
+                TextEntry::make('ph'),
+                TextEntry::make('biscocidad'),
+                TextEntry::make('homogeneidad'),
+                    ]),
+                Section::make('Responsables')
+                    ->columns(2)
+                    ->schema([
+                TextEntry::make('responsableLote.name')
+                    ->label('Responsable de Lote'),
+                TextEntry::make('responsableCC.name')
+                    ->label('Responsable de CC'),
+                    ]),
                 TextEntry::make('Observaciones')
                     ->placeholder('-')
                     ->columnSpanFull(),                
@@ -63,8 +78,7 @@ class ProduccionInfolist
                         TextEntry::make('fecha_produccion')
                             ->icon('heroicon-o-calendar')
                             ->date(),
-                        TextEntry::make('observaciones')
-                            ->icon('heroicon-o-chat-alt-2')
+                        TextEntry::make('observaciones')                            
                             ->placeholder('-'),
                     ]),
                 RepeatableEntry::make('detallesProduccionSalidas')

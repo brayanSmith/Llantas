@@ -17,9 +17,14 @@ return new class extends Migration
             $table->foreignId('bodega_id')->constrained('bodegas')->onDelete('cascade');
             $table->integer('cantidad');
             $table->string('lote');
+            $table->decimal('ph', 8, 2);
+            $table->integer('biscocidad');
+            $table->integer('homogeneidad');
             $table->date('fecha_produccion');
             $table->date('fecha_caducidad');
-            $table->text('Observaciones')->nullable();
+            $table->text('observaciones')->nullable();
+            $table->foreignId('responsable_lote_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('responsable_cc_id')->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });
     }

@@ -35,12 +35,35 @@ class ProduccionForm
                     ->preload(),
                 TextInput::make('lote')
                     ->required(),
+                TextInput::make('ph')
+                    ->required()
+                    ->numeric()
+                    ->step(0.01),
+                TextInput::make('biscocidad')
+                    ->required()
+                    ->numeric(),
+                TextInput::make('homogeneidad')
+                    ->required()
+                    ->numeric(),
                 DatePicker::make('fecha_produccion')
                     ->default(today())
                     ->required(),
                 DatePicker::make('fecha_caducidad')
                     ->default(today()->addDays(30))
                     ->required(),
+                Select::make('responsable_lote_id')
+                    ->label('Responsable de Lote')
+                    ->relationship('responsableLote', 'name')
+                    ->required()
+                    ->searchable()
+                    ->preload(),
+                Select::make('responsable_cc_id')
+                    ->label('Responsable de Control de Calidad')
+                    ->relationship('responsableCC', 'name')
+                    ->required()
+                    ->searchable()
+                    ->preload(),
+                
                 Textarea::make('Observaciones')
                     ->default(null)
                     ->columnSpanFull(),
