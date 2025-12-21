@@ -11,7 +11,8 @@ class ComisionService
     public function obtenerPedidosParaComision(Comision $comision)
     {
         $pedidos = $comision->vendedor->pedidos()
-            ->whereBetween('fecha', [$comision->periodo_inicial, $comision->periodo_final])
+            ->whereDate('fecha', '>=', $comision->periodo_inicial)
+            ->whereDate('fecha', '<=', $comision->periodo_final)
             ->whereIn('estado', ['FACTURADO', 'ENTREGADO'])
             ->get();
 
@@ -19,6 +20,7 @@ class ComisionService
         foreach ($pedidos as $pedido) {
             $detalles[] = [
                 'pedido_id' => $pedido->id,
+                'codigo' => $pedido->codigo,
                 'monto_venta' => $pedido->total_a_pagar,
                 'fecha_venta' => $pedido->fecha,
                 'tipo_venta' => $pedido->tipo_venta,
@@ -33,7 +35,8 @@ class ComisionService
     public function obtenerAbonosParaComision(Comision $comision)
     {
         $abonos = $comision->vendedor->abonosVendedor()
-            ->whereBetween('fecha', [$comision->periodo_inicial, $comision->periodo_final])            
+            ->whereDate('fecha', '>=', $comision->periodo_inicial)
+            ->whereDate('fecha', '<=', $comision->periodo_final)
             ->get();
 
         $detalles = [];

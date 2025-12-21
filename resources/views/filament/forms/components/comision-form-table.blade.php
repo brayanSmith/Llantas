@@ -33,7 +33,7 @@
                 </label>
                 <select 
                     wire:model.live="data.comision_data.vendedor_id"
-                    class="w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 focus:border-primary-500 focus:ring-primary-500"
+                    class="w-full rounded-md px-3 py-2 border-gray-300 dark:border-gray-700 bg-gray-200 dark:bg-gray-900 dark:text-gray-100 focus:border-primary-500 focus:ring-primary-500"
                     required
                     @if($record) disabled @endif
                 >
@@ -50,7 +50,7 @@
                 </label>
                 <select 
                     wire:model="data.comision_data.estado_comision"
-                    class="w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 focus:border-primary-500 focus:ring-primary-500"
+                    class="w-full rounded-md px-3 py-2 border-gray-300 dark:border-gray-700 bg-gray-200 dark:bg-gray-900 dark:text-gray-100 focus:border-primary-500 focus:ring-primary-500"
                     required
                 >
                     <option value="PENDIENTE">Pendiente</option>
@@ -65,7 +65,7 @@
                 <input 
                     type="date"
                     wire:model.live="data.comision_data.periodo_inicial"
-                    class="w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 focus:border-primary-500 focus:ring-primary-500"
+                    class="w-full rounded-md px-3 py-2 border-gray-300 dark:border-gray-700 bg-gray-200 dark:bg-gray-900 dark:text-gray-100 focus:border-primary-500 focus:ring-primary-500"
                     required
                     @if($record) readonly @endif
                 />
@@ -78,7 +78,7 @@
                 <input 
                     type="date"
                     wire:model.live="data.comision_data.periodo_final"
-                    class="w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 focus:border-primary-500 focus:ring-primary-500"
+                    class="w-full rounded-md px-3 py-2 border-gray-300 dark:border-gray-700 bg-gray-200 dark:bg-gray-900 dark:text-gray-100 focus:border-primary-500 focus:ring-primary-500"
                     required
                     @if($record) readonly @endif
                 />
@@ -274,7 +274,7 @@
                     <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
                         @foreach($pedidosPreview as $pedido)
                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-800">
-                            <td class="px-4 py-2 text-sm text-gray-900 dark:text-gray-100">#{{ $pedido['pedido_id'] }}</td>
+                            <td class="px-4 py-2 text-sm text-gray-900 dark:text-gray-100">{{ $pedido['codigo'] ?? '#'.$pedido['pedido_id'] }}</td>
                             <td class="px-4 py-2 text-sm text-gray-500 dark:text-gray-400">{{ \Carbon\Carbon::parse($pedido['fecha_venta'])->format('d/m/Y') }}</td>
                             <td class="px-4 py-2 text-center">
                                 <span class="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full 
