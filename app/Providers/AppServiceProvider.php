@@ -15,7 +15,10 @@ use App\Models\Producto;
 use App\Models\Produccion;
 use App\Models\DetalleProduccionSalida;
 use App\Models\DetalleProduccionEntrada;
+use App\Models\Comision;
+use App\Models\Abono;
 
+use App\Observers\ComisionObserver;
 use App\Observers\CompraObserver;
 use App\Observers\CompraStockBodegaObserver;
 use App\Observers\DetalleCompraObserver;
@@ -30,6 +33,7 @@ use App\Observers\DetallePedidoObserver;
 
 use App\Observers\TrasladoObserver;
 use App\Observers\ProductoObserver;
+use App\Observers\AbonoObserver;
 
 use App\Policies\PedidoCarteraPolicy;
 use App\Policies\PedidoSaldadoPolicy;
@@ -57,10 +61,13 @@ class AppServiceProvider extends ServiceProvider
         Compra::observe(CompraStockBodegaObserver::class);
 
         DetallePedido::observe(DetallePedidoObserver::class);
+        Abono::observe(AbonoObserver::class);
         Pedido::observe(PedidoStockBodegaObserver::class);    
         
         Produccion::observe(ProduccionObserver::class);
         DetalleProduccionSalida::observe(DetalleProduccionSalidaObserver::class);
         DetalleProduccionEntrada::observe(DetalleProduccionEntradaObserver::class);
-    }
+
+        Comision::observe(ComisionObserver::class);
+        }
 }

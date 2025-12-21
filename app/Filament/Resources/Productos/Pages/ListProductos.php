@@ -21,7 +21,7 @@ class ListProductos extends ListRecords
 {
     protected static string $resource = ProductoResource::class;
 
-    public function getTabs(): array
+    public function getTabs(): array 
     {
         return [
             'Todos' => Tab::make(),

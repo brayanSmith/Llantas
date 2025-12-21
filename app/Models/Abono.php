@@ -17,6 +17,7 @@ class Abono extends Model
         'pedido_id',
         'forma_pago',
         'user_id',
+        'vendedor_id',
     ];
 
     protected $casts = [
@@ -44,5 +45,13 @@ class Abono extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+    public function detallesComisionAbonos()
+    {
+        return $this->hasMany(DetalleComisionAbono::class, 'abono_id');
+    }
 
+    public function vendedor()
+    {
+        return $this->belongsTo(User::class, 'vendedor_id');
+    }
 }

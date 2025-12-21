@@ -23,6 +23,9 @@ class PedidoStockBodegaObserver
         $estadoPago = $pedido->setEstadoPago();
         //$totales = $pedido->recalcularTotales();        
         app(PedidoStockService::class)->creado($pedido);
+        
+        // Actualizar vendedor de los abonos
+        PedidoCalculoService::actualizarVendedorAbonos($pedido);
     }
 
     /**
@@ -33,6 +36,11 @@ class PedidoStockBodegaObserver
         $pedido->recalcularTotales();
         $estadoPago = $pedido->setEstadoPago();
         app(PedidoStockService::class)->actualizado($pedido);
+        
+        // Actualizar vendedor de los abonos si cambió
+        //if ($pedido->wasChanged('user_id')) {
+            PedidoCalculoService::actualizarVendedorAbonos($pedido);
+        //}
     }
 
     /**

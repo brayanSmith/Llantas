@@ -501,6 +501,7 @@ trait HasPedidoSections
                                     ->preload()
                                     ->required()
                                     ->columnSpan(1),
+                                
                             ])->columns(3)->columnSpan(2),
 
                             Section::make('Soporte')->schema([

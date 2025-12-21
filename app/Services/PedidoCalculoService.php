@@ -4,6 +4,7 @@ namespace App\Services;
 use App\Models\Pedido;
 use App\Models\DetallePedido;
 use App\Models\Producto;
+use App\Models\Abono;
 
 class PedidoCalculoService
 {
@@ -81,7 +82,20 @@ class PedidoCalculoService
             'iva' => $producto->iva_producto,
         ];
     }
-
+    
+    /**
+     * Actualiza el vendedor de todos los abonos de un pedido
+     */
+    public static function actualizarVendedorAbonos(Pedido $pedido): int
+    {
+        if (!$pedido->user_id) {
+            return 0;
+        }
+        
+        // Actualizar todos los abonos del pedido con el vendedor del pedido
+        return Abono::where('pedido_id', $pedido->id)
+            ->update(['vendedor_id' => $pedido->user_id]);
+    }
     
 
      /**

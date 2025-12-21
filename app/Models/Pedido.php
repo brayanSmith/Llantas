@@ -83,7 +83,11 @@ class Pedido extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
-
+    public function detallesComision()
+    {
+        return $this->hasMany(DetalleComisionPedido::class, 'pedido_id');
+    }
+    
     public function recalcularTotales()
     {
         // Obtener todos los abonos del pedido
