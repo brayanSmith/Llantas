@@ -58,25 +58,10 @@ class ProductosTable
                     ->label('Bodega')
                     ->sortable(),
 
-                TextColumn::make('stock')
+                TextColumn::make('stock_inicial')
                     ->numeric()
                     ->sortable()
-                    ->label('Stock')
-                    ->color(function ($record) {
-                        if ($record->stock <= $record->alerta_producto) {
-                            return 'danger';
-                        }
-                        return 'success';
-                    }),
-                
-                TextColumn::make('entradas')
-                    ->label('Entradas')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('salidas')
-                    ->label('Salidas')
-                    ->numeric()
-                    ->sortable(),
+                    ->label('Stock'),               
 
                 TextColumn::make('created_at')
                     ->dateTime()
