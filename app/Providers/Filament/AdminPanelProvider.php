@@ -39,6 +39,8 @@ class AdminPanelProvider extends PanelProvider
             ->registration()
             ->profile()
             ->passwordReset()
+            ->globalSearch(true)
+            ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
             ->colors([
                 'primary' => Color::Amber,
             ])            
@@ -50,8 +52,8 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
-                AccountWidget::class,
-                FilamentInfoWidget::class,
+                // AccountWidget::class,
+                // FilamentInfoWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,
