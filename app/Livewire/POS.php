@@ -368,6 +368,7 @@ class POS extends Component
                 'saldo_pendiente' => $this->subtotal() + $this->flete, // Inicialmente igual al total a pagar
                 'ciudad' => $this->ciudad,
                 //vamos a hacer que la fecha de vencimiento sea 30 dias despues de la fecha actual
+                'fecha' => now()->toDateString(),
                 'fecha_vencimiento' => now()->addDays(30)->toDateString(),
                 'bodega_id' => 1, //por defecto bodega 1
 
