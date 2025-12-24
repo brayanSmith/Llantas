@@ -215,12 +215,19 @@ class POS extends Component
             })
             ->when(
                 $this->search,
-                fn($q) =>
-                $q->where(
-                    fn($qq) =>
-                    $qq->where('nombre_producto', 'like', "%{$this->search}%")
-                        ->orWhere('codigo_producto', 'like', "%{$this->search}%")
-                )
+                function($q) {
+                    // Dividir la búsqueda en palabras clave
+                    $keywords = array_filter(explode(' ', trim($this->search)));
+                    
+                    $q->where(function($qq) use ($keywords) {
+                        foreach ($keywords as $keyword) {
+                            $qq->where(function($qqq) use ($keyword) {
+                                $qqq->where('nombre_producto', 'like', "%{$keyword}%")
+                                    ->orWhere('codigo_producto', 'like', "%{$keyword}%");
+                            });
+                        }
+                    });
+                }
             )
             ->orderBy('nombre_producto')
             ->paginate($this->perPage);
