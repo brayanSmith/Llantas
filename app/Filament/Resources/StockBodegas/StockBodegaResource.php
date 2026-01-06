@@ -24,14 +24,17 @@ use Filament\Schemas\Components\Grid;
 use App\Filament\Traits\HasTrasladosSection;
 use App\Filament\Traits\HasProductosStockSection;
 
+
 class StockBodegaResource extends Resource
 {
     protected static ?string $model = StockBodega::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static ?string $recordTitleAttribute = 'producto.concatenar_codigo_nombre';   
-    
+    protected static ?string $recordTitleAttribute = 'producto.concatenar_codigo_nombre';
+
+
+
     public static function table(Table $table): Table
     {
         $columns = [
@@ -44,7 +47,7 @@ class StockBodegaResource extends Resource
 
         // Generar columnas dinámicas por cada bodega
         $bodegas = Bodega::orderBy('nombre_bodega')->get();
-        
+
         foreach ($bodegas as $bodega) {
             $columns[] = TextColumn::make("stock_bodega_{$bodega->id}")
                 ->label($bodega->nombre_bodega)
@@ -69,10 +72,10 @@ class StockBodegaResource extends Resource
             ->filters([
                 //
             ])
-            ->recordActions([                
+            ->recordActions([
                 HasTrasladosSection::getTrasladosSection(),
                 HasProductosStockSection::getProductosStockSection(),
-                
+
             ])
             ->toolbarActions([
                 //

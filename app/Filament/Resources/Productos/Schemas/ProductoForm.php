@@ -57,7 +57,7 @@ class ProductoForm
                     })
                     ->placeholder('Ingrese el nombre del producto'),
 
-                
+
                 TextInput::make('concatenar_codigo_nombre')
                     ->label('Código - Nombre')
                     ->required()
@@ -104,13 +104,13 @@ class ProductoForm
                     ->currencyMask(".", ",", 0)
                     ->prefix('$')
                     ->numeric()
-                    ->visible(fn(Get $get) => $get('categoria_producto') === 'PRODUCTO_TERMINADO'),
+                    ->visible(fn(Get $get) => in_array($get('categoria_producto'), ['PRODUCTO_TERMINADO', 'MATERIA_PRIMA'])),
                 TextInput::make('valor_detal_producto')
                     ->required()
                     ->inputMode('decimal')
                     ->currencyMask(".", ",", 0)
                     ->prefix('$')
-                    ->numeric()                    
+                    ->numeric()
                     ->visible(fn(Get $get) => $get('categoria_producto') === 'PRODUCTO_TERMINADO'),
                 TextInput::make('valor_mayorista_producto')
                     ->required()

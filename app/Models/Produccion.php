@@ -20,14 +20,14 @@ class Produccion extends Model
         'observaciones',
         'ph',
         'biscocidad',
-        'homogeneidad',  
+        'homogeneidad',
         'responsable_lote_id',
-        'responsable_cc_id',      
+        'responsable_cc_id',
     ];
     public function formula()
     {
         return $this->belongsTo(Formula::class);
-    }    
+    }
     public function bodega()
     {
         return $this->belongsTo(Bodega::class);
@@ -53,6 +53,12 @@ class Produccion extends Model
             ->whereDoesntHave('roles', function ($query) {
                 $query->whereIn('name', ['comercial', 'cliente']);
             });
+    }
+    public function getCostoTotalMateriaPrimaAttribute()
+    {
+        return $this->detallesProduccionSalidas->sum(function ($detalle) {
+            return $detalle->total_costo;
+        });
     }
 
 }

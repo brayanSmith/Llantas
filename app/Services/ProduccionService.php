@@ -12,7 +12,7 @@ class ProduccionService
 {
     /**
      * Agregar detalles de producción de salida basados en la fórmula
-     * 
+     *
      * @param Produccion $produccion
      * @return void
      */
@@ -42,10 +42,12 @@ class ProduccionService
                 'produccion_id' => $produccion->id,
                 'producto_id' => $detalleFormula->producto_id,
                 'cantidad_producto' => $cantidadSalida,
-                'fecha_produccion' => $produccion->fecha_produccion,               
-            ]);            
+                'costo_producto' => $detalleFormula->producto->costo_producto,
+                'total_costo' => $cantidadSalida * $detalleFormula->producto->costo_producto,
+                'fecha_produccion' => $produccion->fecha_produccion,
+            ]);
         }
     }
-    
-    
+
+
 }

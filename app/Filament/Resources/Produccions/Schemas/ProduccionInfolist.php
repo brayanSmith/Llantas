@@ -10,17 +10,19 @@ use Filament\Support\Icons\Heroicon;
 
 use Filament\Schemas\Schema;
 
+use function Laravel\Prompts\table;
+
 class ProduccionInfolist
 {
     public static function configure(Schema $schema): Schema
     {
         return $schema
             ->columns(2)
-            ->components([       
+            ->components([
                 Section::make('Información de la Producción')
                     ->columns(2)
-                    ->schema([         
-                TextEntry::make('formula.nombre_formula')                    
+                    ->schema([
+                TextEntry::make('formula.nombre_formula')
                     ->numeric(),
                 TextEntry::make('cantidad')
                     ->numeric(),
@@ -50,7 +52,7 @@ class ProduccionInfolist
                     ]),
                 TextEntry::make('Observaciones')
                     ->placeholder('-')
-                    ->columnSpanFull(),                
+                    ->columnSpanFull(),
                 RepeatableEntry::make('detallesProduccionEntradas')
                     ->label('Detalles Productos Producidos')
                     ->columnSpanFull()
@@ -71,23 +73,26 @@ class ProduccionInfolist
                             ->label('Cantidad')
                             ->color('success'),
                         TextEntry::make('producto.medida.nombre_medida')
-                            ->icon('heroicon-o-calculator')                        
+                            ->icon('heroicon-o-calculator')
                             ->label('Medida'),
                         TextEntry::make('lote')
                             ->icon('heroicon-o-tag'),
                         TextEntry::make('fecha_produccion')
                             ->icon('heroicon-o-calendar')
                             ->date(),
-                        TextEntry::make('observaciones')                            
+                        TextEntry::make('observaciones')
                             ->placeholder('-'),
                     ]),
                 RepeatableEntry::make('detallesProduccionSalidas')
                     ->label('Detalles Materia Prima Utilizada')
                     ->columnSpanFull()
                     ->table([
-                        tableColumn::make('Producto')->width('70%'),
-                        tableColumn::make('Cantidad')->width('10%'),  
-                        tableColumn::make('Medida')->width('20%'),                      
+                        tableColumn::make('Producto')->width('40%'),
+                        tableColumn::make('Cantidad')->width('10%'),
+                        tableColumn::make('Medida')->width('20%'),
+                        tableColumn::make('Costo Unitario')->width('10%'),
+                        TableColumn::make('Costo Total')->width('10%'),
+
                     ])
                     ->schema([
                         TextEntry::make('producto.nombre_producto')
@@ -96,10 +101,31 @@ class ProduccionInfolist
                         TextEntry::make('cantidad_producto')
                             ->icon('heroicon-o-calculator')
                             ->label('Cantidad')
-                            ->color('danger'),               
+                            ->color('danger'),
                         TextEntry::make('producto.medida.nombre_medida')
-                            ->icon('heroicon-o-calculator')                        
-                            ->label('Medida'),         
+                            ->icon('heroicon-o-calculator')
+                            ->label('Medida'),
+                        TextEntry::make('costo_producto')
+                            ->icon('heroicon-o-currency-dollar')
+                            ->formatStateUsing(fn (string $state): string => number_format($state, 0))
+                            ->label('Costo Unitario'),
+                        TextEntry::make('total_costo')
+                            ->icon('heroicon-o-currency-dollar')
+                            ->formatStateUsing(fn (string $state): string => number_format($state, 0))
+                            ->label('Costo Total'),
+
+                    ]),
+
+                    Section::make('')
+                    ->columnspanfull()
+                    ->schema([
+
+                        TextEntry::make('costo_total_materia_prima')
+                            ->label('Costo Total Materia Prima Utilizada')
+                            ->icon('heroicon-o-currency-dollar')
+                            ->color('danger')
+                            ->formatStateUsing(fn ($state) => number_format($state, 0))
+
                     ]),
             ]);
     }
