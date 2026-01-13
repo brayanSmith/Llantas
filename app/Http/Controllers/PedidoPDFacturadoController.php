@@ -24,6 +24,7 @@ class PedidoPDFacturadoController extends Controller
             'cliente'  => $pedido->cliente,
             'detalles' => $detallesOrdenados,
             'empresa'  => $empresa,
+            'cuentas_bancarias' => $empresa->cuentas_bancarias ?? [],
         ]);
 
         return $pdf->download("pedidoFacturado_{$pedido->id}.pdf");
@@ -43,8 +44,9 @@ class PedidoPDFacturadoController extends Controller
         $pdf = Pdf::loadView('pdf.pedidoFacturado', [
             'pedido'   => $pedido,
             'cliente'  => $pedido->cliente,
-            'detalles' => $detallesOrdenados, 
+            'detalles' => $detallesOrdenados,
             'empresa'  => $empresa,
+            'cuentas_bancarias' => $empresa->cuentas_bancarias ?? [],
         ]);
 
         return $pdf->stream("pedido_Facturado{$pedido->id}.pdf");

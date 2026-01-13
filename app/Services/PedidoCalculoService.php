@@ -5,6 +5,7 @@ use App\Models\Pedido;
 use App\Models\DetallePedido;
 use App\Models\Producto;
 use App\Models\Abono;
+use App\Models\Cliente;
 
 class PedidoCalculoService
 {
@@ -13,7 +14,7 @@ class PedidoCalculoService
     {
         return 'PED-' . str_pad($pedidoId, 6, '0', STR_PAD_LEFT);
     }
-    
+
     // Obtiene el valor unitario del producto según el tipo de precio
     public static function obtenerValorUnitario(Producto|array $producto, string $tipoPrecio): float
     {
@@ -28,12 +29,12 @@ class PedidoCalculoService
             return $valorMayorista;
         } elseif ($tipoPrecio === 'FERRETERO') {
             return $valorFerretero;
-        }       
+        }
     }
 
     /**
      * Recalcula todos los valores del detalle del pedido según el tipo de precio seleccionado
-     * 
+     *
      * @param array $detalles Array de detalles del pedido
      * @param string $tipoPrecio Tipo de precio (DETAL, FERRETERO, MAYORISTA)
      * @return array Detalles actualizados
@@ -41,23 +42,23 @@ class PedidoCalculoService
     public static function calcularDatosProducto(array $detalles, string $tipoPrecio): array
     {
         $detallesActualizados = [];
-        
+
         foreach($detalles as $detalle){
             if (!isset($detalle['producto_id']) || !$detalle['producto_id']) {
                 $detallesActualizados[] = $detalle;
                 continue;
             }
-            
+
             $producto = Producto::find($detalle['producto_id']);
             if (!$producto) {
                 $detallesActualizados[] = $detalle;
                 continue;
             }
-            
+
             // Actualizar precio e IVA según el tipo de precio
             $detalle['precio_unitario'] = self::obtenerValorUnitario($producto, $tipoPrecio);
             $detalle['iva'] = $producto->iva_producto;
-            
+
             // Recalcular subtotal
             $detalle['subtotal'] = self::calcularDetalles([
                 'producto_id' => $detalle['producto_id'],
@@ -66,23 +67,23 @@ class PedidoCalculoService
                 'aplicar_iva' => $detalle['aplicar_iva'] ?? true,
                 'iva' => $detalle['iva'],
             ]);
-            
+
             $detallesActualizados[] = $detalle;
         }
-        
+
         return $detallesActualizados;
     }
-    
+
     /**
      * 🔹 Calcula datos del producto para el detalle del pedido
      */
     public static function obtenerDatosProducto(Producto $producto): array
     {
-        return [            
+        return [
             'iva' => $producto->iva_producto,
         ];
     }
-    
+
     /**
      * Actualiza el vendedor de todos los abonos de un pedido
      */
@@ -91,12 +92,12 @@ class PedidoCalculoService
         if (!$pedido->user_id) {
             return 0;
         }
-        
+
         // Actualizar todos los abonos del pedido con el vendedor del pedido
         return Abono::where('pedido_id', $pedido->id)
             ->update(['vendedor_id' => $pedido->user_id]);
     }
-    
+
 
      /**
      * 🔹 Calcula el total del detalle del pedido
@@ -111,13 +112,13 @@ class PedidoCalculoService
         $iva = (float) ($data['iva'] ?? 0);
 
         $subtotal = $cantidad * $precioUnitario;
-        
+
         // Si aplicar IVA es true, calcular con IVA
         if ($aplicarIva && $iva > 0) {
             $totalConIva = $subtotal * (1 + ($iva / 100));
             return round($totalConIva, 2);
         }
-        
+
         // Si no aplica IVA, retornar subtotal sin IVA
         return round($subtotal, 2);
     }
@@ -144,11 +145,11 @@ class PedidoCalculoService
         ];
     }
 
-    public static function calcularEstadoPago(float $saldo): string 
+    public static function calcularEstadoPago(float $saldo): string
     {
         return (round($saldo, 4) <= 0.0001) ? 'SALDADO' : 'EN_CARTERA';
     }
-    
+
     public static function calcularEstadoVencimiento(Pedido $pedido): string {
         {
             $saldoPendiente = $pedido->saldo_pendiente ?? 0;
@@ -168,4 +169,22 @@ class PedidoCalculoService
             return 'SIN_VENCIMIENTO';
         }
     }
+
+    public static function setPedidosEnCarteraTotales(Cliente $cliente, string $clienteId): void
+    {
+        $totalPedidos = Pedido::where('cliente_id', $clienteId)
+            ->where('estado_pago', 'EN_CARTERA')
+            ->whereIn('estado', ['FACTURADO', 'EN_RUTA', 'ENTREGADO'])
+            ->count();
+
+        $saldoTotal = Pedido::where('cliente_id', $clienteId)
+            ->where('estado_pago', 'EN_CARTERA')
+            ->whereIn('estado', ['FACTURADO', 'EN_RUTA', 'ENTREGADO'])
+            ->sum('saldo_pendiente');
+
+        $cliente->cuenta_total_pedidos_en_cartera = $totalPedidos;
+        $cliente->saldo_total_pedidos_en_cartera = $saldoTotal;
+        $cliente->save();
+    }
+
 }

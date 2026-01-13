@@ -18,12 +18,12 @@ use UnitEnum;
 class PedidosAnuladosResource extends Resource
 {
     protected static ?string $model = Pedido::class;
-    
+
     // Labels personalizados para Shield
     protected static ?string $modelLabel = 'Pedido Anulado';
     protected static ?string $pluralModelLabel = 'Pedidos Anulados';
     protected static ?string $navigationLabel = 'Anulados';
-    
+
     // Política específica para este recurso
     protected static ?string $modelPolicy = \App\Policies\PedidoAnuladoPolicy::class;
 
@@ -83,6 +83,22 @@ class PedidosAnuladosResource extends Resource
     public static function getPluralLabel(): string
     {
         return 'Pedidos Anulados';
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        $query = static::$model::where('estado', 'ANULADO');
+        if (!auth()->user()->hasRole('super_admin')) {
+            $query->where('user_id', auth()->id());
+        }
+        $count = $query->count();
+
+        return $count > 0 ? (string) $count : null;
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'danger';
     }
     public static function getPages(): array
     {

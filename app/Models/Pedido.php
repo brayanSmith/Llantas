@@ -32,7 +32,7 @@ class Pedido extends Model
         'en_cartera',
         'abono',
         'descuento',
-        'flete',        
+        'flete',
         'total_a_pagar',
         'saldo_pendiente',
         'contador_impresiones',
@@ -46,6 +46,8 @@ class Pedido extends Model
         'imagen_recibido',
         'comentario_entrega',
         'motivo_devolucion',
+        'cuenta_total_pedidos_en_cartera',
+        'saldo_total_pedidos_en_cartera',
 
     ];
 
@@ -65,7 +67,7 @@ class Pedido extends Model
     {
         return $this->hasMany(Abono::class);
     }
-    
+
     // Alias para compatibilidad - obtener todos los abonos
     public function abonos()
     {
@@ -87,17 +89,17 @@ class Pedido extends Model
     {
         return $this->hasMany(DetalleComisionPedido::class, 'pedido_id');
     }
-    
+
     public function recalcularTotales()
     {
         // Obtener todos los abonos del pedido
         $abonosArray = $this->abonos()->get()->toArray();
-        
+
         $data = PedidoCalculoService::calcularTotalesPedido(
             $this->detalles->toArray(),
             $abonosArray,
             $this->descuento ?? 0,
-            $this->flete ?? 0            
+            $this->flete ?? 0
         );
 
         // Usar updateQuietly para evitar disparar el observer y crear un loop infinito
@@ -113,16 +115,16 @@ class Pedido extends Model
 
     public function setEstadoVencimiento()
     {
-        $nuevoEstadoVencimiento = PedidoCalculoService::calcularEstadoVencimiento($this);        
-            $this->updateQuietly(['estado_vencimiento' => $nuevoEstadoVencimiento]);        
+        $nuevoEstadoVencimiento = PedidoCalculoService::calcularEstadoVencimiento($this);
+            $this->updateQuietly(['estado_vencimiento' => $nuevoEstadoVencimiento]);
     }
 
     public function setCodigoPedido()
     {
-        $nuevoCodigo = PedidoCalculoService::generarCodigoPedido($this->id);        
-            $this->updateQuietly(['codigo' => $nuevoCodigo]);        
+        $nuevoCodigo = PedidoCalculoService::generarCodigoPedido($this->id);
+            $this->updateQuietly(['codigo' => $nuevoCodigo]);
     }
-    
+
     /**
      * Obtener el estado de pago formateado para mostrar
      */
@@ -135,7 +137,7 @@ class Pedido extends Model
         };
     }*/
 
-    
+
     // Atributo: devolver fecha en America/Bogota
     public function getFechaAttribute($value)
     {
@@ -143,5 +145,5 @@ class Pedido extends Model
             return null;
         }
         return \Carbon\Carbon::parse($value)->setTimezone('America/Bogota');
-    }    
+    }
 }

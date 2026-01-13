@@ -20,12 +20,12 @@ use UnitEnum;
 class PedidosFacturadosResource extends Resource
 {
     protected static ?string $model = Pedido::class;
-    
+
     // Labels personalizados para Shield
     protected static ?string $modelLabel = 'Pedido Facturado';
     protected static ?string $pluralModelLabel = 'Pedidos Facturados';
     protected static ?string $navigationLabel = 'Facturados';
-    
+
     // Política específica para este recurso
     protected static ?string $modelPolicy = \App\Policies\PedidoFacturadoPolicy::class;
 
@@ -85,6 +85,22 @@ class PedidosFacturadosResource extends Resource
     public static function getPluralLabel(): string
     {
         return 'Pedidos Facturados';
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        $query = static::$model::where('estado', 'FACTURADO');
+        if (!auth()->user()->hasRole('super_admin')) {
+            $query->where('user_id', auth()->id());
+        }
+        $count = $query->count();
+
+        return $count > 0 ? (string) $count : null;
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'success';
     }
     public static function getPages(): array
     {

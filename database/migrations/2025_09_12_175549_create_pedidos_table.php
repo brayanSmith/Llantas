@@ -43,10 +43,12 @@ return new class extends Migration
             $table->integer('contador_impresiones')->default(0);
             $table->boolean('impresa')->default(false);
             $table->foreignId('user_id')->constrained('users')->nullable();
-            $table->foreignId('alistador_id')->constrained('users')->nullable();    
+            $table->foreignId('alistador_id')->constrained('users')->nullable();
             $table->string('imagen_recibido')->nullable();
             $table->string('comentario_entrega')->nullable();
             $table->string('motivo_devolucion')->nullable();
+            $table->integer('cuenta_total_pedidos_en_cartera')->default(0);
+            $table->decimal('saldo_total_pedidos_en_cartera', 12, 2)->default(0);
             $table->timestamps();
         });
     }

@@ -20,13 +20,13 @@ use UnitEnum;
 class PedidosEstadoPagoEnCarteraResource extends Resource
 {
     protected static ?string $model = Pedido::class;
-    
+
     // Slug único para permisos de Shield
     protected static ?string $slug = 'pedidos-en-cartera';
-    
+
     // Política específica para este recurso
     protected static ?string $modelPolicy = PedidoCarteraPolicy::class;
-    
+
     // Labels personalizados para Shield
     protected static ?string $modelLabel = 'Pedido En Cartera';
     protected static ?string $pluralModelLabel = 'Pedidos En Cartera';
@@ -88,6 +88,22 @@ class PedidosEstadoPagoEnCarteraResource extends Resource
     public static function getPluralLabel(): string
     {
         return 'Cuentas por Cobrar';
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        $query = static::$model::where('estado_pago', 'EN_CARTERA')->whereIn('estado', ['FACTURADO', 'EN_RUTA', 'ENTREGADO']);
+        if (!auth()->user()->hasRole('super_admin')) {
+            $query->where('user_id', auth()->id());
+        }
+        $count = $query->count();
+
+        return $count > 0 ? (string) $count : null;
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'warning';
     }
 
     public static function getPages(): array

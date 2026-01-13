@@ -134,7 +134,7 @@
                             </div>
                         </div>
 
-                        {{-- ...Tipo de Precio... 
+                        {{-- ...Tipo de Precio...
 
                         <div class="mt-4">
                             <span class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tipo de
@@ -216,16 +216,16 @@
                                 @endforeach
                             </select>
                         </div>--}}
-                        
+
                         {{--flete--}}
                         <div class="mt-4">
                             <label for="flete"
                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Flete (COP)</label>
-                            <input type="number" id="flete" wire:model.blur="flete" 
+                            <input type="number" id="flete" wire:model.blur="flete"
                                 min="0" step="0.01"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-neutral-900 dark:border-neutral-700 dark:text-gray-100"
                                 placeholder="Ingresa el valor del flete..." />
-                        </div>  
+                        </div>
                          {{-- Total a pagar --}}
                         <div class="mt-6 pt-6 border-t border-gray-200 dark:border-neutral-700">
 
@@ -245,9 +245,9 @@
                        disabled:opacity-50 disabled:cursor-not-allowed shadow-lg mb-3">
                             Finalizar Venta
                         </button>
-                        
+
                         <!-- Botón para limpiar carrito -->
-                        <button wire:click="clearSession" 
+                        <button wire:click="clearSession"
                             class="w-full py-2 bg-red-500 text-white font-medium text-sm rounded-lg
                        transition-colors duration-200 hover:bg-red-600 shadow-md"
                             onclick="return confirm('¿Estás seguro de que quieres limpiar el carrito? Esta acción no se puede deshacer.')">
@@ -287,7 +287,7 @@
 
             <h2 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-6">
                 Productos
-                
+
                 <!-- Indicador de datos guardados -->
                 @if(count($this->cart) > 0 || $cliente_id || $primer_comentario || $segundo_comentario)
                     <span class="ml-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
@@ -359,7 +359,7 @@
                                         <p class="text-[10px] md:text-xs text-gray-800 dark:text-gray-100 mt-1">FERRETERO:
                                             {{ number_format($product->valor_ferretero_producto * (($product->iva_producto / 100) + 1), 0) }}</p>
                                         <!-- Vamos a poner el Stock -->
-                                        @php($availableStock = $this->getAvailableStock($product->id))                                        
+                                        @php($availableStock = $this->getAvailableStock($product->id))
                                         <p class="text-[10px] md:text-xs mt-1 font-semibold
                                             {{ $availableStock > 10 ? 'text-green-600 dark:text-green-400' : ($availableStock > 0 ? 'text-orange-600 dark:text-orange-400' : 'text-red-600 dark:text-red-400') }}">Stock disponible:
                                             {{ $availableStock }}
@@ -399,16 +399,20 @@
                                                         class="absolute top-3 right-3 text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white text-2xl">&times;</button>
                                                     <div class="mb-4 flex items-end gap-2">
                                                         <div class="flex-1">
-                                                            <label
-                                                                class="block text-xs md:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cantidad</label>
+                                                            <label class="block text-xs md:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cantidad</label>
+                                                            @php($empresa = \App\Models\Empresa::first())
                                                             @php($maxStockDisponible = $this->getAvailableStock($product->id))
                                                             <input type="number" min="1"
-                                                                :max="{{ $maxStockDisponible }}"
+                                                                @if(!$empresa->mostrar_productos_sin_inventario)
+                                                                    max="{{ $maxStockDisponible }}"
+                                                                @endif
                                                                 x-model.number="cantidad"
                                                                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-neutral-900 dark:border-neutral-700 dark:text-gray-100 text-xs md:text-base" />
-                                                            <p class="text-[10px] text-gray-500 dark:text-gray-400 mt-1">
-                                                                Máx: {{ $maxStockDisponible }}
-                                                            </p>
+                                                            @if(!$empresa->mostrar_productos_sin_inventario)
+                                                                <p class="text-[10px] text-gray-500 dark:text-gray-400 mt-1">
+                                                                    Máx: {{ $maxStockDisponible }}
+                                                                </p>
+                                                            @endif
                                                         </div>
                                                         <button
                                                             @click="$wire.addToCart({{ $product->id }}, cantidad); open = false"

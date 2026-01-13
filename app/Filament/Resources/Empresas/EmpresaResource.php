@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Empresas;
 use App\Filament\Resources\Empresas\Pages\ManageEmpresas;
 use App\Models\Empresa;
 use BackedEnum;
+use Dom\Text;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -16,7 +17,9 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Repeater;
 use Filament\Tables\Columns\ImageColumn;
+use Filament\Forms\Components\Toggle;
 
 class EmpresaResource extends Resource
 {
@@ -40,7 +43,7 @@ class EmpresaResource extends Resource
                 TextInput::make('email_empresa')
                     ->maxLength(255),
                 TextInput::make('nit_empresa')
-                    ->maxLength(255),                
+                    ->maxLength(255),
 
                 FileUpload::make('logo_empresa')
                     ->label('Seleccione una imagen')
@@ -53,7 +56,23 @@ class EmpresaResource extends Resource
                     ->nullable()
                     ->maxSize(1024) // 1MB
                     ->default(null),
-            ]); 
+
+                Repeater::make('cuentas_bancarias')
+                    ->label('Cuentas Bancarias')
+
+                    ->schema([
+                        TextInput::make('cuenta')
+                            ->label('Cuenta Bancaria')
+                            ->required()
+                            ->maxLength(255),
+                    ])
+                    ->columnSpanFull()
+                    ->nullable()
+                    ->default(null),
+                Toggle::make('mostrar_productos_sin_inventario')
+                    ->label('Mostrar productos sin inventario')
+                    ->default(false),
+            ]);
     }
 
     public static function table(Table $table): Table

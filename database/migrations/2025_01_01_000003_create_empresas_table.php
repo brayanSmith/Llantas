@@ -19,6 +19,8 @@ return new class extends Migration
             $table->string('email_empresa')->nullable();
             $table->string('nit_empresa')->nullable();
             $table->string('logo_empresa')->nullable();
+            $table->json('cuentas_bancarias')->nullable();
+            $table->boolean('mostrar_productos_sin_inventario')->default(true);
             $table->timestamps();
         });
     }

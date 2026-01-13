@@ -19,13 +19,13 @@ use UnitEnum;
 class PedidosEstadoPagoSaldadoResource extends Resource
 {
     protected static ?string $model = Pedido::class;
-    
+
     // Slug único para permisos de Shield
     protected static ?string $slug = 'pedidos-saldados';
-    
+
     // Política específica para este recurso
     protected static ?string $modelPolicy = PedidoSaldadoPolicy::class;
-    
+
     // Labels personalizados para Shield
     protected static ?string $modelLabel = 'Pedido Saldado';
     protected static ?string $pluralModelLabel = 'Pedidos Saldados';
@@ -84,6 +84,22 @@ class PedidosEstadoPagoSaldadoResource extends Resource
     public static function getPluralLabel(): string
     {
         return 'Cuentas Pagadas';
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        $query = static::$model::where('estado_pago', 'SALDADO')->where('estado', 'FACTURADO');
+        if (!auth()->user()->hasRole('super_admin')) {
+            $query->where('user_id', auth()->id());
+        }
+        $count = $query->count();
+
+        return $count > 0 ? (string) $count : null;
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'warning';
     }
 
     public static function getPages(): array

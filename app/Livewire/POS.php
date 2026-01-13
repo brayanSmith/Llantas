@@ -17,6 +17,7 @@ use Livewire\WithPagination;
 use App\Services\StockCalculoService;
 use App\Services\CompraCalculoService;
 use App\Services\PedidoCalculoService;
+use App\Models\Empresa;
 
 class POS extends Component
 {
@@ -55,6 +56,7 @@ class POS extends Component
     public $bodega = null;
     //public $bodegas = [];
     public $user_id = null;
+    public $mostrarProductosSinInventario = false;
 
     public function mount()
     {
@@ -77,7 +79,7 @@ class POS extends Component
     private function loadFromSession()
     {
         $posData = session()->get('pos_data', []);
-        
+
         if (!empty($posData)) {
             $this->cart = $posData['cart'] ?? [];
             $this->cliente_id = $posData['cliente_id'] ?? null;
@@ -113,7 +115,7 @@ class POS extends Component
             'direccion' => $this->direccion,
             'user_id' => $this->user_id,
         ];
-        
+
         session()->put('pos_data', $posData);
     }
 
@@ -171,30 +173,30 @@ class POS extends Component
             $this->ciudad = $cliente->ciudad ?: $cliente->municipio ?: '';
             $this->direccion = $cliente->direccion ?? '';
         }
-        
+
         $this->saveToSession();
-    }    
+    }
 
     // Interceptor global para auto-guardado y control de paginación
     public function updated($property, $value)
     {
         // Propiedades que deben guardarse automáticamente en sesión
         $autoSaveProps = [
-            'metodo_pago', 
-            'tipo_precio', 
-            'tipo_venta', 
+            'metodo_pago',
+            'tipo_precio',
+            'tipo_venta',
             'estado_venta',
-            'primer_comentario', 
+            'primer_comentario',
             'segundo_comentario',
             'cart',
             'ciudad',
             'direccion'
         ];
-        
+
         if (in_array($property, $autoSaveProps)) {
             $this->saveToSession();
         }
-        
+
         // Resetear paginación cuando cambia búsqueda o tamaño de página
         if (in_array($property, ['search', 'perPage'])) {
             $this->resetPage();
@@ -202,23 +204,29 @@ class POS extends Component
     }
 
     #[Computed]
-    public function filteredProducts() 
+    public function filteredProducts()
     {
         $bodegaId = $this->bodega ?? 1; // Usa la bodega seleccionada o bodega 1 por defecto
 
+        $empresa = Empresa::first(); // O la empresa activa
         return Producto::query()
             ->where('activo', 1)
             ->where('categoria_producto', 'PRODUCTO_TERMINADO')
-            ->whereHas('stockBodegas', function ($q) use ($bodegaId) {
+            ->whereHas('stockBodegas', function ($q) use ($bodegaId, $empresa) {
                 $q->where('bodega_id', $bodegaId)
-                  ->where('stock', '>', 0);
+                  ->when(
+                      !$empresa->mostrar_productos_sin_inventario,
+                      function ($query) {
+                          $query->where('stock', '>', 0);
+                      }
+                  );
             })
             ->when(
                 $this->search,
                 function($q) {
                     // Dividir la búsqueda en palabras clave
                     $keywords = array_filter(explode(' ', trim($this->search)));
-                    
+
                     $q->where(function($qq) use ($keywords) {
                         foreach ($keywords as $keyword) {
                             $qq->where(function($qqq) use ($keyword) {
@@ -234,7 +242,7 @@ class POS extends Component
     }
 
     #[Computed]
-    public function subtotal() 
+    public function subtotal()
     {
         // Subtotal CON IVA para mostrar en pantalla
         $subtotalProductos = collect($this->cart)->sum(function ($producto) {
@@ -248,18 +256,20 @@ class POS extends Component
             ]);
         });
         return $subtotalProductos;
-    }   
+    }
 
     // Agregar producto al carrito (comportamiento original)
     public function addToCart($productoId, $cantidad = 2)
     {
-        $producto = Producto::find($productoId);       
-        
+        $empresa = Empresa::first();
+        $producto = Producto::find($productoId);
+
         // Obtener el stock actualizado
         $inventario = StockBodega::where('producto_id', $productoId)
             ->where('bodega_id', $this->bodega ?? 1)
             ->first();
-        if (!$inventario || $inventario->stock <= 0) {
+
+         if (!$empresa->mostrar_productos_sin_inventario && (!$inventario || $inventario->stock <= 0)) {
             Notification::make()
                 ->title('Este Proucto esta fuera de Stock!')
                 ->danger()
@@ -269,7 +279,7 @@ class POS extends Component
         if (isset($this->cart[$productoId])) {
             $currentQuantity = $this->cart[$productoId]['cantidad'];
             $nuevaCantidad = $currentQuantity + $cantidad;
-            if ($nuevaCantidad > $inventario->stock) {
+             if (!$empresa->mostrar_productos_sin_inventario && $nuevaCantidad > $inventario->stock) {
                 Notification::make()
                     ->title("No se pueden agregar más productos. Solo {$inventario->stock} en stock")
                     ->danger()
@@ -278,7 +288,7 @@ class POS extends Component
             }
             $this->cart[$productoId]['cantidad'] = $nuevaCantidad;
         } else {
-            if ($cantidad > $inventario->stock) {
+            if (!$empresa->mostrar_productos_sin_inventario && $cantidad > $inventario->stock) {
                 Notification::make()
                     ->title("No se pueden agregar más productos. Solo {$inventario->stock} en stock")
                     ->danger()
@@ -301,14 +311,14 @@ class POS extends Component
                 'cantidad' => $cantidad,
             ];
         }
-        
+
         // Ordenar el carrito por código y ubicación
         $this->sortCart();
-        
+
         // Guardar en sesión después de agregar al carrito
         $this->saveToSession();
     }
-    
+
     /**
      * Ordenar el carrito por codigo_producto y ubicacion_producto
      */
@@ -321,7 +331,7 @@ class POS extends Component
         // Convertir el carrito a un array ordenado
         $cartArray = collect($this->cart)->sortBy([
             ['ubicacion_producto', 'asc'],
-            ['codigo_producto', 'asc'],            
+            ['codigo_producto', 'asc'],
         ])->toArray();
 
         // Reconstruir el carrito manteniendo las claves (IDs de productos)
@@ -335,11 +345,11 @@ class POS extends Component
     public function removeFromCart($productoId)
     {
         unset($this->cart[$productoId]);
-        
+
         // Guardar en sesión después de remover del carrito
         $this->saveToSession();
     }
-    
+
     //Verificar que el carro no este vacio
     public function checkout()
     {
@@ -386,7 +396,7 @@ class POS extends Component
             foreach ($this->cart as $producto) {
                 $precio_unitario = PedidoCalculoService::obtenerValorUnitario($producto, $this->tipo_precio); // Sin IVA para guardar en BD
                 $ivaProducto = $producto['iva_producto'] ?? 0;
-                
+
                 DetallePedido::create([
                     'pedido_id' => $pedido->id,
                     'producto_id' => $producto['id'],
@@ -404,7 +414,7 @@ class POS extends Component
                     $inventario->save();
                 }
             }
-            
+
             // Recalcular stock después de crear todos los detalles
             foreach ($this->cart as $producto) {
                 app(\App\Services\StockCalculoService::class)->recalcularStockPorProductoYBodega(
@@ -412,7 +422,7 @@ class POS extends Component
                     $pedido->bodega_id
                 );
             }
-            
+
             DB::commit();
 
             //reset cart y otras propiedades
@@ -453,16 +463,16 @@ class POS extends Component
                 ->danger()
                 ->send();
         }
-    }    
-    
+    }
+
     /**
      * Calcula el precio del producto con o sin IVA usando PedidoCalculoService
      * @deprecated Usar getPrecioBase() y PedidoCalculoService::calcularDetalles() directamente
      */
     public function getPrecioProducto($producto, $conIva = true)
-    {        
+    {
         $precioBase = PedidoCalculoService::obtenerValorUnitario($producto, $this->tipo_precio);
-        
+
         if ($conIva) {
             return PedidoCalculoService::calcularDetalles([
                 'producto_id' => $producto['id'],
@@ -472,7 +482,7 @@ class POS extends Component
                 'iva' => $producto['iva_producto'] ?? 0,
             ]);
         }
-        
+
         return $precioBase;
     }
 
@@ -482,12 +492,12 @@ class POS extends Component
     private function getClientesQuery()
     {
         $query = Cliente::query();
-        
+
         // Si el usuario no es super_admin ni financiero, mostrar solo sus clientes
         if (!auth()->user()->hasRole(['super_admin', 'financiero'])) {
             $query->where('comercial_id', auth()->id());
         }
-        
+
         return $query;
     }
 
@@ -498,12 +508,12 @@ class POS extends Component
     public function getAvailableStock($productoId)
     {
         $bodegaId = $this->bodega ?? 1;
-        
+
         // Buscar el stock en la bodega específica
         $stockBodega = \App\Models\StockBodega::where('producto_id', $productoId)
             ->where('bodega_id', $bodegaId)
             ->first();
-        
+
         if (!$stockBodega) {
             return 0;
         }
@@ -511,8 +521,8 @@ class POS extends Component
         $stockTotal = (float) $stockBodega->stock;
 
         // Sumar cantidad del producto si ya está en el carrito
-        $cantidadEnCarrito = isset($this->cart[$productoId]) 
-            ? (float) $this->cart[$productoId]['cantidad'] 
+        $cantidadEnCarrito = isset($this->cart[$productoId])
+            ? (float) $this->cart[$productoId]['cantidad']
             : 0;
 
         // Stock disponible = stock total - cantidad en carrito

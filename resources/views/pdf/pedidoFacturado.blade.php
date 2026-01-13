@@ -71,7 +71,7 @@
 </head>
 <body>
 
-  
+
 
   <!-- Logo centrado -->
 
@@ -86,8 +86,8 @@
             }
         @endphp
         @if($logoBase64)
-            <img 
-                src="{{ $logoBase64 }}" 
+            <img
+                src="{{ $logoBase64 }}"
                 alt="Logo Empresa"
                 style="width: 120px; height: auto; max-height: 80px; object-fit: contain;"
             />
@@ -101,9 +101,9 @@
   <div class="bold" style="font-size: 24px;">{{ $empresa->nombre_empresa ?? 'DISTRIGUERRERO' }}</div>
   <div>Distribuidora de Ferreterías</div>
   <div>{{ $empresa->direccion_empresa ?? 'CALLE 7 NUMERO 5-63' }}</div>
-  <div>{{ $empresa->telefono_empresa ?? '3105568244' }}</div> 
+  <div>{{ $empresa->telefono_empresa ?? '3105568244' }}</div>
   <div>{{ $empresa->nit_empresa ?? '1087644203-1' }}</div>
-  
+
 
 </div>
 
@@ -153,14 +153,14 @@
     @foreach($detalles as $detalle)
                 <tr>
                     <td>{{ $detalle->producto->codigo_producto ?? 'N/A' }}</td>
-                    <td>{{ $detalle->producto->nombre_producto ?? 'N/A' }}</td>                    
+                    <td>{{ $detalle->producto->nombre_producto ?? 'N/A' }}</td>
                     <td>{{ $detalle->cantidad }}</td>
                     <td>${{ number_format($detalle->subtotal / $detalle->cantidad, 0) }}</td>
                     <td>${{ number_format($detalle->subtotal, 0) }}</td>
                 </tr>
             @endforeach
     </tbody>
-  </table>       
+  </table>
 
   <!-- Totales -->
   <table class="table totals" style="width: 60%; float: right; margin-top: 10px;">
@@ -181,7 +181,7 @@
       <td><strong id="total">{{ number_format($pedido->total_a_pagar, 0) }}</strong></td>
     </tr>
   </table>
-    
+
  <!-- Observaciones -->
   <div class="observacion">
     <div><strong>OBSERVACIÓN 1:</strong><span id="comentario1">{{ $pedido->primer_comentario ?? 'N/A' }}</span></div>
@@ -190,8 +190,20 @@
 
   <!-- Pie de página -->
 <div style="text-align: center; margin-top: 60px; font-size: 12px; border-top: 1px solid #000; padding-top: 10px;">
-  PARA CAMBIAR UN PRODUCTO 10 DÍAS CALENDARIO. PARA REPORTAR UN FALTANTE 5 DÍAS CALENDARIO
+    <div>HACER ABONO A LAS SIGUIENTES CUENTAS</div>
+    <div>
+        @if(!empty($cuentas_bancarias))
+            @foreach($cuentas_bancarias as $cuenta)
+                <div>{{ $cuenta['cuenta'] ?? 'N/A' }}</div>
+            @endforeach
+        @else
+            <div>No hay cuentas bancarias registradas.</div>
+        @endif
+    </div>
+  <div>PARA CAMBIAR UN PRODUCTO 10 DÍAS CALENDARIO. PARA REPORTAR UN FALTANTE 5 DÍAS CALENDARIO</div>
+    <div>GRACIAS POR SU COMPRA</div>
 </div>
-    
+
+
 </body>
 </html>

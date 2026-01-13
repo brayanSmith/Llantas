@@ -18,12 +18,12 @@ use UnitEnum;
 class PedidosPendientesResource extends Resource
 {
     protected static ?string $model = Pedido::class;
-    
+
     // Labels personalizados para Shield
     protected static ?string $modelLabel = 'Pedido Pendiente';
     protected static ?string $pluralModelLabel = 'Pedidos Pendientes';
     protected static ?string $navigationLabel = 'Pendientes';
-    
+
     // Política específica para este recurso
     protected static ?string $modelPolicy = \App\Policies\PedidoPendientePolicy::class;
 
@@ -85,6 +85,22 @@ class PedidosPendientesResource extends Resource
     public static function getPluralLabel(): string
     {
         return 'Pedidos Pendientes';
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        $query = static::$model::where('estado', 'PENDIENTE');
+        if (!auth()->user()->hasRole('super_admin')) {
+            $query->where('user_id', auth()->id());
+        }
+        $count = $query->count();
+
+        return $count > 0 ? (string) $count : null;
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'warning';
     }
 
     public static function getPages(): array

@@ -28,6 +28,8 @@ return new class extends Migration
             $table->enum('tipo_cliente', ['ELECTRONICO', 'REMISIONADO'])->default('ELECTRONICO');
             $table->string('rut_imagen')->nullable();
             $table->enum('retenedor_fuente', ['SI', 'NO'])->default('NO');
+            $table->integer('cuenta_total_pedidos_en_cartera')->default(0)->nullable();
+            $table->decimal('saldo_total_pedidos_en_cartera', 12, 2)->default(0)->nullable();
             $table->timestamps();
         });
 

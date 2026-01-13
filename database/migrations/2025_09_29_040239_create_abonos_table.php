@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('imagen')->nullable();
             $table->foreignId('pedido_id')->constrained('pedidos')->onDelete('cascade');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('vendedor_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('vendedor_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });
     }

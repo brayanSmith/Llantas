@@ -5,10 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Cliente extends Model 
+class Cliente extends Model
 {
     //
-    use HasFactory; 
+    use HasFactory;
     protected $fillable = [
         'tipo_documento',
         'numero_documento',
@@ -25,12 +25,14 @@ class Cliente extends Model
         'tipo_cliente',
         'rut_imagen',
         'retenedor_fuente',
+        'cuenta_total_pedidos_en_cartera',
+        'saldo_total_pedidos_en_cartera',
     ];
 
     public function pedidos()
     {
         return $this->hasMany(Pedido::class);
-    }    
+    }
     public function ruta()
     {
         return $this->belongsTo(Ruta::class, 'ruta_id');
@@ -61,16 +63,16 @@ class Cliente extends Model
 
         $rutaNombre = $this->ruta->ruta;
         $rutaDescripcion = $this->ruta->descripcion;
-        
-        return $rutaDescripcion 
-            ? "Ruta: {$rutaNombre} - {$rutaDescripcion}" 
+
+        return $rutaDescripcion
+            ? "Ruta: {$rutaNombre} - {$rutaDescripcion}"
             : "Ruta: {$rutaNombre}";
     }
     // Calcular la suma del saldo_pendiente de los pedidos que están en estado VENCIDO
     /*public function getTotalVencidoAttribute(): float
     {
         $pedidos = $this->pedidos()->get();
-        
+
         return $pedidos->filter(function ($pedido) {
             return $pedido->getEstadoPagoFactura() === 'VENCIDO';
         })->sum('saldo_pendiente');
@@ -79,7 +81,7 @@ class Cliente extends Model
     public function getTotalCarteraAttribute(): float
     {
         $pedidos = $this->pedidos()->get();
-        
+
         return $pedidos->filter(function ($pedido) {
             return $pedido->estado_pago === 'EN_CARTERA';
         })->sum('saldo_pendiente');

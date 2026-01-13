@@ -21,12 +21,12 @@ class PedidosPendientesTable
         return $table
             ->modifyQueryUsing(function ($query) {
                 $query->where('estado', 'PENDIENTE');
-                
+
                 // Si el usuario no es super_admin, mostrar solo sus pedidos
                 if (!auth()->user()->hasRole('super_admin')) {
                     $query->where('user_id', auth()->id());
                 }
-                
+
                 return $query;
             })
             ->groups([
@@ -64,15 +64,16 @@ class PedidosPendientesTable
                 TextColumn::make('tipo_venta')
                     ->label('Tipo Venta'),
 
-                TextColumn::make('metodo_pago')
+                TextColumn::make('cliente.cuenta_total_pedidos_en_cartera')
+                    ->label('Saldos')
+                    ->sortable(),
+                TextColumn::make('cliente.saldo_total_pedidos_en_cartera')
+                    ->label('Saldo en Cartera')
+                    ->money('COP', true,0,0)
                     ->badge()
-                    ->color(fn(string $state): string => match ($state) {
-                        'EFECTIVO' => 'success',
-                        'A CREDITO' => 'info',
-                        default => 'secondary',
-                    }),
-                TextColumn::make('tipo_precio')
-                    ->badge(),
+                    ->color('danger')
+                    ->sortable(),
+
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
