@@ -5,22 +5,35 @@
             <option value="">Seleccione un cliente</option>
             @foreach ($clientes as $cliente)
                 <option value="{{ $cliente->id }}">
-                    {{ $cliente->razon_social }} - {{ $cliente->ciudad }}
+                    {{ $cliente->numero_documento }} - {{ $cliente->razon_social }} - {{ $cliente->ciudad }}
                 </option>
             @endforeach
         </select>
     </div>
 
-
-     <div class="mb-3">
-        <label class="form-label">Ciudad</label>
-        <input type="text"
-               class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900
-                      placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent
-                      dark:bg-gray-900 dark:text-gray-100 dark:border-gray-700 dark:placeholder-gray-500"
-               wire:model.live="ciudad"
-               readonly>
+    <div class="mb-3">
+        <label class="form-label text-sm font-medium text-gray-700 dark:text-gray-300">
+            Ciudad
+        </label>
+        <div class="mt-2">
+            <span class="inline-flex items-center px-4 py-2 rounded-lg text-base font-medium
+                        bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100">
+                {{ $ciudad ?: 'No especificada' }}
+            </span>
+        </div>
     </div>
+
+   <div class="mb-3">
+    <label class="form-label text-sm font-medium text-gray-700 dark:text-gray-300">
+        Saldo Total Cartera Cliente
+    </label>
+    <div class="mt-2">
+        <span class="inline-flex items-center px-4 py-2 rounded-lg text-lg font-bold
+                     bg-amber-100 text-amber-900 dark:bg-amber-900/20 dark:text-amber-400">
+            $ {{ number_format($saldoTotalCarteraCliente, 0, ',', '.') }}
+        </span>
+    </div>
+</div>
 
     <script>
         // Reintenta la inicialización en eventos típicos de Livewire/Filament

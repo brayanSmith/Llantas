@@ -18,6 +18,7 @@ use App\Services\StockCalculoService;
 use App\Services\CompraCalculoService;
 use App\Services\PedidoCalculoService;
 use App\Models\Empresa;
+use App\Models\Ciente;
 
 class POS extends Component
 {
@@ -57,6 +58,7 @@ class POS extends Component
     //public $bodegas = [];
     public $user_id = null;
     public $mostrarProductosSinInventario = false;
+    public $saldoTotalCarteraCliente = 0;
 
     public function mount()
     {
@@ -145,6 +147,7 @@ class POS extends Component
         // Reset campos
         $this->ciudad = '';
         $this->direccion = '';
+        $this->saldoTotalCarteraCliente = 0;
 
         // Normaliza ID (evita '0', '', 'abc', etc.)
         $id = filter_var($value, FILTER_VALIDATE_INT) ?: null;
@@ -159,6 +162,7 @@ class POS extends Component
             if ($cliente) {
                 $this->ciudad = $cliente['ciudad'] ?? $cliente['municipio'] ?? '';
                 $this->direccion = $cliente['direccion'] ?? '';
+                $this->saldoTotalCarteraCliente = $cliente['saldo_total_pedidos_en_cartera'] ?? 0;
                 $this->saveToSession();
                 return;
             }
@@ -172,6 +176,7 @@ class POS extends Component
         if ($cliente) {
             $this->ciudad = $cliente->ciudad ?: $cliente->municipio ?: '';
             $this->direccion = $cliente->direccion ?? '';
+            $this->saldoTotalCarteraCliente = $cliente->saldo_total_pedidos_en_cartera ?? 0;
         }
 
         $this->saveToSession();
@@ -439,6 +444,7 @@ class POS extends Component
             $this->direccion = '';
             $this->flete = 0;
             $this->user_id = auth()->id(); // Mantener el usuario logueado
+            $this->saldoTotalCarteraCliente = 0; // 👈 Agregar este reset
             //$this->bodegaSeleccionada = '';
 
             // Limpiar datos de la sesión después de completar la venta
