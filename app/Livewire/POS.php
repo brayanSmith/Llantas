@@ -215,7 +215,7 @@ class POS extends Component
     #[Computed]
     public function filteredProducts()
     {
-        $bodegaId = $this->bodega ?? 1; // Usa la bodega seleccionada o bodega 1 por defecto
+         $bodegaId = $this->bodega ??  \App\Models\Bodega::where('nombre_bodega', 'Bodega Procesamiento')->first()?->id ?? 1; // Usa la bodega seleccionada o bodega 1 por defecto
 
         $empresa = Empresa::first(); // O la empresa activa
         return Producto::query()
