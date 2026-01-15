@@ -3,9 +3,9 @@
 namespace App\Observers;
 
 use App\Models\DetallePedido;
-use App\Services\PedidoStockService;
+use App\Services\Pedido\PedidoStockService;
 use App\Services\DetallePedidoStockService;
-use App\Services\PedidoCalculoService;
+use App\Services\Pedido\PedidoCalculoService;
 
 
 class DetallePedidoObserver
@@ -60,5 +60,5 @@ class DetallePedidoObserver
         //
         app(DetallePedidoStockService::class)->eliminado($detallePedido);
     }
-    
+
 }

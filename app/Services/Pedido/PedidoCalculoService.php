@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Pedido;
 use App\Models\Pedido;
 use App\Models\DetallePedido;
 use App\Models\Producto;
@@ -161,7 +161,7 @@ class PedidoCalculoService
                 $hoy = \Carbon\Carbon::now()->startOfDay();
                 $fechaVenc = \Carbon\Carbon::parse($fechaVencimiento)->startOfDay();
                 if ($hoy->greaterThan($fechaVenc)) {
-                    return 'VENCIDA';
+                    return 'VENCIDO';
                 } else {
                     return 'PENDIENTE';
                 }
@@ -182,9 +182,16 @@ class PedidoCalculoService
             ->whereIn('estado', ['FACTURADO', 'EN_RUTA', 'ENTREGADO'])
             ->sum('saldo_pendiente');
 
+        $saldoVencido = Pedido::where('cliente_id', $clienteId)
+            ->where('estado_pago', 'EN_CARTERA')
+            ->whereIn('estado', ['FACTURADO', 'EN_RUTA', 'ENTREGADO'])
+            ->where('estado_cartera', 'CARTERA_VENCIDA')
+            ->sum('saldo_pendiente');
+
         $cliente->cuenta_total_pedidos_en_cartera = $totalPedidos;
         $cliente->saldo_total_pedidos_en_cartera = $saldoTotal;
-        $cliente->save();
+        $cliente->saldo_total_pedidos_vencidos = $saldoVencido;
+        $cliente->saveQuietly();
     }
 
 }

@@ -3,7 +3,7 @@
 namespace App\Observers;
 
 use App\Models\Abono;
-use App\Services\PedidoCalculoService;
+use App\Services\Pedido\PedidoCalculoService;
 
 class AbonoObserver
 {

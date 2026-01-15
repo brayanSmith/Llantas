@@ -3,8 +3,8 @@
 namespace App\Observers;
 
 use App\Models\Pedido;
-use App\Services\PedidoStockService;
-use App\Services\PedidoCalculoService;
+use App\Services\Pedido\PedidoStockService;
+use App\Services\Pedido\PedidoCalculoService;
 use App\Models\Cliente;
 
 class PedidoStockBodegaObserver

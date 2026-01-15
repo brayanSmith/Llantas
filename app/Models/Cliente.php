@@ -27,6 +27,7 @@ class Cliente extends Model
         'retenedor_fuente',
         'cuenta_total_pedidos_en_cartera',
         'saldo_total_pedidos_en_cartera',
+        'saldo_total_pedidos_vencidos',
     ];
 
     public function pedidos()

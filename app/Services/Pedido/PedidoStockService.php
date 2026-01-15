@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Pedido;
 
 use App\Models\DetallePedido;
 use App\Models\Pedido;
 use App\Models\Producto;
 use App\Models\StockBodega;
 use Illuminate\Support\Facades\DB;
+use App\Services\StockCalculoService;
 
 class PedidoStockService
 {
@@ -17,7 +18,7 @@ class PedidoStockService
         $this->stockCalculoService = $stockCalculoService;
     }
     public function creado(Pedido $pedido): void
-    {        
+    {
         DB::transaction(function () use ($pedido) {
 
             foreach ($pedido->detalles as $detalle) {
@@ -29,9 +30,9 @@ class PedidoStockService
             }
         });
     }
-    public function actualizado(Pedido $pedido): void 
-    {       
-        DB::transaction(function () use ($pedido) {            
+    public function actualizado(Pedido $pedido): void
+    {
+        DB::transaction(function () use ($pedido) {
 
                 $bodegaAnterior = $pedido->getOriginal('bodega_id');
                 $bodegaActual   = $pedido->bodega_id;
@@ -67,7 +68,7 @@ class PedidoStockService
     }
 
     public function eliminado(Pedido $pedido): void
-    {        
+    {
         DB::transaction(function () use ($pedido) {
 
             // Cargar detalles antes de que se eliminen

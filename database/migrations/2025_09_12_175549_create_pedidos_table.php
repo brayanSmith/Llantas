@@ -27,7 +27,8 @@ return new class extends Migration
             $table->enum('metodo_pago', ['CREDITO', 'CONTADO'])->default('CREDITO');
             $table->enum('tipo_precio', ['FERRETERO','MAYORISTA', 'DETAL'])->default('FERRETERO');
             $table->enum('tipo_venta', ['ELECTRONICA','REMISIONADA'])->default('REMISIONADA');
-            $table->enum('estado_pago', ['EN_CARTERA', 'SALDADO'])->default('EN_CARTERA');
+            $table->enum('estado_pago', allowed: ['EN_CARTERA', 'SALDADO'])->default('EN_CARTERA');
+            $table->enum('estado_cartera', ['CARTERA_AL_DIA', 'CARTERA_VENCIDA', 'CARTERA_PAGADA', 'NO_APLICA'])->nullable();
             $table->enum('estado_venta', ['COTIZACION', 'VENTA'])->default('VENTA');
             $table->enum('estado_vencimiento', ['AL_DIA', 'VENCIDO'])->default('AL_DIA');
             $table->foreignId('bodega_id')->constrained('bodegas')->nullable()->default(1);
@@ -49,6 +50,8 @@ return new class extends Migration
             $table->string('motivo_devolucion')->nullable();
             $table->integer('cuenta_total_pedidos_en_cartera')->default(0);
             $table->decimal('saldo_total_pedidos_en_cartera', 12, 2)->default(0);
+            $table->datetime('fecha_ultimo_abono')->nullable();
+            $table->double('dias_plazo_cartera')->default(30);
             $table->timestamps();
         });
     }

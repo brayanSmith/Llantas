@@ -5,8 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Services\PedidoCalculoService;
-use App\Services\PedidoStockService;
+use App\Services\Pedido\PedidoCalculoService;
+use App\Services\Pedido\PedidoStockService;
 
 class Pedido extends Model
 {
@@ -48,7 +48,9 @@ class Pedido extends Model
         'motivo_devolucion',
         'cuenta_total_pedidos_en_cartera',
         'saldo_total_pedidos_en_cartera',
-
+        'fecha_ultimo_abono',
+        'estado_cartera',
+        'dias_plazo_cartera',
     ];
 
     protected $casts = [

@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\DB;
 use Livewire\WithPagination;
 use App\Services\StockCalculoService;
 use App\Services\CompraCalculoService;
-use App\Services\PedidoCalculoService;
+use App\Services\Pedido\PedidoCalculoService;
 use App\Models\Empresa;
 use App\Models\Ciente;
 
@@ -59,6 +59,7 @@ class POS extends Component
     public $user_id = null;
     public $mostrarProductosSinInventario = false;
     public $saldoTotalCarteraCliente = 0;
+    public $saldoTotalPedidosVencidosCliente = 0;
 
     public function mount()
     {
@@ -148,6 +149,7 @@ class POS extends Component
         $this->ciudad = '';
         $this->direccion = '';
         $this->saldoTotalCarteraCliente = 0;
+        $this->saldoTotalPedidosVencidosCliente = 0;
 
         // Normaliza ID (evita '0', '', 'abc', etc.)
         $id = filter_var($value, FILTER_VALIDATE_INT) ?: null;
@@ -163,6 +165,7 @@ class POS extends Component
                 $this->ciudad = $cliente['ciudad'] ?? $cliente['municipio'] ?? '';
                 $this->direccion = $cliente['direccion'] ?? '';
                 $this->saldoTotalCarteraCliente = $cliente['saldo_total_pedidos_en_cartera'] ?? 0;
+                $this->saldoTotalPedidosVencidosCliente = $cliente['saldo_total_pedidos_vencidos'];
                 $this->saveToSession();
                 return;
             }
@@ -177,6 +180,7 @@ class POS extends Component
             $this->ciudad = $cliente->ciudad ?: $cliente->municipio ?: '';
             $this->direccion = $cliente->direccion ?? '';
             $this->saldoTotalCarteraCliente = $cliente->saldo_total_pedidos_en_cartera ?? 0;
+            $this->saldoTotalPedidosVencidosCliente = $cliente->saldo_total_pedidos_vencidos ?? 0;
         }
 
         $this->saveToSession();
@@ -445,6 +449,7 @@ class POS extends Component
             $this->flete = 0;
             $this->user_id = auth()->id(); // Mantener el usuario logueado
             $this->saldoTotalCarteraCliente = 0; // 👈 Agregar este reset
+            $this->saldoTotalPedidosVencidosCliente = 0;
             //$this->bodegaSeleccionada = '';
 
             // Limpiar datos de la sesión después de completar la venta

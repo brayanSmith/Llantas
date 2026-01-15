@@ -22,7 +22,7 @@ use App\Models\Cliente;
 use Filament\Forms\Components\Checkbox;
 use App\Services\VencimientoService;
 use App\Services\ProximoAbonoService;
-use App\Services\PedidoCalculoService;
+use App\Services\Pedido\PedidoCalculoService;
 
 use function Livewire\Volt\on;
 
@@ -40,7 +40,7 @@ trait HasPedidoSections
                 ])
                 ->visible(fn($get) => $get('estado') === 'PENDIENTE' && !empty($get('fecha_vencimiento')))
                 ->columnSpanFull(),
-                
+
                 Placeholder::make('proximo_abono')
                 ->content(fn($get) => ProximoAbonoService::mensaje($get('abonos') ?? []))
                 ->extraAttributes(fn($get) => [
@@ -48,7 +48,7 @@ trait HasPedidoSections
                 ])
                 ->visible(fn($get) => !empty($get('abonos')) && ($get('total_a_pagar') ?? 0) > 0 && $get('estado') === 'FACTURADO' && $get('estado_pago') !== 'PAGADO')
                 ->columnSpanFull(),
-                ];            
+                ];
     }
 
     // sección datos generales
@@ -120,7 +120,7 @@ trait HasPedidoSections
                         ->required()
                         ->afterStateUpdated(function ($state, $set, $get) {
                             if ($state) {
-                                try {                                    
+                                try {
                                     $fechaVenc = VencimientoService::calcularFechaVencimiento($get('fecha'), $get('dias_plazo_vencimiento'));
                                     $set('fecha_vencimiento', $fechaVenc);
                                 } catch (\Throwable $e) {
@@ -133,7 +133,7 @@ trait HasPedidoSections
                         ->live(onBlur: true)
                         ->minValue(0)
                         ->maxValue(365)
-                        ->step(1)                        
+                        ->step(1)
                         ->columnSpan(2),
 
                     Select::make('metodo_pago')->options(['CREDITO' => 'Crédito', 'CONTADO' => 'Contado'])->default('CREDITO')->required()->columnSpan(2),
@@ -152,7 +152,7 @@ trait HasPedidoSections
                             $detalles = $get('detalles') ?? [];
                             $detallesActualizados = PedidoCalculoService::calcularDatosProducto($detalles, $state);
                             $set('detalles', $detallesActualizados);
-                            
+
                             // Recalcular totales del pedido
                             $data = PedidoCalculoService::calcularTotalesPedido(
                                 $get('detalles') ?? [],
@@ -164,7 +164,7 @@ trait HasPedidoSections
                             $set('abono', $data['abono']);
                             $set('total_a_pagar', $data['total_a_pagar']);
                             $set('saldo_pendiente', $data['saldo_pendiente']);
-                        }),                           
+                        }),
 
                     ToggleButtons::make('estado')
                         ->options($estadoOptions)
@@ -186,7 +186,7 @@ trait HasPedidoSections
                     ])->default('VENTA')->required()->columnSpan(2)->visible(fn($get) => $get('estado') === 'PENDIENTE'),
 
                     Select::make('user_id')
-                        ->label('Vendedor')                        
+                        ->label('Vendedor')
                         ->relationship(
                             name: 'user',
                             titleAttribute: 'name',
@@ -219,7 +219,7 @@ trait HasPedidoSections
                         ->label('Retenedor fuente')
                         ->disabled()               // solo informativo: el usuario no lo cambia aquí
                         ->dehydrated(false)        // no guardarlo en la BD
-                        ->columnSpan(2),                    
+                        ->columnSpan(2),
                 ]);
 
         if ($full) {
@@ -240,28 +240,28 @@ trait HasPedidoSections
                     Placeholder::make('subtotal_display')
                         ->label('Subtotal')
                         ->extraAttributes(['class' => 'text-lg font-semibold'])
-                        ->content(function ($get) {                            
+                        ->content(function ($get) {
                             $subtotal = (float) ($get('subtotal') ?? 0);
                             return '$' . number_format($subtotal, 0, ',', '.');
                         }),
 
                     TextInput::make('subtotal')
                         ->hidden(),
-                    
+
                     Placeholder::make('abono_display')
                         ->label('Abono')
                         ->extraAttributes(['class' => 'text-lg font-semibold text-blue-600'])
                         ->content(function ($get) {
                             // Calcular desde el repeater de abonos si existe
-                            $totalAbonos = (float) ($get('abono') ?? []);                            
+                            $totalAbonos = (float) ($get('abono') ?? []);
                             return '$' . number_format($totalAbonos, 0, ',', '.');
                         }),
-                    
+
                     // Campo oculto para mantener el valor en BD
                     TextInput::make('abono')
                         ->hidden(),
                         //->dehydrated(true),
-                    
+
                     TextInput::make('descuento')
                         ->prefix('$')
                         ->currencyMask(".", ",", 0)
@@ -279,7 +279,7 @@ trait HasPedidoSections
                             $set('total_a_pagar', $data['total_a_pagar']);
                             $set('saldo_pendiente', $data['saldo_pendiente']);
                         }),
-                    
+
                     TextInput::make('flete')
                         ->prefix('$')
                         ->currencyMask(".", ",", 0)
@@ -297,30 +297,30 @@ trait HasPedidoSections
                             $set('total_a_pagar', $data['total_a_pagar']);
                             $set('saldo_pendiente', $data['saldo_pendiente']);
                         }),
-                    
+
                     Placeholder::make('total_a_pagar_display')
                         ->label('Total a pagar')
                         ->extraAttributes(['class' => 'text-lg font-semibold'])
-                        ->content(function ($get) {                            
+                        ->content(function ($get) {
                             $totalAPagar = (float) ($get('total_a_pagar') ?? 0);
                             return '$' . number_format($totalAPagar, 0, ',', '.');
                         }),
-                    
+
                     Placeholder::make('saldo_pendiente_display')
                         ->label('Saldo pendiente')
                         ->extraAttributes(['class' => 'text-lg font-semibold text-red-600'])
-                        ->content(function ($get) {                          
+                        ->content(function ($get) {
                             $saldoPendiente = (float) ($get('saldo_pendiente') ?? 0);
                             return '$' . number_format($saldoPendiente, 0, ',', '.');
                         }),
-                    
+
                     // Campo oculto para mantener el valor real del total a pagar (fijo)
                     TextInput::make('total_a_pagar')
                         ->hidden(),
-                    
+
                     // Campo oculto para mantener el saldo pendiente (se reduce con abonos)
                     TextInput::make('saldo_pendiente')
-                        ->hidden(),                        
+                        ->hidden(),
                 ])->columnSpan(1),
         ];
     }
@@ -343,7 +343,7 @@ trait HasPedidoSections
     {
         return [
             Section::make('Detalles del pedido')
-                ->columnSpanFull() 
+                ->columnSpanFull()
                 ->schema([
                     Repeater::make('detalles')
                         ->relationship('detalles')
@@ -351,7 +351,7 @@ trait HasPedidoSections
                             $detalles = $get('detalles') ?? [];
                             $total = collect($detalles)->sum(callback: fn($detalle) => (float) ($detalle['subtotal'] ?? 0));
                             return 'Productos añadidos (Total: $' . number_format($total, 0, ',', '.') . ')';
-                        })                        
+                        })
                         ->table([
                             //TableColumn::make('Código')->width('50px'),
                             TableColumn::make('Producto')->markAsRequired()->width('250px'),
@@ -359,28 +359,28 @@ trait HasPedidoSections
                             TableColumn::make('Precio Unitario')->markAsRequired()->width('100px'),
                             TableColumn::make('IVA')->markAsRequired()->width('5px'),
                             //TableColumn::make('Iva_valor')->markAsRequired()->width('100px'),
-                            TableColumn::make('Subtotal')->markAsRequired()->width('100px'),                            
+                            TableColumn::make('Subtotal')->markAsRequired()->width('100px'),
                         ])
                         ->compact()
                         ->schema([
-                            
+
                             Select::make('producto_id')
                                 ->label('Producto')
-                                ->relationship('producto', 'concatenar_codigo_nombre')                                
+                                ->relationship('producto', 'concatenar_codigo_nombre')
                                 ->searchable()
                                 ->required()
                                 ->preload()
-                                ->reactive()                                
-                                ->afterStateUpdated(function($state, $set, $get) {                                                                       
+                                ->reactive()
+                                ->afterStateUpdated(function($state, $set, $get) {
                                     // Obtener el tipo de precio del pedido
                                     $tipoPrecio = $get('../../tipo_precio') ?? 'FERRETERO';
-                                    
+
                                     $precio = PedidoCalculoService::obtenerValorUnitario(Producto::find($state), $tipoPrecio);
                                     $set('precio_unitario', $precio);
-                                
+
                                     $producto = PedidoCalculoService::obtenerDatosProducto(Producto::find($state));
                                     $set('iva', $producto['iva'] ?? 0);
-                                })                                
+                                })
                                 ->columnSpan(2),
 
                             TextInput::make('cantidad')
@@ -389,9 +389,9 @@ trait HasPedidoSections
                                 ->required()
                                 ->columnSpan(1)
                                 ->live(onBlur: true)
-                                ->afterStateUpdated(fn($state, $set, $get) => 
+                                ->afterStateUpdated(fn($state, $set, $get) =>
                                     $set('subtotal', PedidoCalculoService::calcularDetalles($get()))
-                                ),                   
+                                ),
 
                             TextInput::make('precio_unitario')
                                 ->prefix('$')
@@ -403,19 +403,19 @@ trait HasPedidoSections
                                 // ahora editable por el usuario; si el usuario cambia este valor
                                 // recalculamos subtotal sin sobreescribir el precio
                                 ->readOnly(false)
-                                 ->afterStateUpdated(fn($state, $set, $get) => 
+                                 ->afterStateUpdated(fn($state, $set, $get) =>
                                     $set('subtotal', PedidoCalculoService::calcularDetalles($get()))
                                 )
                                 ->columnSpan(1),
                             Checkbox::make('aplicar_iva')
                                 ->label('Aplicar IVA')
                                 ->default(true)
-                                ->reactive()                                
-                                ->afterStateUpdated(fn($state, $set, $get) => 
+                                ->reactive()
+                                ->afterStateUpdated(fn($state, $set, $get) =>
                                     $set('subtotal', PedidoCalculoService::calcularDetalles($get()))
-                                )                               
+                                )
                                 ->columnSpan(1),
-                                                            
+
                             TextInput::make('subtotal')
                                 ->prefix('$')
                                 ->currencyMask(".", ",", 0)
@@ -437,9 +437,9 @@ trait HasPedidoSections
                             $set('total_a_pagar', $data['total_a_pagar']);
                             $set('saldo_pendiente', $data['saldo_pendiente']);
                         })
-                        
+
                         ->addActionLabel('Añadir Producto')
-                        
+
                 ])->disabled(fn($get) => $get('estado') !== 'PENDIENTE'),
         ];
     }
@@ -501,7 +501,7 @@ trait HasPedidoSections
                                     ->preload()
                                     ->required()
                                     ->columnSpan(1),
-                                
+
                             ])->columns(3)->columnSpan(2),
 
                             Section::make('Soporte')->schema([
@@ -533,7 +533,7 @@ trait HasPedidoSections
                             $set('saldo_pendiente', $data['saldo_pendiente']);
                         })
                         ->live(),
-                ]),                
+                ]),
         ];
     }
 
@@ -543,12 +543,12 @@ trait HasPedidoSections
          return [
               Section::make('Recibido por')
                 ->columns(1)
-                ->schema([                    
+                ->schema([
                 FileUpload::make('imagen_recibido')
                     ->image()
                     ->label('Imagen de recibido')
                     ->required(fn($get) => $get('estado') === 'ENTREGADO')
-                    ->downloadable()                    
+                    ->downloadable()
                     ->maxSize(1024),
                 Select::make('motivo_devolucion')
                     ->label('Motivo de devolución')
@@ -560,12 +560,12 @@ trait HasPedidoSections
                         'NO_CANCELA' => 'No cancela',
                         'NO_RECIBE' => 'No recibe',
                     ]),
-                    
+
                 TextArea::make('comentario_entrega')
                     ->label('Comentario de entrega')
                     ->maxLength(500),
                 ])->columnSpanFull(),
          ];
     }
-    
+
 }

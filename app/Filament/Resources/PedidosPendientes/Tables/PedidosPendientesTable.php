@@ -71,6 +71,12 @@ class PedidosPendientesTable
                     ->label('Saldo en Cartera')
                     ->money('COP', true,0,0)
                     ->badge()
+                    ->color('warning')
+                    ->sortable(),
+                TextColumn::make('cliente.saldo_total_pedidos_vencidos')
+                    ->label('Saldo Vencido')
+                    ->money('COP', true,0,0)
+                    ->badge()
                     ->color('danger')
                     ->sortable(),
 

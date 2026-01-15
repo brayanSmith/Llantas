@@ -23,17 +23,32 @@
         </div>
     </div>
 
-   <div class="mb-3">
-    <label class="form-label text-sm font-medium text-gray-700 dark:text-gray-300">
-        Saldo Total Cartera Cliente
-    </label>
-    <div class="mt-2">
-        <span class="inline-flex items-center px-4 py-2 rounded-lg text-lg font-bold
-                     bg-amber-100 text-amber-900 dark:bg-amber-900/20 dark:text-amber-400">
-            $ {{ number_format($saldoTotalCarteraCliente, 0, ',', '.') }}
-        </span>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+    <div>
+        <label class="form-label text-sm font-medium text-gray-700 dark:text-gray-300">
+            Cartera Total
+        </label>
+        <div class="mt-2">
+            <span class="inline-flex items-center px-4 py-2 rounded-lg text-lg font-bold
+                         bg-amber-100 text-amber-900 dark:bg-amber-900/20 dark:text-amber-400">
+                $ {{ number_format($saldoTotalCarteraCliente, 0, ',', '.') }}
+            </span>
+        </div>
+    </div>
+
+    <div>
+        <label class="form-label text-sm font-medium text-gray-700 dark:text-gray-300">
+            Cartera Vencida
+        </label>
+        <div class="mt-2">
+            <span class="inline-flex items-center px-4 py-2 rounded-lg text-lg font-bold
+                         bg-red-100 text-red-900 dark:bg-red-900/20 dark:text-red-400">
+                $ {{ number_format($saldoTotalPedidosVencidosCliente, 0, ',', '.') }}
+            </span>
+        </div>
     </div>
 </div>
+
 
     <script>
         // Reintenta la inicialización en eventos típicos de Livewire/Filament
