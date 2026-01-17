@@ -19,6 +19,7 @@ use App\Services\CompraCalculoService;
 use App\Services\Pedido\PedidoCalculoService;
 use App\Models\Empresa;
 use App\Models\Ciente;
+use App\Models\Bodega;
 
 class POS extends Component
 {
@@ -96,6 +97,7 @@ class POS extends Component
             $this->ciudad = $posData['ciudad'] ?? '';
             $this->direccion = $posData['direccion'] ?? '';
             $this->user_id = $posData['user_id'] ?? null;
+            $this->bodega = $posData['bodega'] ?? null;
         }
     }
 
@@ -117,6 +119,7 @@ class POS extends Component
             'ciudad' => $this->ciudad,
             'direccion' => $this->direccion,
             'user_id' => $this->user_id,
+            'bodega' => $this->bodega,
         ];
 
         session()->put('pos_data', $posData);
@@ -140,6 +143,7 @@ class POS extends Component
         $this->ciudad = '';
         $this->direccion = '';
         $this->user_id = auth()->id(); // Mantener el usuario logueado
+        $this->bodega = null;
     }
 
     // Actualizar ciudad y dirección cuando se selecciona un cliente
@@ -199,7 +203,8 @@ class POS extends Component
             'segundo_comentario',
             'cart',
             'ciudad',
-            'direccion'
+            'direccion',
+            'bodega'
         ];
 
         if (in_array($property, $autoSaveProps)) {
@@ -207,7 +212,7 @@ class POS extends Component
         }
 
         // Resetear paginación cuando cambia búsqueda o tamaño de página
-        if (in_array($property, ['search', 'perPage'])) {
+        if (in_array($property, ['search', 'perPage', 'bodega'])) {
             $this->resetPage();
         }
     }
@@ -215,9 +220,9 @@ class POS extends Component
     #[Computed]
     public function filteredProducts()
     {
-         $bodegaId = $this->bodega ??  \App\Models\Bodega::where('nombre_bodega', 'Bodega Procesamiento')->first()?->id ?? 1; // Usa la bodega seleccionada o bodega 1 por defecto
-
         $empresa = Empresa::first(); // O la empresa activa
+        $bodegaId = $this->bodega ?? $empresa->bodega_id;
+
         return Producto::query()
             ->where('activo', 1)
             ->where('categoria_producto', 'PRODUCTO_TERMINADO')
@@ -268,14 +273,14 @@ class POS extends Component
     }
 
     // Agregar producto al carrito (comportamiento original)
-    public function addToCart($productoId, $cantidad = 2)
-    {
+        public function addToCart($productoId, $cantidad = 2)
+        {
         $empresa = Empresa::first();
         $producto = Producto::find($productoId);
 
         // Obtener el stock actualizado
         $inventario = StockBodega::where('producto_id', $productoId)
-            ->where('bodega_id', $this->bodega ?? 1)
+            ->where('bodega_id', $empresa->bodega_id)
             ->first();
 
          if (!$empresa->mostrar_productos_sin_inventario && (!$inventario || $inventario->stock <= 0)) {
@@ -396,7 +401,7 @@ class POS extends Component
                 //vamos a hacer que la fecha de vencimiento sea 30 dias despues de la fecha actual
                 'fecha' => now()->toDateString(),
                 'fecha_vencimiento' => now()->addDays(30)->toDateString(),
-                'bodega_id' => 1, //por defecto bodega 1
+                'bodega_id' => Empresa::first()->bodega_id,
 
             ]);
 
@@ -450,6 +455,7 @@ class POS extends Component
             $this->user_id = auth()->id(); // Mantener el usuario logueado
             $this->saldoTotalCarteraCliente = 0; // 👈 Agregar este reset
             $this->saldoTotalPedidosVencidosCliente = 0;
+            $this->bodega = null;
             //$this->bodegaSeleccionada = '';
 
             // Limpiar datos de la sesión después de completar la venta
@@ -518,7 +524,8 @@ class POS extends Component
      */
     public function getAvailableStock($productoId)
     {
-        $bodegaId = $this->bodega ?? 1;
+        $empresa = Empresa::first();
+        $bodegaId = $empresa->bodega_id;
 
         // Buscar el stock en la bodega específica
         $stockBodega = \App\Models\StockBodega::where('producto_id', $productoId)

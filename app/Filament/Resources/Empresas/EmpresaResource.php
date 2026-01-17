@@ -18,6 +18,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Forms\Components\Toggle;
 
@@ -72,6 +73,11 @@ class EmpresaResource extends Resource
                 Toggle::make('mostrar_productos_sin_inventario')
                     ->label('Mostrar productos sin inventario')
                     ->default(false),
+                Select::make('bodega_id')
+                    ->label('Bodega Asociada')
+                    ->relationship('bodega', 'nombre_bodega')
+                    ->nullable()
+                    ->default(null),
             ]);
     }
 

@@ -31,5 +31,9 @@ class Bodega extends Model
     {
         return $this->hasMany(StockBodega::class);
     }
+    public function empresa()
+    {
+        return $this->hasOne(Empresa::class);
+    }
 
 }
