@@ -29,6 +29,7 @@ class PedidosPendientesTable
 
                 return $query;
             })
+
             ->groups([
                 Group::make('fecha')
                     ->date()
@@ -38,35 +39,26 @@ class PedidosPendientesTable
 
             ])->defaultGroup('fecha')
             ->columns([
-                TextColumn::make('fecha')
-                    ->label('Fecha de Facturación')
+
+                TextColumn::make('created_at')
+                    ->label('Creación')
                     ->dateTime()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: false),
+
                 TextColumn::make('codigo')
                     ->label('Remisión')
                     ->searchable()
                     ->sortable(),
+
                 TextColumn::make('cliente.razon_social')
                     ->label('Cliente')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('cliente.ruta.ruta')
-                    ->label('Ruta')
-                    ->sortable(),
 
-                TextColumn::make('user.name')
-                    ->label('Vendedor')
-                    ->searchable()
-                    ->sortable(),
-
-                ToggleColumn::make('impresa')
-                    ->label('Impresa'),
                 TextColumn::make('tipo_venta')
                     ->label('Tipo Venta'),
 
-                TextColumn::make('cliente.cuenta_total_pedidos_en_cartera')
-                    ->label('Saldos')
-                    ->sortable(),
                 TextColumn::make('cliente.saldo_total_pedidos_en_cartera')
                     ->label('Saldo en Cartera')
                     ->money('COP', true,0,0)
@@ -80,10 +72,23 @@ class PedidosPendientesTable
                     ->color('danger')
                     ->sortable(),
 
-                TextColumn::make('created_at')
+
+                TextColumn::make('cliente.ruta.ruta')
+                    ->label('Ruta')
+                    ->sortable(),
+                TextColumn::make('user.name')
+                    ->label('Vendedor')
+                    ->searchable()
+                    ->sortable(),
+                ToggleColumn::make('impresa')
+                    ->label('Impresa'),
+
+
+
+                TextColumn::make('fecha')
+                    ->label('Fecha de Facturación')
                     ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->sortable(),
                 TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
