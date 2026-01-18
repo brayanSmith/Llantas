@@ -147,27 +147,7 @@ class PedidoCalculoService
 
     public static function calcularEstadoPago(float $saldo): string
     {
-        return (round($saldo, 4) <= 0.0001) ? 'SALDADO' : 'EN_CARTERA';
-    }
-
-    public static function calcularEstadoVencimiento(Pedido $pedido): string {
-        {
-            $saldoPendiente = $pedido->saldo_pendiente ?? 0;
-            $fechaVencimiento = $pedido->fecha_vencimiento;
-            if ($saldoPendiente <= 0) {
-                return 'SALDADA';
-            }
-            if ($fechaVencimiento) {
-                $hoy = \Carbon\Carbon::now()->startOfDay();
-                $fechaVenc = \Carbon\Carbon::parse($fechaVencimiento)->startOfDay();
-                if ($hoy->greaterThan($fechaVenc)) {
-                    return 'VENCIDO';
-                } else {
-                    return 'PENDIENTE';
-                }
-            }
-            return 'SIN_VENCIMIENTO';
-        }
+        return (round($saldo, 2) <= 0) ? 'SALDADO' : 'EN_CARTERA';
     }
 
     public static function setPedidosEnCarteraTotales(Cliente $cliente, string $clienteId): void
@@ -185,7 +165,7 @@ class PedidoCalculoService
         $saldoVencido = Pedido::where('cliente_id', $clienteId)
             ->where('estado_pago', 'EN_CARTERA')
             ->whereIn('estado', ['FACTURADO', 'EN_RUTA', 'ENTREGADO'])
-            ->where('estado_cartera', 'CARTERA_VENCIDA')
+            ->where('estado_vencimiento', 'VENCIDO')
             ->sum('saldo_pendiente');
 
         $cliente->cuenta_total_pedidos_en_cartera = $totalPedidos;

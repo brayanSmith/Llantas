@@ -39,16 +39,8 @@ trait HasPedidoSections
                     'class' => VencimientoService::estilo($get('fecha_vencimiento'))
                 ])
                 ->visible(fn($get) => $get('estado') === 'PENDIENTE' && !empty($get('fecha_vencimiento')))
-                ->columnSpanFull(),
-
-                Placeholder::make('proximo_abono')
-                ->content(fn($get) => ProximoAbonoService::mensaje($get('abonos') ?? []))
-                ->extraAttributes(fn($get) => [
-                    'class' => ProximoAbonoService::estilo($get('abonos') ?? [])
-                ])
-                ->visible(fn($get) => !empty($get('abonos')) && ($get('total_a_pagar') ?? 0) > 0 && $get('estado') === 'FACTURADO' && $get('estado_pago') !== 'PAGADO')
-                ->columnSpanFull(),
-                ];
+                ->columnSpanFull()
+    ];
     }
 
     // sección datos generales

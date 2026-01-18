@@ -37,10 +37,10 @@ class ClienteInfolist
                     ->label('Saldo')
                     ->icon('heroicon-o-currency-dollar')
                     ->formatStateUsing(fn($state) => '$' . number_format($state, 0, ',', '.')),
-                TextEntry::make('estado_cartera')
+                TextEntry::make('estado_vencimiento')
                     ->label('Estado')
                     ->icon('heroicon-o-exclamation-triangle')
-                    ->color(fn ($state) => $state === 'CARTERA_VENCIDA' ? 'danger' : 'success'),
+                    ->color(fn ($state) => $state === 'VENCIDO' ? 'danger' : 'success'),
                 TextEntry::make('abono')
                     ->label('Abonos')
                     ->icon('heroicon-o-currency-dollar')

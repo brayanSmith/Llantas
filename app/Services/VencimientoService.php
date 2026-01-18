@@ -41,6 +41,23 @@ class VencimientoService
         }
     }
 
+    public static function estadoVencimiento(object $modelo): ?string
+    {
+        $dias = self::diasRestantes($modelo->fecha_vencimiento);
+
+        if ($dias === null) return null;
+
+        if ($dias < 0) {
+            return 'VENCIDO';
+        } elseif ($dias === 0) {
+            return 'AL_DIA';
+        } elseif ($dias > 0) {
+            return 'AL_DIA';
+        }
+
+        return null;
+    }
+
     /**
      * Retorna el estado del vencimiento:
      * - vencido

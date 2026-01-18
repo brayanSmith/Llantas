@@ -94,31 +94,16 @@ class Pedido extends Model
 
     public function recalcularTotales()
     {
-        // Obtener todos los abonos del pedido
-        $abonosArray = $this->abonos()->get()->toArray();
-
         $data = PedidoCalculoService::calcularTotalesPedido(
             $this->detalles->toArray(),
-            $abonosArray,
+            $this->abonos->toArray(),
             $this->descuento ?? 0,
             $this->flete ?? 0
         );
-
-        // Usar updateQuietly para evitar disparar el observer y crear un loop infinito
         $this->updateQuietly($data);
-    }
 
-    public function setEstadoPago(){
-        $nuevoEstadoPago = PedidoCalculoService::calcularEstadoPago((float) ($this->saldo_pendiente ?? 0));
-        if (($this->estado_pago ?? null) !== $nuevoEstadoPago) {
-            $this->updateQuietly(['estado_pago' => $nuevoEstadoPago]);
-        }
-    }
-
-    public function setEstadoVencimiento()
-    {
-        $nuevoEstadoVencimiento = PedidoCalculoService::calcularEstadoVencimiento($this);
-            $this->updateQuietly(['estado_vencimiento' => $nuevoEstadoVencimiento]);
+        $nuevoEstadoPago = PedidoCalculoService::calcularEstadoPago($this->saldo_pendiente);
+        $this->updateQuietly(['estado_pago' => $nuevoEstadoPago]);
     }
 
     public function setCodigoPedido()
@@ -126,19 +111,6 @@ class Pedido extends Model
         $nuevoCodigo = PedidoCalculoService::generarCodigoPedido($this->id);
             $this->updateQuietly(['codigo' => $nuevoCodigo]);
     }
-
-    /**
-     * Obtener el estado de pago formateado para mostrar
-     */
-    /*public function getEstadoPagoFactura(): string
-    {
-        return match($this->estado_pago) {
-            'SALDADO' => 'Pagado',
-            'EN_CARTERA' => 'Pendiente',
-            default => $this->estado_pago ?? 'Desconocido'
-        };
-    }*/
-
 
     // Atributo: devolver fecha en America/Bogota
     public function getFechaAttribute($value)

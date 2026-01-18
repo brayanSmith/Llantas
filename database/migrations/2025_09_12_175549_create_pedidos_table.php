@@ -30,7 +30,9 @@ return new class extends Migration
             $table->enum('estado_pago', allowed: ['EN_CARTERA', 'SALDADO'])->default('EN_CARTERA');
             $table->enum('estado_cartera', ['CARTERA_AL_DIA', 'CARTERA_VENCIDA', 'CARTERA_PAGADA', 'NO_APLICA'])->nullable();
             $table->enum('estado_venta', ['COTIZACION', 'VENTA'])->default('VENTA');
+
             $table->enum('estado_vencimiento', ['AL_DIA', 'VENCIDO'])->default('AL_DIA');
+
             $table->foreignId('bodega_id')->constrained('bodegas')->nullable()->default(1);
             $table->text('primer_comentario')->nullable();
             $table->text('segundo_comentario')->nullable();
