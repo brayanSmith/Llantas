@@ -2,21 +2,23 @@
 
 namespace App\Filament\Resources\Pedidos\Tables;
 
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
-use Filament\Forms\Components\Select;
-use Filament\Tables\Columns\ToggleColumn;
-use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Filament\Tables\Grouping\Group;
+use Filament\Actions\Action;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
+use Filament\Actions\ActionGroup;
 use Filament\Tables\Filters\Filter;
+use Filament\Tables\Grouping\Group;
+use Filament\Actions\BulkActionGroup;
+use Filament\Forms\Components\Select;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
-use Filament\Actions\ViewAction;
 use Filament\Tables\Enums\RecordActionsPosition;
+use App\Filament\Tables\Columns\DescargarPdfColumn;
 use App\Filament\Resources\Pedidos\Tables\Concerns\HasActionSections;
-use Filament\Actions\ActionGroup;
 
 class PedidosTable
 {
@@ -49,6 +51,8 @@ class PedidosTable
                     ->label('Remisión')
                     ->searchable()
                     ->sortable(),
+                DescargarPdfColumn::make('descargar_pdf')
+                    ->label('Pdf'),
                 TextColumn::make('cliente.razon_social')
                     ->label('Cliente')
                     ->searchable()
@@ -80,7 +84,7 @@ class PedidosTable
 
                 TextColumn::make('ciudad')
                     ->searchable(),
-                
+
                 TextColumn::make('metodo_pago')
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {
@@ -124,10 +128,20 @@ class PedidosTable
                     ViewAction::make()
                         ->modalWidth('full'),
                     EditAction::make(),
-            ]),            
-        ], 
-        position: RecordActionsPosition::BeforeColumns
-    )
+                    Action::make('download_pdf')
+                        ->label(fn ($record) => 'Descargar PDF (' . ($record->contador_impresiones ?? 0) . ')')
+                        //->icon('heroicon-o-document-download')
+                        ->url(fn ($record) => route('pedidos.pdf.download', $record->id))
+                        ->openUrlInNewTab(),
+                    Action::make('download_pdf_facturado')
+                        ->label('Descargar PDF Facturado')
+                        //->icon('heroicon-o-document-download')
+                        ->url(fn ($record) => route('pedidosFacturados.pdf.download', $record->id))
+                        ->openUrlInNewTab(),
+                ]),
+            ],
+            position: RecordActionsPosition::BeforeColumns
+        )
             ->toolbarActions([
                 BulkActionGroup::make([
                     //DeleteBulkAction::make(),

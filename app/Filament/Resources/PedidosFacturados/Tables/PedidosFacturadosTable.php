@@ -9,6 +9,7 @@ use Filament\Tables\Table;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ActionColumn;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
@@ -17,6 +18,8 @@ use Filament\Actions\ViewAction;
 use Filament\Tables\Enums\RecordActionsPosition;
 use App\Filament\Resources\Pedidos\Tables\Concerns\HasActionSections;
 use Filament\Actions\ActionGroup;
+use Filament\Actions\Action;
+use App\Filament\Tables\Columns\DescargarPdfColumn;
 
 class PedidosFacturadosTable
 {
@@ -52,6 +55,8 @@ class PedidosFacturadosTable
                     ->label('Remisión')
                     ->searchable()
                     ->sortable(),
+                DescargarPdfColumn::make('descargar_pdf')
+                    ->label('Pdf'),
                 TextColumn::make('cliente.razon_social')
                     ->label('Cliente')
                     ->searchable()
@@ -146,10 +151,20 @@ class PedidosFacturadosTable
                     ViewAction::make()
                         ->modalWidth('full'),
                     EditAction::make(),
-            ]),
-        ],
-        position: RecordActionsPosition::BeforeColumns
-    )
+                    Action::make('download_pdf')
+                        ->label(fn ($record) => 'Descargar PDF (' . ($record->contador_impresiones ?? 0) . ')')
+                        //->icon('heroicon-o-document-download')
+                        ->url(fn ($record) => route('pedidos.pdf.download', $record->id))
+                        ->openUrlInNewTab(),
+                    Action::make('download_pdf_facturado')
+                        ->label('Descargar PDF Facturado')
+                        //->icon('heroicon-o-document-download')
+                        ->url(fn ($record) => route('pedidosFacturados.pdf.download', $record->id))
+                        ->openUrlInNewTab(),
+                ]),
+            ],
+            position: RecordActionsPosition::BeforeColumns
+        )
             ->toolbarActions([
                 BulkActionGroup::make([
                     //DeleteBulkAction::make(),
