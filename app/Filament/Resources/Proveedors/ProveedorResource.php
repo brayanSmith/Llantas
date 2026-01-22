@@ -18,6 +18,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Filament\Forms\Components\Toggle;
 use UnitEnum;
 
 class ProveedorResource extends Resource
@@ -56,7 +57,7 @@ class ProveedorResource extends Resource
                     ->required()
                     ->options([
                         "DECLARANTE" => "DECLARANTE",
-                        "NO DECLARANTE" => "NO DECLARANTE",
+                        "NO_DECLARANTE" => "NO DECLARANTE",
                         "RETENEDOR" => "RETENEDOR",
                     ]),
                 TextInput::make('departamento_proveedor')
@@ -83,6 +84,24 @@ class ProveedorResource extends Resource
                 TextInput::make('numero_cuenta_proveedor')
                     ->required()
                     ->maxLength(255),
+                TextInput::make('convenio')
+                    ->maxLength(255),
+                TextInput::make('tiempo_respuesta')
+                    ->maxLength(255),
+                TextInput::make('fabricante')
+                    ->maxLength(255),
+                Toggle::make('flete')
+                    ->label('¿Aplica flete?')
+                    ->default(false)
+                    ->live(true),
+                TextInput::make('valor_flete')
+                    ->visible(fn (callable $get) => $get('flete') === true)
+                    ->numeric()
+                    ->default(0)
+                    ->minValue(0)
+                    ->step(0.01)
+                    ->label('Valor del flete'),
+
             ]);
     }
 

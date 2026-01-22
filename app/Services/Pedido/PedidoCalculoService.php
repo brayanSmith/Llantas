@@ -103,7 +103,7 @@ class PedidoCalculoService
      * 🔹 Calcula el total del detalle del pedido
      */
 
-    public static function calcularDetalles(array $data): float
+    public static function calcularDetalles(array $data): array
     {
         $productoId = $data['producto_id'] ?? null;
         $cantidad = (float) ($data['cantidad'] ?? 0);
@@ -116,17 +116,24 @@ class PedidoCalculoService
         // Si aplicar IVA es true, calcular con IVA
         if ($aplicarIva && $iva > 0) {
             $totalConIva = $subtotal * (1 + ($iva / 100));
-            return round($totalConIva, 2);
+            $precioConIva = $precioUnitario * (1 + ($iva / 100));
+            $subTotal = round($totalConIva, 2);
+        }else{
+            // Si no, retornar subtotal sin IVA
+            $precioConIva = $precioUnitario;
+            $subTotal = round($subtotal, 2);
         }
-
-        // Si no aplica IVA, retornar subtotal sin IVA
-        return round($subtotal, 2);
+        return [
+            'subtotal' => $subTotal,
+            'precio_con_iva' => $precioConIva
+        ];
     }
 
     public static function calcularTotalesPedido(array $detalles, array $abonos, float $descuento, float $flete): array
     {
         $subtotal = collect($detalles)->sum(function($item){
-            return self::calcularDetalles($item);
+            $resultado = self::calcularDetalles($item);
+            return $resultado['subtotal'];
         });
 
         $totalAbonos = collect($abonos)->sum(function($item){

@@ -18,6 +18,7 @@ class DetalleCompra extends Model
         'cantidad',
         'precio_unitario',
         'iva',
+        'precio_con_iva',
         'subtotal',
         'tipo_item',
     ];
@@ -28,13 +29,16 @@ class DetalleCompra extends Model
     }
    public function recalcularSubtotal()
     {
-        $subtotal = CompraCalculoService::calcularDetalles([
+        $resultado = CompraCalculoService::calcularDetalles([
             'item_id' => $this->item_id,
             'descripcion_item' => $this->descripcion_item,
             'cantidad' => $this->cantidad,
             'precio_unitario' => $this->precio_unitario,
             'iva' => $this->iva,
         ]);
-        $this->update(['subtotal' => $subtotal]);
-    }   
+        $this->update([
+            'subtotal' => $resultado['subtotal'],
+            'precio_con_iva' => $resultado['precio_con_iva']
+        ]);
+    }
 }

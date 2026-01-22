@@ -55,12 +55,18 @@ trait HasCompraSections
                 ->columns(4)
                 ->columnSpan(1)
                 ->schema([
+
+                    /*TextInput::make('id')
+                    ->columnSpan(1)
+                    ->label('Id')
+                    //->required()
+                    ->unique(),*/
                     Radio::make('item_compra')
                     ->label('Tipo de Ítem')
                     ->inline()
                     ->columnSpan(4)
                     ->required()
-                    ->live()    
+                    ->live()
                     ->default('PRODUCTO')
                     ->options([
                         'PRODUCTO' => 'Producto',
@@ -123,7 +129,7 @@ trait HasCompraSections
                         ->live(onBlur: true)
                         ->afterStateUpdated(function ($state, $set, $get) {
                             if ($state) {
-                                try {                                    
+                                try {
                                     $fechaVenc = VencimientoService::calcularFechaVencimiento($get('fecha'), $get('dias_plazo_vencimiento'));
                                     $set('fecha_vencimiento', $fechaVenc);
                                 } catch (\Throwable $e) {
@@ -141,7 +147,7 @@ trait HasCompraSections
 
                     Select::make('metodo_pago')
                     ->options([
-                        'CREDITO' => 'Crédito', 
+                        'CREDITO' => 'Crédito',
                         'CONTADO' => 'Contado'
                         ])
                     ->default('CREDITO')
@@ -170,8 +176,8 @@ trait HasCompraSections
                     Select::make('tipo_compra')->options([
                         'REMISIONADA' => 'Remisionada',
                         'ELECTRONICA' => 'Electrónica',
-                    ])->required()->columnSpan(2),  
-                    
+                    ])->required()->columnSpan(2),
+
                     Select::make('bodega_id')
                     ->relationship('bodega', 'nombre_bodega')
                     ->required()
@@ -206,7 +212,7 @@ trait HasCompraSections
                             $data = CompraCalculoService::calcular(
                                 $get('detallesCompra') ?? [],
                                 $get('abonos') ?? [],
-                                $get('descuento') ?? 0,                                
+                                $get('descuento') ?? 0,
                             );
                             $set('subtotal', $data['subtotal']);
                             $set('abono', $data['abono']);
@@ -262,17 +268,18 @@ trait HasCompraSections
                             $total = collect($detalles)->sum(callback: fn($detalle) => (float) ($detalle['subtotal'] ?? 0));
                             return 'Productos añadidos (Total: $' . number_format($total, 0, ',', '.') . ')';
                         })
-                        ->table([                            
-                            TableColumn::make('Item')->markAsRequired()->width('200px'),
-                            TableColumn::make('Descripción')->width('200px'),
-                            TableColumn::make('Cantidad')->markAsRequired()->width('100px'),
-                            TableColumn::make('Precio Unitario')->markAsRequired()->width('100px'),
-                            TableColumn::make('IVA')->markAsRequired()->width('100px'),                            
-                            TableColumn::make('Subtotal')->markAsRequired()->width('100px'),                            
+                        ->table([
+                            TableColumn::make('Item')->markAsRequired()->width('30%'),
+                            TableColumn::make('Descripción')->width('20%'),
+                            TableColumn::make('Cantidad')->markAsRequired()->width('5%'),
+                            TableColumn::make('Pu')->markAsRequired()->width('10%'),
+                            TableColumn::make('IVA')->markAsRequired()->width('10%'),
+                            TableColumn::make('Pu + IVA')->markAsRequired()->width('10%'),
+                            TableColumn::make('Subtotal')->markAsRequired()->width('10%'),
                         ])
                         ->compact()
                         ->schema([
-                            
+
                             Select::make('item_id')
                                 ->label('Item')
                                 ->searchable()
@@ -290,25 +297,27 @@ trait HasCompraSections
                                             })
                                             ->orderBy('codigo_producto')
                                             ->pluck('concatenar_codigo_nombre', 'id')
-                                            ->toArray(); 
-                                    }                                    
-                                })                               
+                                            ->toArray();
+                                    }
+                                })
 
-                                ->reactive()                                                           
+                                ->reactive()
                                 ->columnSpan(2),
-                            
+
                             TextInput::make('descripcion_item')
-                                ->label('Descripción')                                
-                                ->columnSpan(2),                                
+                                ->label('Descripción')
+                                ->columnSpan(2),
 
                             TextInput::make('cantidad')
                                 ->numeric()
                                 ->default(1)
                                 ->required()
                                 ->live(onBlur: true)
-                                ->afterStateUpdated(fn($state, $set, $get) => 
-                                    $set('subtotal' , CompraCalculoService::calcularDetalles($get()))
-                                )
+                                ->afterStateUpdated(function($state, $set, $get) {
+                                    $resultado = CompraCalculoService::calcularDetalles($get());
+                                    $set('subtotal', $resultado['subtotal']);
+                                    $set('precio_con_iva', $resultado['precio_con_iva']);
+                                })
                                 ->columnSpan(1),
 
                             TextInput::make('precio_unitario')
@@ -317,11 +326,13 @@ trait HasCompraSections
                                 ->numeric()
                                 ->default(0)
                                 ->required()
-                                ->live(onBlur: true)                                
+                                ->live(onBlur: true)
                                 ->readOnly(false)
-                                ->afterStateUpdated(fn($state, $set, $get) => 
-                                    $set('subtotal' , CompraCalculoService::calcularDetalles($get()))
-                                )
+                                ->afterStateUpdated(function($state, $set, $get) {
+                                    $resultado = CompraCalculoService::calcularDetalles($get());
+                                    $set('subtotal', $resultado['subtotal']);
+                                    $set('precio_con_iva', $resultado['precio_con_iva']);
+                                })
                                 ->columnSpan(1),
 
                                 TextInput::make('iva')
@@ -331,10 +342,19 @@ trait HasCompraSections
                                     ->default(0)
                                     ->required()
                                     ->live(onBlur: true)
-                                    ->afterStateUpdated(fn($state, $set, $get) => 
-                                        $set('subtotal' , CompraCalculoService::calcularDetalles($get()))
-                                    )
+                                    ->afterStateUpdated(function($state, $set, $get) {
+                                    $resultado = CompraCalculoService::calcularDetalles($get());
+                                    $set('subtotal', $resultado['subtotal']);
+                                    $set('precio_con_iva', $resultado['precio_con_iva']);
+                                })
                                     ->columnSpan(1),
+                            TextInput::make('precio_con_iva')
+                                ->prefix('$')
+                                ->currencyMask(".", ",", 0)
+                                ->numeric()
+                                ->readonly()
+                                ->dehydrated(false)
+                                ->columnSpan(1),
 
                             TextInput::make('subtotal')
                                 ->prefix('$')
@@ -349,7 +369,7 @@ trait HasCompraSections
                             $data = CompraCalculoService::calcular(
                                 $get('detallesCompra') ?? [],
                                 $get('abonos') ?? [],
-                                $get('descuento') ?? 0,                                
+                                $get('descuento') ?? 0,
                             );
                             $set('subtotal', $data['subtotal']);
                             $set('abono', $data['abono']);
@@ -357,14 +377,14 @@ trait HasCompraSections
                             $set('saldo_pendiente', $data['saldo_pendiente']);
                         }
                     )
-                        
+
 
                         ->addActionLabel('Añadir Producto')
                         ->deleteAction(fn(\Filament\Actions\Action $action) => $action->after(function ($record, $set, $get) {
                             $data = CompraCalculoService::calcular(
                                 $get('detallesCompra') ?? [],
                                 $get('abonos') ?? [],
-                                $get('descuento') ?? 0,                                
+                                $get('descuento') ?? 0,
                             );
                             $set('subtotal', $data['subtotal']);
                             $set('abono', $data['abono']);
@@ -398,7 +418,7 @@ trait HasCompraSections
                                 ->required()
                                 ->default(now())
                                 ->columnSpan(1),
-                                
+
                                 TextInput::make('monto_abono_compra')
                                 ->label('Monto')
                                 ->prefix('$')
@@ -416,7 +436,7 @@ trait HasCompraSections
                                     name:'formaPagoAbonoCompra',
                                     titleAttribute: 'concatenar_subcuenta_concepto',
                                     modifyQueryUsing: fn ($query) => $query->where('tipo', 1)
-                                    
+
                                     )
                                 ->searchable()
                                 ->required()
@@ -427,10 +447,10 @@ trait HasCompraSections
                                 ->label('Descripción')
                                 ->default(null)
                                 ->columnSpan(2),
-                                
+
                                 Select::make('user_id')
                                 ->label('Usuario que registra')
-                                ->relationship('user', 'name')                                 
+                                ->relationship('user', 'name')
                                 ->searchable()
                                 ->preload()
                                 ->required()
@@ -446,7 +466,7 @@ trait HasCompraSections
                             $data = CompraCalculoService::calcular(
                                 $get('detallesCompra') ?? [],
                                 $get('abonos') ?? [],
-                                $get('descuento') ?? 0,                                
+                                $get('descuento') ?? 0,
                             );
                             $set('subtotal', $data['subtotal']);
                             $set('abono', $data['abono']);
@@ -459,9 +479,9 @@ trait HasCompraSections
                         ->columnSpan(4)
                         ->disabled(fn($get) => $get('estado') === 'ANULADO')
                         ->hidden(fn($get) => $get('estado') === 'ANULADO'),
-                        
+
                 ])
-                
+
         ];
     }
 }

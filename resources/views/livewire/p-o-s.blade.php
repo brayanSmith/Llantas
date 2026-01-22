@@ -56,8 +56,9 @@
                                 <div class="flex items-center space-x-2">
                                     @php($maxStock = \App\Models\StockBodega::where('producto_id', $cartProduct['id'])->where('bodega_id', $this->bodega ?? 1)->first()->stock ?? 1)
                                     <input type="number" min="1" max="{{ (int) $maxStock }}"
-                                        wire:model.live.debounce.500ms="cart.{{ $cartProduct['id'] }}.cantidad"
-                                        @change="if(this.value > {{ (int) $maxStock }}) this.value = {{ (int) $maxStock }}"
+                                        wire:key="cart-{{ $cartProduct['id'] }}"
+                                        wire:model.live="cart.{{ $cartProduct['id'] }}.cantidad"
+                                        @change="if(this.value > {{ (int) $maxStock }}) this.value = {{ (int) $maxStock }}; else if(this.value < 1) this.value = 1"
                                         class="py-2.5 sm:py-3 px-4 block w-20 border-gray-200 rounded-lg sm:text-sm
                                        focus:border-blue-500 focus:ring-blue-500
                                        dark:bg-neutral-900 dark:border-neutral-700

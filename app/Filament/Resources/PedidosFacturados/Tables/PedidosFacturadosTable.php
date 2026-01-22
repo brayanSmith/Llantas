@@ -24,13 +24,14 @@ class PedidosFacturadosTable
     {
         return $table
             ->modifyQueryUsing(function ($query) {
-                $query->where('estado', 'FACTURADO');
-                
+                $query->where('estado', 'FACTURADO')
+                ->where('estado_venta', 'VENTA');
+
                 // Si el usuario no es super_admin, mostrar solo sus pedidos
                 if (!auth()->user()->hasRole('super_admin')) {
                     $query->where('user_id', auth()->id());
                 }
-                
+
                 return $query;
             })
             ->groups([
@@ -145,8 +146,8 @@ class PedidosFacturadosTable
                     ViewAction::make()
                         ->modalWidth('full'),
                     EditAction::make(),
-            ]),            
-        ], 
+            ]),
+        ],
         position: RecordActionsPosition::BeforeColumns
     )
             ->toolbarActions([

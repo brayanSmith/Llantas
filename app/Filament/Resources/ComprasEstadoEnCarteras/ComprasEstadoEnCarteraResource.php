@@ -18,7 +18,7 @@ use UnitEnum;
 class ComprasEstadoEnCarteraResource extends Resource
 {
     protected static ?string $model = Compra::class;
-    
+
     // Labels personalizados para Shield
     protected static ?string $modelLabel = 'Compra En Cartera';
     protected static ?string $pluralModelLabel = 'Compras En Cartera';
@@ -26,7 +26,7 @@ class ComprasEstadoEnCarteraResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static ?string $recordTitleAttribute = 'factura';
+    protected static ?string $recordTitleAttribute = 'titulo';
      protected static string|UnitEnum|null $navigationGroup = 'Compras';
         //protected static ?string $navigationParentItem = 'Compras';
         //protected static ?int $navigationSort = 1;
@@ -80,6 +80,22 @@ class ComprasEstadoEnCarteraResource extends Resource
     public static function getPluralLabel(): string
     {
         return 'Cuentas por Pagar';
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        $query = static::$model::where('estado_pago', 'EN_CARTERA')->whereIn('estado', ['FACTURADO']);
+        if (!auth()->user()->hasRole('super_admin')) {
+            $query->where('user_id', auth()->id());
+        }
+        $count = $query->count();
+
+        return $count > 0 ? (string) $count : null;
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'warning';
     }
 
     public static function getPages(): array

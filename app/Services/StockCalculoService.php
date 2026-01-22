@@ -16,42 +16,42 @@ class StockCalculoService
 {
     /**
      * Calcula el total de entradas facturadas de un producto en una bodega específica
-     * 
+     *
      * @param int $productoId ID del producto
      * @param int $bodegaId ID de la bodega
      * @param int|null $excluirCompraId ID de compra a excluir del cálculo (útil al eliminar)
      * @return float Total de entradas
      */
     public function calcularEntradasFacturadas(int $productoId, int $bodegaId, ?int $excluirCompraId = null): float
-    {         
+    {
         // Obtener el stock inicial del producto en la bodega específica
         $producto = Producto::where('id', $productoId)->first();
-        $totalInicial = ($producto && $producto->bodega_id === $bodegaId) 
-            ? ($producto->stock_inicial ?? 0) 
+        $totalInicial = ($producto && $producto->bodega_id === $bodegaId)
+            ? ($producto->stock_inicial ?? 0)
             : 0;
 
         // Suma Las cantidades de DetalleProduccionEntrada
         $totalDetProdEntrada = DetalleProduccionEntrada::where('producto_id', $productoId)
             ->whereHas('produccion', function ($q) use ($bodegaId) {
-                $q->where('bodega_id', $bodegaId);                  
+                $q->where('bodega_id', $bodegaId);
             })
             ->sum('cantidad_producto');
-        
 
-        // Suma las cantidades de DetalleCompra 
+
+        // Suma las cantidades de DetalleCompra
         $totalCompras = DetalleCompra::where('item_id', $productoId)
             ->whereHas('compra', function ($q) use ($bodegaId, $excluirCompraId) {
                 $q->where('bodega_id', $bodegaId)
                   ->where('estado', 'FACTURADO')
                   ->where('item_compra', 'PRODUCTO');
-                
+
                 if ($excluirCompraId) {
                     $q->where('id', '!=', $excluirCompraId);
                 }
             })
             ->sum('cantidad');
-        
-        //resta las cantidades de Traslados en la que la bodega donante es la bodegaId    
+
+        //resta las cantidades de Traslados en la que la bodega donante es la bodegaId
         $totalDonaciones = Traslado::where('producto_id', $productoId)
             ->where('bodega_donante_id', $bodegaId)
             ->sum('cantidad');
@@ -70,15 +70,16 @@ class StockCalculoService
     // Suma Las cantidades de DetalleProduccionSalida
       $totalDetProdSalida = DetalleProduccionSalida::where('producto_id', $productoId)
             ->whereHas('produccion', function ($q) use ($bodegaId) {
-                $q->where('bodega_id', $bodegaId);                  
+                $q->where('bodega_id', $bodegaId);
             })
             ->sum('cantidad_producto');
 
-    // Suma las cantidades de DetallePedido        
+    // Suma las cantidades de DetallePedido
       $totalPedidos = DetallePedido::where('producto_id', $productoId)
             ->whereHas('pedido', function ($q) use ($bodegaId, $excluirVentaId) {
                 $q->where('bodega_id', $bodegaId)
-                  ->whereIn('estado', ['PENDIENTE','FACTURADO','EN_RUTA' ,'ENTREGADO', 'PENDIENTE']);
+                  ->whereIn('estado', ['PENDIENTE','FACTURADO','EN_RUTA' ,'ENTREGADO'])
+                  ->where('estado_venta', "VENTA");
 
                 if ($excluirVentaId) {
                     $q->where('id', '!=', $excluirVentaId);
@@ -93,7 +94,7 @@ class StockCalculoService
 
     /**
      * Recalcula y actualiza el stock de entradas en StockBodega
-     * 
+     *
      * @param int $productoId ID del producto
      * @param int $bodegaId ID de la bodega
      * @param int|null $excluirCompraId ID de compra a excluir del cálculo
@@ -128,7 +129,7 @@ class StockCalculoService
 
     /**
      * Crea registros en StockBodega para productos que aún no existen en una bodega específica
-     * 
+     *
      * @param int $bodegaId ID de la bodega
      * @param array $productosIds Array de IDs de productos
      * @return void

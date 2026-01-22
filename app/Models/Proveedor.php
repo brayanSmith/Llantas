@@ -28,6 +28,10 @@ class Proveedor extends Model
         'tipo_cuenta_proveedor',
         'numero_cuenta_proveedor',
         'convenio',
+        'tiempo_respuesta',
+        'fabricante',
+        'flete',
+        'valor_flete'
     ];
 
     public function compras()

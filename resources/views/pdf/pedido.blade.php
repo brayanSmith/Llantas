@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -111,13 +111,13 @@
         </tbody>
   </table>
 
-    
+
     <table align="right" style="width: 23%" class="table">
       <tr>
-        
+
         <td class="bold" style="width: 15%">TOTAL</td>
         <td class="bold" style="width: 85%; font-size: 10px" id="subTotal"> ${{ number_format($pedido->subtotal, 2) }}</td>
-       
+
       </tr>
   </table>
 
@@ -127,6 +127,8 @@
   <div class="section-title"><span id="tipoCliente"></span></div>
 
   <div class="section observation">
+    <div><strong>TIPO VENTA:</strong><span id="tipoVenta">{{ $pedido->tipo_venta }}</span></div>
+    <br>
     <div><strong>OBSERVACIÓN 1:</strong></span>{{ $pedido->primer_comentario }}</div>
     <br>
     <div><strong>OBSERVACIÓN 2:</strong>{{ $pedido->segundo_comentario }}</div>
@@ -204,6 +206,6 @@
       <td></td>
     </tr>
   </table>
-    
+
 </body>
 </html>

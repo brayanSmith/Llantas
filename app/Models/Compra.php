@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use App\Services\CompraCalculoService;
 
 class Compra extends Model
@@ -16,7 +17,7 @@ class Compra extends Model
         'fecha',
         'dias_plazo_vencimiento',
         'fecha_vencimiento',
-        'metodo_pago', 
+        'metodo_pago',
         'estado_pago',
         'tipo_compra',
         'estado',
@@ -35,6 +36,13 @@ class Compra extends Model
     {
         return $this->belongsTo(Proveedor::class, 'proveedor_id');
     }
+
+    protected function titulo(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => "{$this->id} - {$this->factura}",
+        );
+    }
     public function detallesCompra()
     {
         return $this->hasMany(DetalleCompra::class);
@@ -52,7 +60,7 @@ class Compra extends Model
         $data = CompraCalculoService::calcular(
             $this->detallesCompra->toArray(),
             $this->abonoCompra->toArray(),
-            $this->descuento ?? 0            
+            $this->descuento ?? 0
         );
         $this->update($data);
     }
@@ -63,7 +71,7 @@ class Compra extends Model
             $this->updateQuietly(['estado_pago' => $nuevoEstadoPago]);
         }
     }
-    
+
     public function getFechaRecibidoCompra($value)
     {
         if (is_null($value)){

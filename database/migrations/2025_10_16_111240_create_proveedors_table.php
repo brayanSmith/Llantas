@@ -27,6 +27,10 @@ return new class extends Migration
             $table->enum('tipo_cuenta_proveedor',['AHORRO', 'CORRIENTE'])->nullable();
             $table->string('numero_cuenta_proveedor')->nullable();
             $table->string('convenio')->nullable();
+            $table->string('tiempo_respuesta')->nullable();
+            $table->string('fabricante')->nullable();
+            $table->boolean('flete')->default(false);
+            $table->decimal('valor_flete', 15, 2)->default(0);
             $table->timestamps();
         });
     }

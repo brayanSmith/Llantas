@@ -20,7 +20,8 @@ class PedidosPendientesTable
     {
         return $table
             ->modifyQueryUsing(function ($query) {
-                $query->where('estado', 'PENDIENTE');
+                $query->where('estado', 'PENDIENTE')
+                ->where('estado_venta', 'VENTA');
 
                 // Si el usuario no es super_admin, mostrar solo sus pedidos
                 if (!auth()->user()->hasRole('super_admin')) {

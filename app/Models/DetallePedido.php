@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Pedido;
 use App\Models\Producto;
+use App\Services\Pedido\PedidoCalculoService;
 
 class DetallePedido extends Model
 {
@@ -20,6 +21,7 @@ class DetallePedido extends Model
         'precio_unitario',
         'aplicar_iva',
         'iva',
+        'precio_con_iva',
         'subtotal'
     ];
     public function pedido()
@@ -37,15 +39,18 @@ class DetallePedido extends Model
 
     public function recalcularSubtotal()
     {
-        $subtotal = PedidoCalculoService::calcularDetalles([
+        $resultado = PedidoCalculoService::calcularDetalles([
             'producto_id' => $this->producto_id,
             'cantidad' => $this->cantidad,
             'precio_unitario' => $this->precio_unitario,
             'aplicar_iva' => $this->aplicar_iva,
             'iva' => $this->iva,
         ]);
-        $this->update(['subtotal' => $subtotal]);
+        $this->update([
+            'subtotal' => $resultado['subtotal'],
+            'precio_con_iva' => $resultado['precio_con_iva']
+        ]);
     }
-     
+
 }
 

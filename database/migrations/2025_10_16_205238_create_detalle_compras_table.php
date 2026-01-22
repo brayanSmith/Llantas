@@ -20,6 +20,7 @@ return new class extends Migration
             $table->decimal('cantidad', 12, 2);
             $table->decimal('precio_unitario', 12, 2); // snapshot del precio
             $table->decimal('iva', 12, 2)->default(0);
+            $table->decimal('precio_con_iva', 12, 2)->default(0);
             $table->decimal('subtotal', 12, 2)->default(0);
             $table->string('tipo_item');
             $table->timestamps();

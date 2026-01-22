@@ -13,25 +13,29 @@ class DetallePedidoObserver
     public function creating(DetallePedido $detallePedido): void
     {
         //
-        $detallePedido->subtotal = PedidoCalculoService::calcularDetalles([
+        $resultado = PedidoCalculoService::calcularDetalles([
             'producto_id' => $detallePedido->producto_id,
             'cantidad' => $detallePedido->cantidad,
             'precio_unitario' => $detallePedido->precio_unitario,
             'aplicar_iva' => $detallePedido->aplicar_iva,
             'iva' => $detallePedido->iva,
         ]);
+        $detallePedido->subtotal = $resultado['subtotal'];
+        $detallePedido->precio_con_iva = $resultado['precio_con_iva'];
     }
 
     public function updating(DetallePedido $detallePedido): void
     {
         //
-        $detallePedido->subtotal = PedidoCalculoService::calcularDetalles([
+        $resultado = PedidoCalculoService::calcularDetalles([
             'producto_id' => $detallePedido->producto_id,
             'cantidad' => $detallePedido->cantidad,
             'precio_unitario' => $detallePedido->precio_unitario,
             'aplicar_iva' => $detallePedido->aplicar_iva,
             'iva' => $detallePedido->iva,
         ]);
+        $detallePedido->subtotal = $resultado['subtotal'];
+        $detallePedido->precio_con_iva = $resultado['precio_con_iva'];
     }
     /**
      * Handle the DetallePedido "created" event.

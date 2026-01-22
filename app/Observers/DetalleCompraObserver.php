@@ -14,16 +14,18 @@ class DetalleCompraObserver
      */
     public function creating(DetalleCompra $detalle): void
     {
-        $detalle->subtotal = CompraCalculoService::calcularDetalles([
+        $resultado = CompraCalculoService::calcularDetalles([
             'item_id' => $detalle->item_id,
             'descripcion_item' => $detalle->descripcion_item,
             'cantidad' => $detalle->cantidad,
             'precio_unitario' => $detalle->precio_unitario,
             'iva' => $detalle->iva,
         ]);
-        
+
         // Asignar tipo_item basado en la compra
         $detalle->tipo_item = CompraCalculoService::esProductoGasto($detalle);
+        $detalle->subtotal = $resultado['subtotal'];
+        $detalle->precio_con_iva = $resultado['precio_con_iva'];
     }
 
     /**
@@ -31,16 +33,18 @@ class DetalleCompraObserver
      */
     public function updating(DetalleCompra $detalle): void
     {
-        $detalle->subtotal = CompraCalculoService::calcularDetalles([
+        $resultado = CompraCalculoService::calcularDetalles([
             'item_id' => $detalle->item_id,
             'descripcion_item' => $detalle->descripcion_item,
             'cantidad' => $detalle->cantidad,
             'precio_unitario' => $detalle->precio_unitario,
             'iva' => $detalle->iva,
         ]);
-        
+
         // Asignar tipo_item basado en la compra
         $detalle->tipo_item = CompraCalculoService::esProductoGasto($detalle);
+        $detalle->subtotal = $resultado['subtotal'];
+        $detalle->precio_con_iva = $resultado['precio_con_iva'];
     }
 
     public function created(DetalleCompra $detalle): void

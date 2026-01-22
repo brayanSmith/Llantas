@@ -23,6 +23,7 @@ use Filament\Forms\Components\Checkbox;
 use App\Services\VencimientoService;
 use App\Services\ProximoAbonoService;
 use App\Services\Pedido\PedidoCalculoService;
+use Filament\Support\Enums\Alignment;
 
 use function Livewire\Volt\on;
 
@@ -234,7 +235,7 @@ trait HasPedidoSections
                         ->extraAttributes(['class' => 'text-lg font-semibold'])
                         ->content(function ($get) {
                             $subtotal = (float) ($get('subtotal') ?? 0);
-                            return '$' . number_format($subtotal, 0, ',', '.');
+                            return '$' . number_format($subtotal, 2, ',', '.');
                         }),
 
                     TextInput::make('subtotal')
@@ -246,7 +247,7 @@ trait HasPedidoSections
                         ->content(function ($get) {
                             // Calcular desde el repeater de abonos si existe
                             $totalAbonos = (float) ($get('abono') ?? []);
-                            return '$' . number_format($totalAbonos, 0, ',', '.');
+                            return '$' . number_format($totalAbonos, 2, ',', '.');
                         }),
 
                     // Campo oculto para mantener el valor en BD
@@ -256,7 +257,7 @@ trait HasPedidoSections
 
                     TextInput::make('descuento')
                         ->prefix('$')
-                        ->currencyMask(".", ",", 0)
+                        ->currencyMask(".", ",", 2)
                         ->numeric()
                         ->live(onBlur: true)
                         ->afterStateUpdated(function (callable $set, callable $get) {
@@ -276,6 +277,7 @@ trait HasPedidoSections
                         ->prefix('$')
                         ->currencyMask(".", ",", 0)
                         ->numeric()
+                        ->inputMode('decimal')
                         ->live(onBlur: true)
                         ->afterStateUpdated(function (callable $set, callable $get) {
                             $data = PedidoCalculoService::calcularTotalesPedido(
@@ -295,7 +297,7 @@ trait HasPedidoSections
                         ->extraAttributes(['class' => 'text-lg font-semibold'])
                         ->content(function ($get) {
                             $totalAPagar = (float) ($get('total_a_pagar') ?? 0);
-                            return '$' . number_format($totalAPagar, 0, ',', '.');
+                            return '$' . number_format($totalAPagar, 2, ',', '.');
                         }),
 
                     Placeholder::make('saldo_pendiente_display')
@@ -303,7 +305,7 @@ trait HasPedidoSections
                         ->extraAttributes(['class' => 'text-lg font-semibold text-red-600'])
                         ->content(function ($get) {
                             $saldoPendiente = (float) ($get('saldo_pendiente') ?? 0);
-                            return '$' . number_format($saldoPendiente, 0, ',', '.');
+                            return '$' . number_format($saldoPendiente, 2, ',', '.');
                         }),
 
                     // Campo oculto para mantener el valor real del total a pagar (fijo)
@@ -350,7 +352,7 @@ trait HasPedidoSections
                             TableColumn::make('Cantidad')->markAsRequired()->width('20px'),
                             TableColumn::make('Precio Unitario')->markAsRequired()->width('100px'),
                             TableColumn::make('IVA')->markAsRequired()->width('5px'),
-                            //TableColumn::make('Iva_valor')->markAsRequired()->width('100px'),
+                            TableColumn::make('Precio con IVA')->markAsRequired()->width('100px'),
                             TableColumn::make('Subtotal')->markAsRequired()->width('100px'),
                         ])
                         ->compact()
@@ -381,9 +383,11 @@ trait HasPedidoSections
                                 ->required()
                                 ->columnSpan(1)
                                 ->live(onBlur: true)
-                                ->afterStateUpdated(fn($state, $set, $get) =>
-                                    $set('subtotal', PedidoCalculoService::calcularDetalles($get()))
-                                ),
+                                ->afterStateUpdated(function($state, $set, $get) {
+                                    $resultado = PedidoCalculoService::calcularDetalles($get());
+                                    $set('subtotal', $resultado['subtotal']);
+                                    $set('precio_con_iva', $resultado['precio_con_iva']);
+                                }),
 
                             TextInput::make('precio_unitario')
                                 ->prefix('$')
@@ -395,17 +399,29 @@ trait HasPedidoSections
                                 // ahora editable por el usuario; si el usuario cambia este valor
                                 // recalculamos subtotal sin sobreescribir el precio
                                 ->readOnly(false)
-                                 ->afterStateUpdated(fn($state, $set, $get) =>
-                                    $set('subtotal', PedidoCalculoService::calcularDetalles($get()))
-                                )
+                                ->afterStateUpdated(function($state, $set, $get) {
+                                    $resultado = PedidoCalculoService::calcularDetalles($get());
+                                    $set('subtotal', $resultado['subtotal']);
+                                    $set('precio_con_iva', $resultado['precio_con_iva']);
+                                })
                                 ->columnSpan(1),
                             Checkbox::make('aplicar_iva')
                                 ->label('Aplicar IVA')
                                 ->default(true)
                                 ->reactive()
-                                ->afterStateUpdated(fn($state, $set, $get) =>
-                                    $set('subtotal', PedidoCalculoService::calcularDetalles($get()))
-                                )
+                                ->afterStateUpdated(function($state, $set, $get) {
+                                    $resultado = PedidoCalculoService::calcularDetalles($get());
+                                    $set('subtotal', $resultado['subtotal']);
+                                    $set('precio_con_iva', $resultado['precio_con_iva']);
+                                })
+                                ->columnSpan(1),
+
+                            TextInput::make('precio_con_iva')
+                                ->prefix('$')
+                                ->currencyMask(".", ",", 0)
+                                ->numeric()
+                                ->disabled()
+                                ->dehydrated(true)
                                 ->columnSpan(1),
 
                             TextInput::make('subtotal')
@@ -431,6 +447,8 @@ trait HasPedidoSections
                         })
 
                         ->addActionLabel('Añadir Producto')
+                        ->deletable(true)
+
 
                 ])->disabled(fn($get) => $get('estado') !== 'PENDIENTE'),
         ];
