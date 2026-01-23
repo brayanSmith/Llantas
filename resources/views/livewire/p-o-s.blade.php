@@ -30,7 +30,7 @@
                 {{-- Modal content --}}
                 <div class="space-y-6 max-w-full ">
                     <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                        Productos agregados: {{ collect($this->cart)->sum('cantidad') }}
+                        Productos agregados: {{ collect($this->cart)->sum(fn($item) => is_numeric($item['cantidad']) ? (int)$item['cantidad'] : 0) }}
                     </h2>
                     {{-- Productos en el carrito --}}
                     <div class="flex-grow pr-2 overflow-y-auto max-h-96">
