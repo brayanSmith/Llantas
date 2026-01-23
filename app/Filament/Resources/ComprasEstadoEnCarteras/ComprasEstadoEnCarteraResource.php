@@ -85,9 +85,9 @@ class ComprasEstadoEnCarteraResource extends Resource
     public static function getNavigationBadge(): ?string
     {
         $query = static::$model::where('estado_pago', 'EN_CARTERA')->whereIn('estado', ['FACTURADO']);
-        if (!auth()->user()->hasRole('super_admin')) {
+        /*if (!auth()->user()->hasRole('super_admin')) {
             $query->where('user_id', auth()->id());
-        }
+        }*/
         $count = $query->count();
 
         return $count > 0 ? (string) $count : null;
