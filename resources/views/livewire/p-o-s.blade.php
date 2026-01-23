@@ -48,7 +48,7 @@
                                         COP: {{ number_format($this->getPrecioProducto($cartProduct), 0) }}
 
                                         <span class="font-bold">| TOTAL:</span>
-                                        {{ number_format($this->getPrecioProducto($cartProduct) * $cartProduct['cantidad'], 0) }}
+                                        {{ number_format($this->getPrecioProducto($cartProduct) * (is_numeric($cartProduct['cantidad']) ? (int)$cartProduct['cantidad'] : 0), 0) }}
                                     </p>
 
                                 </div>
@@ -232,7 +232,7 @@
 
                             <div class="flex justify-between items-center mb-2 text-lg font-bold">
                                 <span>Total a Pagar:</span>
-                                <span>COP {{ number_format(num: $this->subtotal() + $this->flete, decimals: 0) }}</span>
+                                <span>COP {{ number_format(num: (is_numeric($this->subtotal()) ? (float)$this->subtotal() : 0) + (is_numeric($this->flete) ? (float)$this->flete : 0), decimals: 0) }}</span>
                             </div>
 
                         </div>
@@ -358,7 +358,7 @@
                                         {{--<p class="text-[10px] md:text-xs text-gray-800 dark:text-gray-100 mt-1">DETAL:
                                             {{ number_format($product->valor_detal_producto * (($product->iva_producto / 100) + 1), 0) }}</p>--}}
                                         <p class="text-[10px] md:text-xs text-gray-800 dark:text-gray-100 mt-1">FERRETERO:
-                                            {{ number_format($product->valor_ferretero_producto * (($product->iva_producto / 100) + 1), 0) }}</p>
+                                            {{ number_format((is_numeric($product->valor_ferretero_producto) ? (float)$product->valor_ferretero_producto : 0) * ((is_numeric($product->iva_producto) ? (float)$product->iva_producto : 0) / 100 + 1), 0) }}</p>
                                         <!-- Vamos a poner el Stock -->
                                         @php($availableStock = $this->getAvailableStock($product->id))
                                         <p class="text-[10px] md:text-xs mt-1 font-semibold
