@@ -36,23 +36,23 @@ class ProductosTable
                     ->searchable(),
                 TextColumn::make('nombre_producto')
                     ->sortable()
-                    ->searchable(),                
+                    ->searchable(),
                 TextColumn::make('costo_producto')
                     ->label('Costo')
-                    ->numeric()
+                    ->numeric(2)
                     ->sortable(),
                 TextColumn::make('valor_detal_producto')
                     ->label('Detal')
-                    ->numeric()
+                    ->numeric(2)
                     ->sortable(),
                 TextColumn::make('valor_mayorista_producto')
                     ->label('Mayorista')
-                    ->numeric()
+                    ->numeric(2)
                     ->sortable(),
                 TextColumn::make('valor_ferretero_producto')
                     ->label('Ferretero')
-                    ->numeric()
-                    ->sortable(),                
+                    ->numeric(2)
+                    ->sortable(),
 
                 TextColumn::make('Bodega.nombre_bodega')
                     ->label('Bodega')
@@ -61,7 +61,7 @@ class ProductosTable
                 TextColumn::make('stock_inicial')
                     ->numeric()
                     ->sortable()
-                    ->label('Stock'),               
+                    ->label('Stock'),
 
                 TextColumn::make('created_at')
                     ->dateTime()
@@ -71,7 +71,7 @@ class ProductosTable
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                
+
             ])
             ->filters([
                 //

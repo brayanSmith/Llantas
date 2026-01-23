@@ -25,7 +25,7 @@ class PedidoCotizacionDetail
                         ->label(function ($get) {
                             $detalles = $get('detalles') ?? [];
                             $total = collect($detalles)->sum(callback: fn($detalle) => (float) ($detalle['subtotal'] ?? 0));
-                            return 'Productos añadidos (Total: $' . number_format($total, 0, ',', '.') . ')';
+                            return 'Productos añadidos (Total: $' . number_format($total, 2, ',', '.') . ')';
                         })
                         ->table([
                             //TableColumn::make('Código')->width('50px'),
@@ -72,7 +72,7 @@ class PedidoCotizacionDetail
 
                             TextInput::make('precio_unitario')
                                 ->prefix('$')
-                                ->currencyMask(".", ",", 0)
+                                ->currencyMask(".", ",", 2)
                                 ->numeric()
                                 ->default(0)
                                 ->required()
@@ -99,7 +99,7 @@ class PedidoCotizacionDetail
 
                             TextInput::make('precio_con_iva')
                                 ->prefix('$')
-                                ->currencyMask(".", ",", 0)
+                                ->currencyMask(".", ",", 2)
                                 ->numeric()
                                 ->disabled()
                                 ->dehydrated(true)
@@ -107,7 +107,7 @@ class PedidoCotizacionDetail
 
                             TextInput::make('subtotal')
                                 ->prefix('$')
-                                ->currencyMask(".", ",", 0)
+                                ->currencyMask(".", ",", 2)
                                 ->numeric()
                                 ->disabled()
                                 ->dehydrated(true)

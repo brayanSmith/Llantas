@@ -278,7 +278,7 @@ trait HasPedidoSections
 
                     TextInput::make('flete')
                         ->prefix('$')
-                        ->currencyMask(".", ",", 0)
+                        ->currencyMask(".", ",", 2)
                         ->numeric()
                         ->inputMode('decimal')
                         ->live(onBlur: true)
@@ -394,7 +394,7 @@ trait HasPedidoSections
 
                             TextInput::make('precio_unitario')
                                 ->prefix('$')
-                                ->currencyMask(".", ",", 0)
+                                ->currencyMask(".", ",", 2)
                                 ->numeric()
                                 ->default(0)
                                 ->required()
@@ -421,7 +421,7 @@ trait HasPedidoSections
 
                             TextInput::make('precio_con_iva')
                                 ->prefix('$')
-                                ->currencyMask(".", ",", 0)
+                                ->currencyMask(".", ",", 2)
                                 ->numeric()
                                 ->disabled()
                                 ->dehydrated(true)
@@ -429,7 +429,7 @@ trait HasPedidoSections
 
                             TextInput::make('subtotal')
                                 ->prefix('$')
-                                ->currencyMask(".", ",", 0)
+                                ->currencyMask(".", ",", 2)
                                 ->numeric()
                                 ->disabled()
                                 ->dehydrated(true)
@@ -470,7 +470,7 @@ trait HasPedidoSections
                         ->label(function ($get) {
                             $abonos = $get('abonos') ?? [];
                             $total = collect($abonos)->sum(fn($abono) => (float) ($abono['monto'] ?? 0));
-                            return 'Abonos realizados (Total: $' . number_format($total, 0, ',', '.') . ')';
+                            return 'Abonos realizados (Total: $' . number_format($total, 2, ',', '.') . ')';
                         })
                         ->schema([
                             Section::make('Datos del abono')
@@ -484,7 +484,7 @@ trait HasPedidoSections
                                     ->label('Monto')
                                     ->prefix('$')
                                     ->inputMode('decimal')
-                                    ->currencyMask(".", ",", 0)
+                                    ->currencyMask(".", ",", 2)
                                     ->required()
                                     ->stripCharacters('.')
                                     ->live(onBlur: true)

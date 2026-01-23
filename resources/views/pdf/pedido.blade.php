@@ -79,6 +79,10 @@
     <div><strong>CLIENTE:</strong> {{ $pedido->cliente->razon_social ?? 'N/A' }}</div>
     <br>
     <div><strong>CIUDAD:</strong> {{ $pedido->ciudad ?? 'N/A' }}</div>
+    <br>
+    <div><strong>DIRECCIÓN:</strong> {{ $pedido->cliente->direccion ?? 'N/A' }}</div>
+    <br>
+    <div><strong>TELEFONO:</strong> {{ $pedido->cliente->telefono ?? 'N/A' }}</div>
   </div>
 
     <!-- Productos -->

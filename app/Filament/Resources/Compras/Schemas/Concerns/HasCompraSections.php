@@ -193,19 +193,19 @@ trait HasCompraSections
             Section::make('Resumen')
                 ->schema([
                     TextInput::make('subtotal')
-                    ->currencyMask(".", ",", 0)
+                    ->currencyMask(".", ",", 2)
                     ->prefix('$')
                     ->readOnly()
                     ->numeric(),
                     TextInput::make('abono')
                     ->prefix('$')
-                    ->currencyMask(".", ",", 0)
+                    ->currencyMask(".", ",", 2)
                     ->readOnly()
                     ->dehydrated()
                     ->numeric(),
                     TextInput::make('descuento')
                     ->prefix('$')
-                    ->currencyMask(".", ",", 0)
+                    ->currencyMask(".", ",", 2)
                     ->numeric()
                     ->live(onBlur: true)
                     ->afterStateUpdated(function (callable $set, callable $get) {
@@ -223,13 +223,13 @@ trait HasCompraSections
                     TextInput::make('total_a_pagar')
                     ->label('Total a pagar')
                     ->prefix('$')
-                    ->currencyMask(".", ",", 0)
+                    ->currencyMask(".", ",", 2)
                     ->readOnly()
                     ->numeric(),
                     TextInput::make('saldo_pendiente')
                     ->label('Saldo pendiente')
                     ->prefix('$')
-                    ->currencyMask(".", ",", 0)
+                    ->currencyMask(".", ",", 2)
                     ->readOnly()
                     ->numeric(),
                 ])->columnSpan(1),
@@ -266,7 +266,7 @@ trait HasCompraSections
                         ->label(function ($get) {
                             $detalles = $get('detallesCompra') ?? [];
                             $total = collect($detalles)->sum(callback: fn($detalle) => (float) ($detalle['subtotal'] ?? 0));
-                            return 'Productos añadidos (Total: $' . number_format($total, 0, ',', '.') . ')';
+                            return 'Productos añadidos (Total: $' . number_format($total, 2, ',', '.') . ')';
                         })
                         ->table([
                             TableColumn::make('Item')->markAsRequired()->width('30%'),
@@ -322,7 +322,7 @@ trait HasCompraSections
 
                             TextInput::make('precio_unitario')
                                 ->prefix('$')
-                                ->currencyMask(".", ",", 0)
+                                ->currencyMask(".", ",", 2)
                                 ->numeric()
                                 ->default(0)
                                 ->required()
@@ -350,7 +350,7 @@ trait HasCompraSections
                                     ->columnSpan(1),
                             TextInput::make('precio_con_iva')
                                 ->prefix('$')
-                                ->currencyMask(".", ",", 0)
+                                ->currencyMask(".", ",", 2)
                                 ->numeric()
                                 ->readonly()
                                 ->dehydrated(false)
@@ -358,7 +358,7 @@ trait HasCompraSections
 
                             TextInput::make('subtotal')
                                 ->prefix('$')
-                                ->currencyMask(".", ",", 0)
+                                ->currencyMask(".", ",", 2)
                                 ->numeric()
                                 ->readonly()
                                 ->dehydrated(false)
@@ -408,7 +408,7 @@ trait HasCompraSections
                         ->label(function ($get) {
                             $abonos = $get('abonos') ?? [];
                             $total = collect($abonos)->sum(fn($abono) => (float) ($abono['monto_abono_compra'] ?? 0));
-                            return 'Abonos realizados (Total: $' . number_format($total, 0, ',', '.') . ')';
+                            return 'Abonos realizados (Total: $' . number_format($total, 2, ',', '.') . ')';
                         })
                         ->schema([
                             Section::make('Datos del abono')
@@ -423,7 +423,7 @@ trait HasCompraSections
                                 ->label('Monto')
                                 ->prefix('$')
                                 ->inputMode('decimal')
-                                ->currencyMask(".", ",", 0)
+                                ->currencyMask(".", ",", 2)
                                 ->required()
                                 ->stripCharacters('.')
                                 ->live(onBlur: true)

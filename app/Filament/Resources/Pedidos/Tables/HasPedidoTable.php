@@ -22,10 +22,13 @@ class HasPedidoTable
                 ->sortable(),
             DescargarPdfColumn::make('descargar_pdf')
                 ->label('Pdf'),
+            ToggleColumn::make('impresa')
+                ->label('Impresa'),
             TextColumn::make('cliente.razon_social')
                 ->label('Cliente')
                 ->searchable()
                 ->sortable(),
+
             TextColumn::make('cliente.saldo_total_pedidos_en_cartera')
                 ->label('Saldo en Cartera')
                 ->numeric(2, ",", ".", 2)
@@ -55,8 +58,7 @@ class HasPedidoTable
                 ->label('Vendedor')
                 ->searchable()
                 ->sortable(),
-            ToggleColumn::make('impresa')
-                ->label('Impresa'),
+
             TextColumn::make('fecha')
                 ->label('Fecha de Facturación')
                 ->dateTime()
