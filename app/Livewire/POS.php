@@ -261,13 +261,14 @@ class POS extends Component
         // Subtotal CON IVA para mostrar en pantalla
         $subtotalProductos = collect($this->cart)->sum(function ($producto) {
             $precioBase = $precioBase = PedidoCalculoService::obtenerValorUnitario($producto, $this->tipo_precio);
-            return PedidoCalculoService::calcularDetalles([
+            $resultado = PedidoCalculoService::calcularDetalles([
                 'producto_id' => $producto['id'],
                 'cantidad' => $producto['cantidad'],
                 'precio_unitario' => $precioBase,
                 'aplicar_iva' => true,
                 'iva' => $producto['iva_producto'] ?? 0,
             ]);
+            return $resultado['subtotal'];
         });
         return $subtotalProductos;
     }
@@ -491,13 +492,14 @@ class POS extends Component
         $precioBase = PedidoCalculoService::obtenerValorUnitario($producto, $this->tipo_precio);
 
         if ($conIva) {
-            return PedidoCalculoService::calcularDetalles([
+            $resultado = PedidoCalculoService::calcularDetalles([
                 'producto_id' => $producto['id'],
                 'cantidad' => 1,
                 'precio_unitario' => $precioBase,
                 'aplicar_iva' => true,
                 'iva' => $producto['iva_producto'] ?? 0,
             ]);
+            return $resultado['precio_con_iva'];
         }
 
         return $precioBase;

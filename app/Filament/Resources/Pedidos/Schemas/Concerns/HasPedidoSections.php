@@ -175,7 +175,7 @@ trait HasPedidoSections
 
                     Select::make('estado_venta')->options([
                         'VENTA' => 'Venta',
-                        'DEVOLUCION' => 'Devolución',
+                        'COTIZACION' => 'Cotización',
                     ])->default('VENTA')->required()->columnSpan(2)->visible(fn($get) => $get('estado') === 'PENDIENTE'),
 
                     Select::make('user_id')
