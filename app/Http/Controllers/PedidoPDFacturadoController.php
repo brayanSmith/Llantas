@@ -15,8 +15,9 @@ class PedidoPDFacturadoController extends Controller
 
         // Ordenar detalles por ubicación y código de producto
         $detallesOrdenados = $pedido->detalles->sortBy([
-            ['producto.ubicacion_producto', 'asc'],
-            ['producto.codigo_producto', 'asc']
+            //['producto.ubicacion_producto', 'asc'],
+            //['producto.codigo_producto', 'asc'],
+            ['producto.nombre_producto', 'asc']
         ]);
 
         $pdf = Pdf::loadView('pdf.pedidoFacturado', [
@@ -37,8 +38,9 @@ class PedidoPDFacturadoController extends Controller
 
         // Ordenar detalles por ubicación y código de producto
         $detallesOrdenados = $pedido->detalles->sortBy([
-            ['producto.ubicacion', 'asc'],
-            ['producto.codigo_producto', 'asc']
+            //['producto.ubicacion', 'asc'],
+            //['producto.codigo_producto', 'asc'],
+            ['producto.nombre_producto', 'asc']
         ]);
 
         $pdf = Pdf::loadView('pdf.pedidoFacturado', [

@@ -19,6 +19,7 @@ use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Enums\RecordActionsPosition;
 use App\Filament\Tables\Columns\DescargarPdfColumn;
 use App\Filament\Resources\Pedidos\Tables\Concerns\HasActionSections;
+use LaravelLang\Publisher\Concerns\Has;
 
 class PedidosTable
 {
@@ -35,73 +36,7 @@ class PedidosTable
 
             ])->defaultGroup('fecha')
             ->columns([
-                TextColumn::make('estado')
-                    ->badge()
-                    ->color(fn(string $state): string => match ($state) {
-                        'PENDIENTE' => 'warning',
-                        'FACTURADO' => 'success',
-                        'ANULADO' => 'danger',
-                        default => 'primary',
-                    }),
-                TextColumn::make('fecha')
-                    ->label('Fecha de Facturación')
-                    ->dateTime()
-                    ->sortable(),
-                TextColumn::make('codigo')
-                    ->label('Remisión')
-                    ->searchable()
-                    ->sortable(),
-                DescargarPdfColumn::make('descargar_pdf')
-                    ->label('Pdf'),
-                TextColumn::make('cliente.razon_social')
-                    ->label('Cliente')
-                    ->searchable()
-                    ->sortable(),
-                TextColumn::make('cliente.ruta.ruta')
-                    ->label('Ruta')
-                    ->sortable(),
-
-                TextColumn::make('subtotal')
-                    ->numeric(0)
-                    ->sortable(),
-
-                TextColumn::make('abono')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('descuento')
-                    ->numeric(0)
-                    ->sortable(),
-                TextColumn::make('total_a_pagar')
-                    ->label('Total a Pagar')
-                    ->numeric(0)
-                    ->sortable(),
-
-                ToggleColumn::make('impresa')
-                    ->label('Impresa'),
-
-                TextColumn::make('tipo_venta')
-                    ->label('Tipo Venta'),
-
-                TextColumn::make('ciudad')
-                    ->searchable(),
-
-                TextColumn::make('metodo_pago')
-                    ->badge()
-                    ->color(fn(string $state): string => match ($state) {
-                        'EFECTIVO' => 'success',
-                        'A CREDITO' => 'info',
-                        default => 'secondary',
-                    }),
-                TextColumn::make('tipo_precio')
-                    ->badge(),
-                TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                ...HasPedidoTable::tableColumns(),
             ])
             ->filters([
                 // Filtro por Ruta

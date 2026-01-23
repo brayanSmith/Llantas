@@ -18,6 +18,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Enums\RecordActionsPosition;
 use App\Filament\Tables\Columns\DescargarPdfColumn;
+use App\Filament\Resources\Pedidos\Tables\HasPedidoTable;
 use App\Filament\Resources\Pedidos\Tables\Concerns\HasActionSections;
 
 class PedidosPendientesTable
@@ -45,63 +46,10 @@ class PedidosPendientesTable
                     ->collapsible(),
 
             ])->defaultGroup('fecha')
+
             ->columns([
 
-                TextColumn::make('created_at')
-                    ->label('Creación')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: false),
-
-                TextColumn::make('codigo')
-                    ->label('Remisión')
-                    ->searchable()
-                    ->sortable(),
-                DescargarPdfColumn::make('descargar_pdf')
-                    ->label('Pdf'),
-
-                TextColumn::make('cliente.razon_social')
-                    ->label('Cliente')
-                    ->searchable()
-                    ->sortable(),
-
-                TextColumn::make('tipo_venta')
-                    ->label('Tipo Venta'),
-
-                TextColumn::make('cliente.saldo_total_pedidos_en_cartera')
-                    ->label('Saldo en Cartera')
-                    ->money('COP', true,0,0)
-                    ->badge()
-                    ->color('warning')
-                    ->sortable(),
-                TextColumn::make('cliente.saldo_total_pedidos_vencidos')
-                    ->label('Saldo Vencido')
-                    ->money('COP', true,0,0)
-                    ->badge()
-                    ->color('danger')
-                    ->sortable(),
-
-
-                TextColumn::make('cliente.ruta.ruta')
-                    ->label('Ruta')
-                    ->sortable(),
-                TextColumn::make('user.name')
-                    ->label('Vendedor')
-                    ->searchable()
-                    ->sortable(),
-                ToggleColumn::make('impresa')
-                    ->label('Impresa'),
-
-
-
-                TextColumn::make('fecha')
-                    ->label('Fecha de Facturación')
-                    ->dateTime()
-                    ->sortable(),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                ...HasPedidoTable::tableColumns(),
             ])
             ->filters([
                 // Filtro por Ruta

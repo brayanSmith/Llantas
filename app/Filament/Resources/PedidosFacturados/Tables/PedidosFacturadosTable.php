@@ -2,24 +2,25 @@
 
 namespace App\Filament\Resources\PedidosFacturados\Tables;
 
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
 use Filament\Tables\Table;
+use Filament\Actions\Action;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
+use Filament\Actions\ActionGroup;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Grouping\Group;
+use Filament\Actions\BulkActionGroup;
 use Filament\Forms\Components\Select;
-use Filament\Tables\Columns\ToggleColumn;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ActionColumn;
-use Filament\Tables\Grouping\Group;
-use Filament\Tables\Filters\Filter;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
-use Filament\Actions\ViewAction;
 use Filament\Tables\Enums\RecordActionsPosition;
-use App\Filament\Resources\Pedidos\Tables\Concerns\HasActionSections;
-use Filament\Actions\ActionGroup;
-use Filament\Actions\Action;
 use App\Filament\Tables\Columns\DescargarPdfColumn;
+use App\Filament\Resources\Pedidos\Tables\HasPedidoTable;
+use App\Filament\Resources\Pedidos\Tables\Concerns\HasActionSections;
 
 class PedidosFacturadosTable
 {
@@ -47,77 +48,7 @@ class PedidosFacturadosTable
             ])->defaultGroup('fecha')
             ->columns([
                 //
-                TextColumn::make('fecha')
-                    ->label('Fecha de Facturación')
-                    ->dateTime()
-                    ->sortable(),
-                TextColumn::make('codigo')
-                    ->label('Remisión')
-                    ->searchable()
-                    ->sortable(),
-                DescargarPdfColumn::make('descargar_pdf')
-                    ->label('Pdf'),
-                TextColumn::make('cliente.razon_social')
-                    ->label('Cliente')
-                    ->searchable()
-                    ->sortable(),
-                TextColumn::make('cliente.ruta.ruta')
-                    ->label('Ruta')
-                    ->sortable(),
-
-                TextColumn::make('user.name')
-                    ->label('Vendedor')
-                    ->searchable()
-                    ->sortable(),
-
-                TextColumn::make('subtotal')
-                    ->numeric(0)
-                    ->sortable(),
-
-                TextColumn::make('abono')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('descuento')
-                    ->numeric(0)
-                    ->sortable(),
-                TextColumn::make('total_a_pagar')
-                    ->label('Total a Pagar')
-                    ->numeric(0)
-                    ->sortable(),
-
-                ToggleColumn::make('impresa')
-                    ->label('Impresa'),
-
-                TextColumn::make('tipo_venta')
-                    ->label('Tipo Venta'),
-
-                TextColumn::make('ciudad')
-                    ->searchable(),
-                TextColumn::make('estado')
-                    ->badge()
-                    ->color(fn(string $state): string => match ($state) {
-                        'PENDIENTE' => 'warning',
-                        'FACTURADO' => 'success',
-                        'ANULADO' => 'danger',
-                        default => 'primary',
-                    }),
-                TextColumn::make('metodo_pago')
-                    ->badge()
-                    ->color(fn(string $state): string => match ($state) {
-                        'EFECTIVO' => 'success',
-                        'A CREDITO' => 'info',
-                        default => 'secondary',
-                    }),
-                TextColumn::make('tipo_precio')
-                    ->badge(),
-                TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                ...HasPedidoTable::tableColumns(),
             ])
             ->filters([
                 //

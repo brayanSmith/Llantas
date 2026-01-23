@@ -2,30 +2,31 @@
 
 namespace App\Filament\Resources\Pedidos\Schemas\Concerns;
 
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\ToggleButtons;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Repeater\TableColumn;
-use Filament\Schemas\Components\Section;
-use Filament\Schemas\Schema;
-use Filament\Forms\Components\Placeholder;
-use Carbon\Carbon;
-use App\Models\Producto;
 use Dom\Text;
-use Filament\Forms\Components\Toggle;
+use Carbon\Carbon;
 use App\Models\Cliente;
-use Filament\Forms\Components\Checkbox;
+use App\Models\Producto;
+use Filament\Schemas\Schema;
+use function Livewire\Volt\on;
 use App\Services\VencimientoService;
 use App\Services\ProximoAbonoService;
-use App\Services\Pedido\PedidoCalculoService;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Toggle;
 use Filament\Support\Enums\Alignment;
+use Filament\Forms\Components\Checkbox;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Section;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\ToggleButtons;
+use App\Services\Pedido\PedidoCalculoService;
+use Filament\Forms\Components\DateTimePicker;
 
-use function Livewire\Volt\on;
+use App\Filament\Forms\Components\MoneyDecimal;
+use Filament\Forms\Components\Repeater\TableColumn;
 
 trait HasPedidoSections
 {
@@ -259,6 +260,7 @@ trait HasPedidoSections
                         ->prefix('$')
                         ->currencyMask(".", ",", 2)
                         ->numeric()
+                        ->step(0.01)
                         ->live(onBlur: true)
                         ->afterStateUpdated(function (callable $set, callable $get) {
                             $data = PedidoCalculoService::calcularTotalesPedido(
@@ -272,6 +274,7 @@ trait HasPedidoSections
                             $set('total_a_pagar', $data['total_a_pagar']);
                             $set('saldo_pendiente', $data['saldo_pendiente']);
                         }),
+
 
                     TextInput::make('flete')
                         ->prefix('$')
