@@ -27,6 +27,16 @@ class DetalleCompra extends Model
     {
         return $this->belongsTo(Compra::class, 'compra_id');
     }
+
+    public function producto()
+    {
+        return $this->belongsTo(Producto::class, 'item_id');
+    }
+
+    public function puc()
+    {
+        return $this->belongsTo(Puc::class, 'item_id');
+    }
    public function recalcularSubtotal()
     {
         $resultado = CompraCalculoService::calcularDetalles([

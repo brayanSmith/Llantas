@@ -55,6 +55,7 @@ class Compra extends Model
     {
         return $this->belongsTo(Bodega::class, 'bodega_id');
     }
+
     public function recalcularTotales()
     {
         $data = CompraCalculoService::calcular(

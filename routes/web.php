@@ -39,6 +39,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/produccion/{id}/pdf', [\App\Http\Controllers\ProduccionPDFController::class, 'stream'])->name('producciones.pdf.stream');
     Route::get('/produccion/{id}/pdf/download', [\App\Http\Controllers\ProduccionPDFController::class, 'download'])->name('producciones.pdf.download');
 
+    Route::get('/compras/{id}/pdf', [\App\Http\Controllers\CompraPdfController::class, 'stream'])->name('compras-pdf.stream');
+    Route::get('/compras/{id}/pdf/download', [\App\Http\Controllers\CompraPdfController::class, 'download'])->name('compras-pdf.download');
 });
 
 
