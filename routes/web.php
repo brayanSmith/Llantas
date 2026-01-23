@@ -22,9 +22,9 @@ Route::middleware(['auth'])->group(function () {
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    
+
     Route::get('/pos', \App\Livewire\POS::class)->name('pos');
-    
+
     // Ruta para el índice de pedidos
     Route::get('/pedidos', function () {
         return redirect('/admin/pedidos');
@@ -35,6 +35,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/pedidoFacturado/{id}/pdf', [\App\Http\Controllers\PedidoPDFacturadoController::class, 'stream'])->name('pedidosFacturados.pdf.stream');
     Route::get('/pedidoFacturado/{id}/pdf/download', [\App\Http\Controllers\PedidoPDFacturadoController::class, 'download'])->name('pedidosFacturados.pdf.download');
+
+    Route::get('/produccion/{id}/pdf', [\App\Http\Controllers\ProduccionPDFController::class, 'stream'])->name('producciones.pdf.stream');
+    Route::get('/produccion/{id}/pdf/download', [\App\Http\Controllers\ProduccionPDFController::class, 'download'])->name('producciones.pdf.download');
 
 });
 
