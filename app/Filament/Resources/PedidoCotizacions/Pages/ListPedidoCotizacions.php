@@ -5,6 +5,8 @@ namespace App\Filament\Resources\PedidoCotizacions\Pages;
 use App\Filament\Resources\PedidoCotizacions\PedidoCotizacionResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
+use Filament\Actions\Action;
+
 
 class ListPedidoCotizacions extends ListRecords
 {

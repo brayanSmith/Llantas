@@ -13,6 +13,10 @@ use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\ToggleButtons;
 use App\Services\Pedido\PedidoCalculoService;
+use App\Filament\Forms\Components\RepeaterPedido;
+use App\Filament\Forms\Components\GeneralSectionPedido;
+
+use function Laravel\Prompts\select;
 
 class PedidoCotizacionDatosGenerales
 {
@@ -184,7 +188,7 @@ class PedidoCotizacionDatosGenerales
                             titleAttribute: 'name',
                             modifyQueryUsing: fn ($query) => $query->whereHas('roles', fn ($q) => $q->where('name', 'Logistica'))
                         )
-                        ->visible(fn($get) => $get('estado_venta') === 'VENTA')
+                        //->visible(fn($get) => $get('estado_venta') === 'VENTA')
                         ->searchable()
                         ->required(fn($get) => in_array($get('estado'), ['FACTURADO','EN_RUTA', 'ENTREGADO']) && $get('estado_venta') === 'VENTA')
                         ->preload()
@@ -202,7 +206,22 @@ class PedidoCotizacionDatosGenerales
                         ->disabled()               // solo informativo: el usuario no lo cambia aquí
                         ->dehydrated(false)        // no guardarlo en la BD
                         ->columnSpan(2),
-                ]);
+
+                    Select::make('bodega_id')
+                        ->label('Bodega')
+                        ->relationship('bodega', 'nombre_bodega')
+                        ->searchable()
+                        ->required()
+                        ->preload()
+                        ->default(1)
+                        ->columnSpan(2),
+
+                    GeneralSectionPedido::make('general_section_pedido')->columnSpanFull(),
+
+                    RepeaterPedido::make('detalles')->relationship('detalles')->products()->columnSpanFull(),
+                    ]);
+
+
 
         if ($full) {
             $section->columnSpanFull();

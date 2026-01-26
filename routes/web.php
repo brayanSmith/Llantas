@@ -4,6 +4,7 @@ use Dompdf\Adapter\PDFLib;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 use App\Http\Controllers\PedidoPDFPendienteController;
+use App\Livewire\Pedidos\LivewirePedidosForm;
 
 Route::get('/', function () {
     return view('welcome');
@@ -41,6 +42,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/compras/{id}/pdf', [\App\Http\Controllers\CompraPdfController::class, 'stream'])->name('compras-pdf.stream');
     Route::get('/compras/{id}/pdf/download', [\App\Http\Controllers\CompraPdfController::class, 'download'])->name('compras-pdf.download');
+
 });
 
 

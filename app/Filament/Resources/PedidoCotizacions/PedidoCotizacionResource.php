@@ -2,18 +2,19 @@
 
 namespace App\Filament\Resources\PedidoCotizacions;
 
-use App\Filament\Resources\PedidoCotizacions\Pages\CreatePedidoCotizacion;
+use UnitEnum;
+use BackedEnum;
+use App\Models\Pedido;
+use Filament\Tables\Table;
+use Filament\Schemas\Schema;
+use Filament\Resources\Resource;
+use Filament\Support\Icons\Heroicon;
+use App\Livewire\Pedidos\LivewirePedidosForm;
 use App\Filament\Resources\PedidoCotizacions\Pages\EditPedidoCotizacion;
 use App\Filament\Resources\PedidoCotizacions\Pages\ListPedidoCotizacions;
+use App\Filament\Resources\PedidoCotizacions\Pages\CreatePedidoCotizacion;
 use App\Filament\Resources\PedidoCotizacions\Schemas\PedidoCotizacionForm;
 use App\Filament\Resources\PedidoCotizacions\Tables\PedidoCotizacionsTable;
-use App\Models\Pedido;
-use BackedEnum;
-use Filament\Resources\Resource;
-use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
-use Filament\Tables\Table;
-use UnitEnum;
 
 class PedidoCotizacionResource extends Resource
 {
@@ -52,6 +53,11 @@ class PedidoCotizacionResource extends Resource
     public static function canDelete($record): bool
     {
         return auth()->user()->hasRole('super_admin') || auth()->user()->can('Delete:PedidoCotizacionResource');
+    }
+
+    public function getFormActions(): array
+    {
+        return [];
     }
 
     public static function form(Schema $schema): Schema
