@@ -50,12 +50,14 @@ class Pedido extends Model
         'saldo_total_pedidos_en_cartera',
         'fecha_ultimo_abono',
         'estado_cartera',
+        'iva',
         'dias_plazo_cartera',
     ];
 
     protected $casts = [
         'fecha' => 'datetime',
-
+        'fecha_vencimiento' => 'datetime',
+        'fecha_ultimo_abono' => 'datetime',
     ];
     public function cliente()
     {

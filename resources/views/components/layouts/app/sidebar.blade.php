@@ -156,6 +156,7 @@
 
     @filamentScripts
     @fluxScripts
+    {{-- Eliminados los scripts CDN de jQuery y Select2, ahora se usan desde Vite --}}
 </body>
 
 </html>

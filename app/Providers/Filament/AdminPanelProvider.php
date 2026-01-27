@@ -43,7 +43,7 @@ class AdminPanelProvider extends PanelProvider
             ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
             ->colors([
                 'primary' => Color::Amber,
-            ])            
+            ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->discoverClusters(in: app_path('Filament/Clusters'), for: 'App\\Filament\\Clusters')
@@ -83,7 +83,7 @@ class AdminPanelProvider extends PanelProvider
                         'default' => 1,
                         'sm' => 2,
                     ]),
-                    
+
             ])
             ->databaseNotifications()
             ->viteTheme('resources/css/filament/admin/theme.css')
@@ -92,6 +92,7 @@ class AdminPanelProvider extends PanelProvider
             ->assets([
                 Css::make('tomselect-css', 'https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css'),
                 Js::make('tomselect-js',  'https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js'),
+
             ])
 
             // 👇 (Opcional) inyecta un blade al final del <body> para tu JS de inicialización
@@ -116,7 +117,7 @@ class AdminPanelProvider extends PanelProvider
         } catch (\Exception $e) {
             // Si hay cualquier error, usar el nombre por defecto
         }
-        
+
         return 'Mi Ferretería';
     }
 
@@ -134,7 +135,7 @@ class AdminPanelProvider extends PanelProvider
         } catch (\Exception $e) {
             // Si hay cualquier error, no mostrar logo
         }
-        
+
         return null;
     }
 }

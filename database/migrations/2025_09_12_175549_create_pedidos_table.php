@@ -40,13 +40,13 @@ return new class extends Migration
             $table->decimal('abono', 12, 2)->default(0);
             $table->decimal('descuento', 12, 2)->default(0)->nullable();
             $table->decimal('flete', 12, 2)->default(0)->nullable();
-            $table->decimal('iva', 12, 2)->default(0);
             $table->decimal('total_a_pagar', 12, 2)->default(0);
             $table->decimal('saldo_pendiente', 12, 2)->default(0);
             $table->integer('contador_impresiones')->default(0);
             $table->boolean('impresa')->default(false);
             $table->foreignId('user_id')->constrained('users')->nullable();
             $table->foreignId('alistador_id')->constrained('users')->nullable();
+            $table->integer('iva')->nullable()->default(0);
             $table->string('imagen_recibido')->nullable();
             $table->string('comentario_entrega')->nullable();
             $table->string('motivo_devolucion')->nullable();

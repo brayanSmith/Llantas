@@ -1,4 +1,11 @@
-<div class="grid grid-cols-2 gap-4">
+<div class="grid grid-cols-2 gap-4" x-data="{
+    calcularFechaVencimiento() {
+        if (!pedido.fecha || !pedido.dias_plazo_vencimiento) return '';
+        const fecha = new Date(pedido.fecha);
+        fecha.setDate(fecha.getDate() + Number(pedido.dias_plazo_vencimiento));
+        return fecha.toISOString().slice(0, 16);
+    }
+}">
     {{-- <div>
         <label>Código</label>
         <input type="text" x-model="pedido.codigo" class="border rounded w-full" />
@@ -10,12 +17,33 @@
             <option value="VENTA">VENTA</option>
         </select>
     </div>
-    <div>
+    <div x-data x-init="
+        $nextTick(() => {
+            const select = $el.querySelector('select');
+            // Destruir instancia previa si existe
+            if (select.tomselect) {
+                select.tomselect.destroy();
+            }
+            const tom = new TomSelect(select, {
+                placeholder: 'Seleccione un cliente',
+                allowEmptyOption: true,
+                onChange: function(value) {
+                    pedido.cliente_id = value;
+                }
+            });
+            // Preload: setear valor inicial
+            tom.setValue(pedido.cliente_id);
+            // Cuando cambia Alpine, actualizar Tom Select
+            $watch('pedido.cliente_id', value => {
+                tom.setValue(value);
+            });
+        });
+    " class="w-full">
         <label>Cliente</label>
-        <select x-model="pedido.cliente_id" class="border rounded w-full">
+        <select x-model="pedido.cliente_id" class="border rounded w-full" id="select-cliente">
             <option value="">Seleccione un cliente</option>
             <template x-for="cliente in clientes" :key="cliente.id">
-                <option :value="cliente.id" x-text="cliente.razon_social"></option>
+                <option :value="cliente.id" x-text="cliente.numero_documento + ' - ' + cliente.razon_social"></option>
             </template>
         </select>
     </div>
@@ -29,7 +57,7 @@
     </div>
     <div>
         <label>Fecha Vencimiento</label>
-        <input type="datetime-local" x-model="pedido.fecha_vencimiento" class="border rounded w-full" />
+        <input type="datetime-local" x-model="pedido.fecha_vencimiento" :value="calcularFechaVencimiento()" class="border rounded w-full" readonly />
     </div>
     <div>
         <label>Ciudad</label>
@@ -37,7 +65,8 @@
     </div>
     <div>
         <label>Método de Pago</label>
-        <select x-model="pedido.metodo_pago" class="border rounded w-full">
+        <select x-model="pedido.metodo_pago" class="border rounded w-full" >
+            <option value="">Seleccione un método de pago</option>
             <option value="CREDITO">CREDITO</option>
             <option value="CONTADO">CONTADO</option>
         </select>
@@ -54,7 +83,6 @@
     <div>
         <label>Estado</label>
         <select x-model="pedido.estado" class="border rounded w-full">
-            <option value="">Seleccione Estado</option>
             <option value="PENDIENTE">Pendiente</option>
             <option value="FACTURADO">Facturado</option>
             <option value="ANULADO">Anulado</option>
@@ -72,7 +100,7 @@
         <select x-model="pedido.bodega_id" class="border rounded w-full">
             <option value="">Seleccione una bodega</option>
             <template x-for="bodega in bodegas" :key="bodega.id">
-                <option :value="bodega.id" x-text="bodega.name ?? bodega.nombre_bodega"></option>
+                <option :value="bodega.id" x-text="bodega.nombre_bodega"></option>
             </template>
         </select>
     </div>
@@ -99,5 +127,5 @@
         <label>Primer Comentario</label>
         <input type="text" x-model="pedido.primer_comentario" class="border rounded w-full" />
     </div>
-
 </div>
+

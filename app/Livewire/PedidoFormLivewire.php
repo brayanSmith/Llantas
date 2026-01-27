@@ -30,7 +30,7 @@ class PedidoFormLivewire extends Component implements HasActions, HasSchemas
     public function mount(): void
     {
         $this->form->fill();
-        $this->clientes = Cliente::select('id', 'razon_social')->get()->toArray();
+        $this->clientes = Cliente::select('id', 'razon_social', 'numero_documento', 'ciudad', 'retenedor_fuente')->get()->toArray();
 
         $this->users = User::select('id', 'name')->get()->toArray();
 
@@ -38,8 +38,18 @@ class PedidoFormLivewire extends Component implements HasActions, HasSchemas
             $query->where('name', 'Logistica');
         })->get()->toArray();
 
-        $this->bodegas = Bodega::select('id', 'name')->get()->toArray();
-        $this->productos = Producto::select('id', 'name')->get()->toArray();
+        $this->bodegas = Bodega::select('id', 'nombre_bodega')->get()->toArray();
+
+        $this->productos = Producto::select(
+            'id',
+            'concatenar_codigo_nombre',
+            'valor_detal_producto',
+            'valor_mayorista_producto',
+            'valor_ferretero_producto',
+            'iva_producto'
+            )->where('categoria_producto', '!=', 'MATERIA_PRIMA')
+            ->get()
+            ->toArray();
     }
 
     public function form(Schema $schema): Schema
@@ -82,28 +92,31 @@ class PedidoFormLivewire extends Component implements HasActions, HasSchemas
             'estado_cartera' => $pedido['estado_cartera'],
             'estado_venta' => $pedido['estado_venta'],
             'estado_vencimiento' => $pedido['estado_vencimiento'],
-            'bodega_id' => $pedido['bodega_id'],
             'primer_comentario' => $pedido['primer_comentario'],
             'subtotal' => $pedido['subtotal'],
             'abono' => $pedido['abono'],
             'descuento' => $pedido['descuento'],
             'flete' => $pedido['flete'],
-            'iva' => $pedido['iva'],
             'total_a_pagar' => $pedido['total_a_pagar'],
             'saldo_pendiente' => $pedido['saldo_pendiente'],
             'user_id' => $pedido['user_id'],
             'alistador_id' => $pedido['alistador_id'],
+            'bodega_id' => $pedido['bodega_id'],
+            'iva' => $pedido['iva'] ?? 0,
+
         ]);
+
+
 
         foreach ($pedido['detalles'] as $detalle) {
             $nuevoPedido->detalles()->create([
                 'producto_id' => $detalle['producto_id'],
                 'cantidad' => $detalle['cantidad'],
-                'precio_unitario' => $detalle['precio_unitario'],
+                'precio_unitario' => $detalle['precio_unitario'] ?? 0,
                 'aplicar_iva' => $detalle['aplicar_iva'],
-                'iva' => $detalle['iva'],
-                'precio_con_iva' => $detalle['precio_con_iva'],
-                'subtotal' => $detalle['subtotal'],
+                'iva' => $detalle['iva'] ?? 0,
+                'precio_con_iva' => $detalle['precio_con_iva'] ?? 0,
+                'subtotal' => $detalle['subtotal'] ?? 0,
             ]);
         }
     }

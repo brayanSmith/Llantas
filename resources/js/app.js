@@ -1,4 +1,8 @@
 import '../css/filament/admin/theme.css';
+import $ from 'jquery';
+import 'select2';
+import 'select2/dist/css/select2.min.css';
+window.$ = $;
 
 // Sincroniza precio_unitario de Livewire con Alpine.js cuando cambia el producto
 window.addEventListener('livewire:processed', () => {
@@ -14,3 +18,5 @@ window.addEventListener('livewire:processed', () => {
         }
     });
 });
+
+import './pedidos';
