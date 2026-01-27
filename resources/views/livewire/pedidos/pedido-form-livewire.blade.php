@@ -8,6 +8,8 @@
     )"
     x-init="init()"
     class="space-y-4"
+
+
 >
     @include('livewire.pedidos.livewire-pedidos-seccion-general')
     @include('livewire.pedidos.livewire-pedidos-seccion-detalle')
@@ -59,17 +61,56 @@ function pedidoForm(clientes = [], alistadores = [], bodegas = [], productos = [
         init() {
             // Inicialización si necesitas
         },
+        // Obtener el tipo de precio seleccionado
+        get tipoPrecio() {
+            return this.pedido.tipo_precio;
+        },
+        // Funciones para manejar los detalles del pedido
         agregarDetalle() {
             this.pedido.detalles.push({
                 producto_id: null,
                 cantidad: 1,
-                precio_unitario: 0,
-                aplicar_iva: true,
-                iva: 0,
-                precio_con_iva: 0,
-                subtotal: 0
+                precio_unitario: null,
+                aplicar_iva: true
             });
         },
+        // Funcion para Remover Algun Detalle
+        removeDetalle(index) {
+            this.pedido.detalles.splice(index, 1);
+        },
+        //Funcion para Obtener Precio Segun Tipo
+        getPrecio(detalle, tipoPrecio) {
+            const prod = this.productos.find(p => p.id == detalle.producto_id);
+            if (!prod) return 0;
+            switch (this.tipoPrecio) {
+                case 'MAYORISTA': return prod.valor_mayorista_producto ?? 0;
+                case 'FERRETERO': return prod.valor_ferretero_producto ?? 0;
+                default: return prod.valor_detal_producto ?? 0;
+            }
+        },
+        //Funcion para Obtener Precio con IVA
+        getPrecioConIva(detalle, tipoPrecio) {
+            const prod = this.productos.find(p => p.id == detalle.producto_id);
+            let precio = detalle.precio_unitario || this.getPrecio(detalle, tipoPrecio);
+            if (detalle.aplicar_iva && prod && prod.iva_producto) {
+                precio = precio * (1 + prod.iva_producto / 100);
+            }
+            return Math.round(precio * 100) / 100;
+        },
+        //Funcion para Obtener Subtotal
+        getSubtotal(detalle) {
+            const prod = this.productos.find(p => p.id == detalle.producto_id);
+            if (!prod) return 0;
+            let precio = this.getPrecioConIva(detalle, this.tipoPrecio);
+            return Math.round(precio * detalle.cantidad * 100) / 100;
+        },
+        //Funcion para Obtener Total General
+        getTotal() {
+            return this.pedido.detalles.reduce((acc, detalle) => acc + this.getSubtotal(detalle), 0);
+        },
+
+
+        //Funcion para Validar Detalles
         validarDetalles() {
             let errores = [];
             this.pedido.detalles.forEach((detalle, idx) => {
