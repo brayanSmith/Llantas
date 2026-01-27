@@ -1,38 +1,29 @@
 <div x-data="{
-    init() {
-        if (window.Alpine && Alpine.store('pedido')) {
-            Alpine.store('pedido').productos = @js($productos);
-        } else {
-            document.addEventListener('alpine:init', () => {
-                Alpine.store('pedido').productos = @js($productos);
-            });
-        }
-    },
+    pedido: @entangle('pedido').defer,
+    productos: @js($productos),
     get tipoPrecio() {
         return this.pedido.tipo_precio;
     },
     getSubTotalGeneral() {
-        return (window.Alpine && Alpine.store('pedido'))
-            ? Alpine.store('pedido').getSubTotalGeneral(this.pedido.detalles, this.tipoPrecio)
-            : 0;
-    }
-}"
- x-init="init()"
->
+        if (!this.pedido || !Array.isArray(this.pedido.detalles)) return 0;
+        return this.pedido.detalles.reduce((acc, detalle) => {
+            if (!detalle) return acc;
+            const prod = this.productos.find(p => p.id == detalle.producto_id);
+            if (!prod) return acc;
+            let precio = detalle.precio_unitario || (
+                prod.valor_mayorista_producto ??
+                prod.valor_ferretero_producto ??
+                prod.valor_detal_producto ?? 0
+            );
+            if (detalle.aplicar_iva && prod.iva_producto) {
+                precio = precio * (1 + prod.iva_producto / 100);
+            }
+            return acc + Math.round((precio * (detalle.cantidad ?? 0)) * 100) / 100;
+        }, 0);
+    },
+}">
     <div>
         <label>Subtotal</label>
         <input type="number" :value="getSubTotalGeneral()" class="border rounded w-full" readonly />
-    </div>
-    <div>
-        <label>IVA</label>
-        <input type="number" x-model="pedido.iva" class="border rounded w-full" readonly />
-    </div>
-    <div>
-        <label>Total a Pagar</label>
-        <input type="number" x-model="pedido.total_a_pagar" class="border rounded w-full" readonly />
-    </div>
-    <div>
-        <label>Saldo Pendiente</label>
-        <input type="number" x-model="pedido.saldo_pendiente" class="border rounded w-full" readonly />
     </div>
 </div>

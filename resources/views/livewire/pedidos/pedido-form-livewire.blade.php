@@ -34,12 +34,12 @@ function pedidoForm(clientes = [], alistadores = [], bodegas = [], productos = [
             estado: 'PENDIENTE',
             stock_retirado: false,
             en_cartera: false,
-            metodo_pago: '',
-            tipo_precio: '',
-            tipo_venta: '',
+            metodo_pago: 'CREDITO',
+            tipo_precio: 'FERRETERO',
+            tipo_venta: 'ELECTRONICA',
             estado_pago: 'EN_CARTERA',
             estado_cartera: 'CARTERA_AL_DIA',
-            estado_venta: '',
+            estado_venta: 'VENTA',
             estado_vencimiento: 'AL_DIA',
             bodega_id: "1",
             primer_comentario: '',
@@ -70,7 +70,27 @@ function pedidoForm(clientes = [], alistadores = [], bodegas = [], productos = [
                 subtotal: 0
             });
         },
+        validarDetalles() {
+            let errores = [];
+            this.pedido.detalles.forEach((detalle, idx) => {
+                if (!detalle.producto_id) {
+                    errores.push(`Debe seleccionar un producto en la fila ${idx + 1}`);
+                }
+                if (!detalle.cantidad || detalle.cantidad < 1) {
+                    errores.push(`La cantidad debe ser mayor a 0 en la fila ${idx + 1}`);
+                }
+                /*if (detalle.precio_unitario === null || detalle.precio_unitario === '' || isNaN(detalle.precio_unitario)) {
+                    errores.push(`Debe ingresar el precio unitario en la fila ${idx + 1}`);
+                }*/
+            });
+            return errores;
+        },
         enviar() {
+            const errores = this.validarDetalles();
+            if (errores.length > 0) {
+                alert(errores.join('\n'));
+                return;
+            }
             console.log('JSON generado para enviar:', JSON.stringify(this.pedido, null, 2));
             console.log('Llamando a método Livewire: guardarPedido');
             this.$wire.guardarPedido(this.pedido);

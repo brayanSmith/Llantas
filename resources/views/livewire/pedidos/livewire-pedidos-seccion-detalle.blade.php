@@ -65,7 +65,7 @@
             <template x-for="(detalle, index) in pedido.detalles" :key="index">
                 <tr>
                     <td>
-                        <select x-model="detalle.producto_id" class="input">
+                        <select x-model="detalle.producto_id" class="form-select form-select-sm">
                             <option value="">Seleccione producto</option>
                             <template x-for="prod in productos" :key="prod.id">
                                 <option :value="prod.id" x-text="prod.concatenar_codigo_nombre"></option>
@@ -73,21 +73,21 @@
                         </select>
                     </td>
                     <td>
-                        <input type="number" min="1" x-model.number="detalle.cantidad" class="input w-20" />
+                        <input type="number" min="1" x-model.number="detalle.cantidad" class="form-control form-control-sm w-20" />
                     </td>
                     <td>
-                        <input type="number" min="0" x-model.number="detalle.precio_unitario" class="input w-24" :value="getPrecio(detalle, tipoPrecio)" />
+                        <input type="number" min="0" x-model.number="detalle.precio_unitario" class="form-control form-control-sm w-24" :value="getPrecio(detalle, tipoPrecio)" />
                     </td>
                     <td>
-                        <input type="checkbox" x-model="detalle.aplicar_iva" />
+                        <input type="checkbox" x-model="detalle.aplicar_iva" class="form-check-input" />
                     </td>
-                        <input type="number" readonly x-model="detalle.precio_con_iva" :value="getPrecioConIva(detalle, tipoPrecio)" class="input w-24 bg-gray-100" />
-                    </td>
-                    <td>
-                        <input type="number" readonly x-model="detalle.subtotal" :value="getSubtotal(detalle)" class="input w-24 bg-gray-100" />
+                        <input type="number" readonly x-model="detalle.precio_con_iva" :value="getPrecioConIva(detalle, tipoPrecio)" class="form-control form-control-sm w-24 bg-light" />
                     </td>
                     <td>
-                        <button type="button" @click="removeDetalle(index)" class="bg-red-600 text-white px-2 py-1 rounded">Eliminar</button>
+                        <input type="number" readonly x-model="detalle.subtotal" :value="getSubtotal(detalle)" class="form-control form-control-sm w-24 bg-light" />
+                    </td>
+                    <td>
+                        <button type="button" @click="removeDetalle(index)" class="btn btn-danger btn-sm">Eliminar</button>
                     </td>
                 </tr>
             </template>
@@ -95,7 +95,7 @@
         <tfoot>
             <tr>
                 <td colspan="4" class="text-right font-bold">Total:</td>
-                <td x-text="getTotal()" class="font-bold"></td>
+                <input type="number" readonly :value="getTotal()" x-model="pedido.subtotal" class="form-control w-32 bg-light font-weight-bold" />
                 <td></td>
             </tr>
         </tfoot>
