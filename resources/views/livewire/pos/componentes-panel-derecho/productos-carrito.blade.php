@@ -1,0 +1,32 @@
+<div class="flex-grow pr-2 overflow-y-auto max-h-96">
+    <template x-for="(detalle, index) in pedido.detalles" :key="detalle.producto_id">
+        <div class="flex items-center justify-between p-2 mb-2 bg-gray-50 dark:bg-neutral-700 rounded-xl shadow-sm">
+            <div class="flex-1">
+                <h4 class="text-sm font-semibold text-gray-800 dark:text-gray-100">
+                    <span x-text="productos.find(p => p.id == detalle.producto_id)?.nombre_producto || 'Sin nombre'"></span>
+                </h4>
+                <p class="text-xs text-gray-500 dark:text-gray-400">
+                    COP:
+                        <span x-text="Number(detalle.precio_con_iva).toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 2 })"></span>
+                        <span class="font-bold">| TOTAL:</span>
+                        <span x-text="Number(getSubtotal(detalle)).toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 2 })"></span>
+                </p>
+            </div>
+            <div class="flex items-center space-x-2">
+                <input type="number" min="1"
+                    x-model.number="detalle.cantidad"
+                    class="py-2.5 sm:py-3 px-4 block w-20 border-gray-200 rounded-lg sm:text-sm
+                        focus:border-blue-500 focus:ring-blue-500
+                        dark:bg-neutral-900 dark:border-neutral-700
+                        dark:text-neutral-400 dark:placeholder-neutral-500
+                        dark:focus:ring-neutral-600">
+                <button @click.prevent="removeDetalle(index)" class="p-2 text-red-500 hover:text-red-700 dark:hover:text-red-400">
+                    ✕
+                </button>
+            </div>
+        </div>
+    </template>
+    <template x-if="pedido.detalles.length === 0">
+        <p class="text-gray-500 dark:text-gray-400">Tu carrito está vacío.</p>
+    </template>
+</div>

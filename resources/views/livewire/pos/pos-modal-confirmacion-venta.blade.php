@@ -9,11 +9,16 @@
             <p class="mb-6 text-center text-gray-700 dark:text-gray-200">{{ $confirmModalBody }}</p>
             <div class="flex gap-4">
                 @if (session('pedido_pdf_url'))
+
                     <a href="{{ session('pedido_pdf_url') }}" target="_blank"
                         class="px-6 py-2 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700">Descargar
                         PDF</a>
+
                 @endif
-                <button @click="show = false" wire:click="$set('showConfirmModal', false)"
+                <button
+                    @click="show = false"
+                    wire:click="$set('showConfirmModal', false)"
+                    @click.prevent="resetPedido()"
                     class="px-6 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700">Cerrar</button>
             </div>
         </div>

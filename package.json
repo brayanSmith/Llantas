@@ -12,6 +12,7 @@
         "jquery": "^4.0.0",
         "laravel-vite-plugin": "^2.0",
         "select2": "^4.1.0-rc.0",
+        "tom-select": "^2.4.3",
         "vite": "^7.0.4"
     },
     "optionalDependencies": {

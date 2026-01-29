@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\PedidoCotizacions\Schemas;
 
+use App\Livewire\POS;
 use App\Models\Pedido;
 use Filament\Schemas\Schema;
 use App\Livewire\PedidoFormLivewire;
@@ -28,7 +29,8 @@ class PedidoCotizacionForm
                 ->relationship('detalles')
                 ->key('mi-repeater-personalizado')
                 ->columnSpanFull()*/
-                Livewire::make(PedidoFormLivewire::class)->columnSpanFull(),
+                //Livewire::make(PedidoFormLivewire::class)->columnSpanFull(),
+                Livewire::make(POS::class)->columnSpanFull(),
 
 
             ]);

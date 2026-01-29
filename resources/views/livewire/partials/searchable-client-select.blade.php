@@ -1,11 +1,11 @@
 <div>
-    <div class="mb-3" wire:ignore>
+     <div class="mb-3" wire:ignore>
         {{-- <label class="form-label">Buscar Cliente</label>- --}}
-        <select id="client-search" class="form-control" placeholder="Buscar cliente...">
+        <select id="client-search" class="form-control" placeholder="Buscar cliente..." x-model="pedido.cliente_id">
             <option value="">Seleccione un cliente</option>
             @foreach ($clientes as $cliente)
-                <option value="{{ $cliente->id }}">
-                    {{ $cliente->numero_documento }} - {{ $cliente->razon_social }} - {{ $cliente->ciudad }}
+                <option value="{{ $cliente['id'] }}">
+                    {{ $cliente['numero_documento'] }} - {{ $cliente['razon_social'] }} - {{ $cliente['ciudad'] }}
                 </option>
             @endforeach
         </select>
@@ -16,10 +16,7 @@
             Ciudad
         </label>
         <div class="mt-2">
-            <span class="inline-flex items-center px-4 py-2 rounded-lg text-base font-medium
-                        bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100">
-                {{ $ciudad ?: 'No especificada' }}
-            </span>
+            <span x-text="clienteSeleccionado.ciudad" class="inline-flex items-center px-4 py-2 rounded-lg text-base font-medium bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100"></span>
         </div>
     </div>
 
@@ -29,9 +26,7 @@
             Cartera Total
         </label>
         <div class="mt-2">
-            <span class="inline-flex items-center px-4 py-2 rounded-lg text-lg font-bold
-                         bg-amber-100 text-amber-900 dark:bg-amber-900/20 dark:text-amber-400">
-                $ {{ number_format($saldoTotalCarteraCliente, 0, ',', '.') }}
+            <span x-text="clienteSeleccionado.saldo_total_pedidos_en_cartera" class="inline-flex items-center px-4 py-2 rounded-lg text-lg font-boldbg-amber-100 text-amber-900 dark:bg-amber-900/20 dark:text-amber-400">
             </span>
         </div>
     </div>
@@ -41,15 +36,12 @@
             Cartera Vencida
         </label>
         <div class="mt-2">
-            <span class="inline-flex items-center px-4 py-2 rounded-lg text-lg font-bold
-                         bg-red-100 text-red-900 dark:bg-red-900/20 dark:text-red-400">
-                $ {{ number_format($saldoTotalPedidosVencidosCliente, 0, ',', '.') }}
+            <span x-text="clienteSeleccionado.saldo_total_pedidos_vencidos" class="inline-flex items-center px-4 py-2 rounded-lg text-lg font-bold bg-red-100 text-red-900 dark:bg-red-900/20 dark:text-red-400">
             </span>
         </div>
     </div>
 </div>
-
-
+    <!-- Tom Select se inicializa y reinicializa automáticamente con Alpine.js -->
     <script>
         // Reintenta la inicialización en eventos típicos de Livewire/Filament
         document.addEventListener('DOMContentLoaded', initTomSelect, { once: true });
@@ -69,16 +61,7 @@
                 sortField: { field: 'text', direction: 'asc' },
             });
 
-            // Sincroniza -> Livewire
-            ts.on('change', (value) => {
-                const comp = sel.closest('[wire\\:id]');
-                if (comp && window.Livewire) {
-                    window.Livewire.find(comp.getAttribute('wire:id'))
-                        .set('cliente_id', value || null);
-                }
-            });
-
-            // (Opcional) si cambias cliente_id desde PHP y quieres reflejarlo en el select:
+            // Solo actualiza el valor visual del select cuando Alpine (o Livewire) lo indique
             window.addEventListener('cliente-set', (e) => ts.setValue(e.detail ?? ''));
         }
     </script>

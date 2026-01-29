@@ -10,9 +10,9 @@ use Filament\Pages\Page;
 class Pos extends Page
 {
     use HasPageShield;
-    
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
-    
+
     protected static ?string $title = 'POS - Punto de Venta';
     protected static ?string $navigationLabel = 'POS';
     protected static ?string $slug = 'pos';
@@ -27,23 +27,23 @@ class Pos extends Page
     {
         return 'POS - Punto de Venta';
     }
-    
+
     public static function getPluralModelLabel(): string
     {
         return 'POS - Punto de Venta';
     }
-    
+
     // Métodos que Shield usa para obtener el nombre de la página
     public static function getLabel(): string
     {
         return 'POS - Punto de Venta';
     }
-    
+
     public static function getNavigationGroup(): ?string
     {
         return 'Sistema';
     }
-    
+
     // Método específico para Shield
     public static function getShieldLabel(): string
     {
