@@ -105,9 +105,11 @@ function pedidoForm(clientes = [], alistadores = [], bodegas = [], productos = [
             if (yaExiste) {
                 this.mensajeToast = 'Este producto ya se encuentra en el carrito. Si desea modificar la cantidad, hágalo manualmente desde ahí.';
                 this.mostrarToast = true;
-                setTimeout(() => this.mostrarToast = false, 8000);
+                setTimeout(() => this.mostrarToast = false, 3000);
                 return;
             }
+            const stockInicial = Number(this.getStockDisponible(this.productoSeleccionado.id, this.empresa.bodega_id));
+            const stockDescontado = stockInicial - Number(this.cantidadSeleccionada);
             const detalle = {
                 producto_id: this.productoSeleccionado.id,
                 cantidad: this.cantidadSeleccionada,
@@ -120,16 +122,30 @@ function pedidoForm(clientes = [], alistadores = [], bodegas = [], productos = [
                     true,
                     this.productoSeleccionado.iva_producto || 0
                 ),
-                subtotal: 0
+                subtotal: 0,
+                stockInicial: stockInicial,
+                stockDescontado: stockDescontado
             };
+            // Descontar stock visualmente
+
+            console.log('stockEntry:', stockDescontado);
+            //
             this.pedido.detalles.push(detalle);
             this.totalCantidadProductos = this.pedido.detalles.reduce((acc, d) => acc + (parseFloat(d.cantidad) || 0), 0);
             this.guardarPedidoEnMemoria();
             console.log('Detalle agregado:', detalle);
             console.log('Detalles actuales:', this.pedido.detalles);
+            console.log('Stock después de agregar:', this.stockBodegas);
         },
         // Funcion para Remover Algun Detalle
         removeDetalle(index) {
+            // Devolver stock visualmente
+            const detalle = this.pedido.detalles[index];
+            const stockInicial = Number(detalle?.stockDescontado ?? 0);
+            const cantidad = Number(detalle?.cantidad ?? 0);
+            const devolverStock = stockInicial + cantidad;
+            console.log('Stock antes de devolver:', stockInicial);
+            console.log('Stock después de devolver:', devolverStock);
             this.pedido.detalles.splice(index, 1);
             this.totalCantidadProductos = this.pedido.detalles.reduce((acc, d) => acc + (parseFloat(d.cantidad) || 0), 0);
             this.guardarPedidoEnMemoria();
@@ -140,14 +156,14 @@ function pedidoForm(clientes = [], alistadores = [], bodegas = [], productos = [
             if (!this.pedido.detalles || this.pedido.detalles.length === 0) {
                 this.mensajeToast = 'El carrito está vacío. Agregue al menos un producto antes de enviar el pedido.';
                 this.mostrarToast = true;
-                setTimeout(() => this.mostrarToast = false, 8000);
+                setTimeout(() => this.mostrarToast = false, 3000);
                 return;
             }
             // Validar que se haya seleccionado un cliente
             if (!this.pedido.cliente_id) {
                 this.mensajeToast = 'Debe seleccionar un cliente antes de enviar el pedido.';
                 this.mostrarToast = true;
-                setTimeout(() => this.mostrarToast = false, 8000);
+                setTimeout(() => this.mostrarToast = false, 3000);
                 return;
             }
             const errores = this.validarDetalles();
@@ -210,6 +226,7 @@ function pedidoForm(clientes = [], alistadores = [], bodegas = [], productos = [
             this.pedido.saldo_pendiente = saldoPendiente;
             return saldoPendiente;
         },
+
         //Funcion para obtener el StockDisponible
         getStockDisponible(idProducto, idBodega = this.empresa.bodega_id) {
             const stockEntry = this.stockBodegas.find(entry =>

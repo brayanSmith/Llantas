@@ -44,6 +44,7 @@
                             <!-- Vamos a poner el Stock -->
                             <p class="text-[10px] md:text-xs text-gray-800 dark:text-gray-100 mt-1">STOCK:
                                 <strong x-text="getStockDisponible(product.id)"></strong></p>
+
                         </div>
 
                         <!-- Botón -->
