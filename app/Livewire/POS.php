@@ -199,17 +199,19 @@ class POS extends Component implements HasActions, HasSchemas
     }
     public function render(): View
     {
-        // Solo pasar productos si no se ha enviado el pedido (para evitar recarga masiva tras guardar)
+        // Solo pasar productos, clientes y stockBodegas si no se han cargado (para evitar recarga masiva tras guardar)
         $productos = request()->has('productos_cargados') ? [] : $this->productos;
+        $clientes = request()->has('clientes_cargados') ? [] : $this->clientes;
+        $stockBodegas = request()->has('stock_bodegas_cargados') ? [] : $this->stockBodegas;
         return view('livewire.p-o-s', [
-            'clientes' => $this->clientes,
+            'clientes' => $clientes,
             'alistadores' => $this->alistadores,
             'bodegas' => $this->bodegas,
             'productos' => $productos,
             'users' => $this->users,
             'empresa' => $this->empresa,
             'bodegaSeleccionada' => $this->bodegaSeleccionada,
-            'stockBodegas' => $this->stockBodegas,
+            'stockBodegas' => $stockBodegas,
             'userId' => $this->userId,
         ]);
     }

@@ -1,20 +1,30 @@
 {{-- ...existing code... --}}
     <div
         x-data="pedidoForm(
-            @js($clientes),
+            (localStorage.getItem('clientesPOS') ? JSON.parse(localStorage.getItem('clientesPOS')) : @js($clientes)),
             @js($alistadores),
             @js($bodegas),
             (localStorage.getItem('productosPOS') ? JSON.parse(localStorage.getItem('productosPOS')) : @js($productos)),
             @js($users),
             @js($empresa),
             @js($bodegaSeleccionada),
-            @js($stockBodegas),
+            (localStorage.getItem('stockBodegasPOS') ? JSON.parse(localStorage.getItem('stockBodegasPOS')) : @js($stockBodegas)),
             @js($userId)
         )"
         x-init="
             if (!localStorage.getItem('productosPOS')) {
                 localStorage.setItem('productosPOS', JSON.stringify(productos));
             }
+            if (!localStorage.getItem('clientesPOS')) {
+                localStorage.setItem('clientesPOS', JSON.stringify(clientes));
+            }
+            if (!localStorage.getItem('stockBodegasPOS')) {
+                localStorage.setItem('stockBodegasPOS', JSON.stringify(stockBodegas));
+            }
+            window.addEventListener('limpiar-catalogos', () => {
+                limpiarCacheCatalogos();
+                location.reload();
+            });
             init();
         "
         class="space-y-4"
@@ -31,6 +41,21 @@
 
 function pedidoForm(clientes = [], alistadores = [], bodegas = [], productos = [], users = [], empresa = null, bodegaSeleccionada = null, stockBodegas = [], userId = null) {
     return {
+                // --- Funciones para limpiar catálogos cacheados ---
+                limpiarCacheProductos() {
+                    localStorage.removeItem('productosPOS');
+                },
+                limpiarCacheClientes() {
+                    localStorage.removeItem('clientesPOS');
+                },
+                limpiarCacheStockBodegas() {
+                    localStorage.removeItem('stockBodegasPOS');
+                },
+                limpiarCacheCatalogos() {
+                    this.limpiarCacheProductos();
+                    this.limpiarCacheClientes();
+                    this.limpiarCacheStockBodegas();
+                },
         mostrarToast: false,
         mensajeToast: '',
         error: '',
