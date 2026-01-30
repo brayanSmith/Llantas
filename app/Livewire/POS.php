@@ -144,7 +144,7 @@ class POS extends Component implements HasActions, HasSchemas
             'cliente_id' => $pedido['cliente_id'],
             'fecha' => empty($pedido['fecha']) ? now()->toDateString() : $pedido['fecha'],
             'dias_plazo_vencimiento' => $pedido['dias_plazo_vencimiento'],
-            'fecha_vencimiento' => $pedido['fecha_vencimiento'],
+            'fecha_vencimiento' => empty($pedido['fecha_vencimiento']) ? now()->addDays(30)->toDateString() : $pedido['fecha_vencimiento'],
             'ciudad' => $pedido['ciudad'],
             'estado' => $pedido['estado'],
             'stock_retirado' => $pedido['stock_retirado'],
