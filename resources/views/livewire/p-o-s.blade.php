@@ -1,375 +1,446 @@
-{{-- ...existing code... --}}
-    <div
-        x-data="pedidoForm(
-            @js($clientes),
-            @js($alistadores),
-            @js($bodegas),
-            (localStorage.getItem('productosPOS') ? JSON.parse(localStorage.getItem('productosPOS')) : @js($productos)),
-            @js($users),
-            @js($empresa),
-            @js($bodegaSeleccionada),
-            @js($stockBodegas),
-            @js($userId)
-        )"
-        x-init="
-            if (!localStorage.getItem('productosPOS')) {
-                localStorage.setItem('productosPOS', JSON.stringify(productos));
-            }
-            init();
-        "
-        class="space-y-4"
-    >
-    <div x-show="mostrarToast" x-transition class="fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded shadow" style="z-index:9999;">
-        <span x-text="mensajeToast"></span>
+<div>
+
+    <div x-data="{ open: false }" class="relative">
+        <!-- Trigger / botón flotante -->
+        <button @click="open = true"
+            class="rounded-full flex items-center gap-2 px-4 py-2 fixed bottom-8 right-8 z-50 shadow-lg bg-info-600 text-white hover:bg-info-700 focus:outline-none focus:ring-2 focus:ring-info-500"
+            style="min-width: 64px; min-height: 48px;">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 9m5-9v9m6-9v9m2-9l2 9" />
+            </svg>
+            <span class="ml-1 font-bold">({{ collect($this->cart)->sum('cantidad') }})</span>
+        </button>
+
+        <!-- Modal -->
+        <div x-show="open" x-transition class="fixed inset-0 z-50 flex items-start justify-end" style="display: none;">
+            <!-- backdrop -->
+            <div @click="open = false" class="absolute inset-0 bg-black/40"></div>
+
+            <!-- panel slide-over -->
+            <div
+                class="relative bg-white dark:bg-neutral-800 rounded-l-2xl shadow-2xl w-full max-w-md h-full overflow-auto p-6 z-50">
+                <!-- Close button arriba -->
+                <div class="flex justify-end">
+                    <button @click="open = false"
+                        class="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white text-2xl p-1"
+                        aria-label="Cerrar">&times;</button>
+                </div>
+
+                {{-- Modal content --}}
+                <div class="space-y-6 max-w-full ">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+                        Productos agregados: {{ collect($this->cart)->sum('cantidad') }}
+                    </h2>
+                    {{-- Productos en el carrito --}}
+                    <div class="flex-grow pr-2 overflow-y-auto max-h-96">
+                        @forelse($this->cart as $cartProduct)
+                            <div
+                                class="flex items-center justify-between p-2 mb-2 bg-gray-50 dark:bg-neutral-700 rounded-xl shadow-sm">
+                                <div class="flex-1">
+                                    <h4 class="text-sm font-semibold text-gray-800 dark:text-gray-100">
+                                        {{ $cartProduct['nombre_producto'] }}
+                                    </h4>
+                                    {{--<p class="text-xs text-gray-500 dark:text-gray-400">
+                                        SKU: {{ $cartProduct['codigo_producto'] }}
+                                    </p> --}}
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                                        COP: {{ number_format($this->getPrecioProducto($cartProduct), 0) }}
+
+                                        <span class="font-bold">| TOTAL:</span>
+                                        {{ number_format($this->getPrecioProducto($cartProduct) * $cartProduct['cantidad'], 0) }}
+                                    </p>
+
+                                </div>
+
+                                <div class="flex items-center space-x-2">
+                                    @php($maxStock = \App\Models\StockBodega::where('producto_id', $cartProduct['id'])->where('bodega_id', $this->bodega ?? 1)->first()->stock ?? 1)
+                                    <input type="number" min="1" max="{{ (int) $maxStock }}"
+                                        wire:model.live.debounce.500ms="cart.{{ $cartProduct['id'] }}.cantidad"
+                                        @change="if(this.value > {{ (int) $maxStock }}) this.value = {{ (int) $maxStock }}"
+                                        class="py-2.5 sm:py-3 px-4 block w-20 border-gray-200 rounded-lg sm:text-sm
+                                       focus:border-blue-500 focus:ring-blue-500
+                                       dark:bg-neutral-900 dark:border-neutral-700
+                                       dark:text-neutral-400 dark:placeholder-neutral-500
+                                       dark:focus:ring-neutral-600">
+
+                                    <button wire:click="removeFromCart({{ $cartProduct['id'] }})"
+                                        class="p-2 text-red-500 hover:text-red-700 dark:hover:text-red-400">
+                                        ✕
+                                    </button>
+                                </div>
+                            </div>
+                        @empty
+                            <p class="text-gray-500 dark:text-gray-400">Tu carrito está vacío.</p>
+                        @endforelse
+                    </div>
+
+                    <!-- Checkear carrito -->
+                    <div class="flex-shrink-0 mt-6 space-y-4">
+                        <div class="space-y-2">
+                            <label for="cliente" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Cliente
+                            </label>
+
+                             @include('livewire.partials.searchable-client-select', [
+                                'cliente_id' => $cliente_id,
+                                'ciudad' => $ciudad,
+                                'clientes' => $clientes,
+                            ])
+                        </div>
+
+                        {{-- ...Metodo de Pago... --}}
+                        <div class="mt-4">
+                            <span class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Método de
+                                Pago:</span>
+                            <div class="flex space-x-2">
+                                <button type="button" wire:click="$set('metodo_pago', 'CREDITO')"
+                                    class="px-4 py-2 rounded-full text-sm font-semibold border
+                        transition
+                        {{ $metodo_pago === 'CREDITO'
+                            ? 'bg-blue-600 text-white border-blue-600'
+                            : 'bg-gray-200 dark:bg-neutral-700 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-neutral-600 hover:bg-blue-100 dark:hover:bg-blue-900' }}">
+                                    CRÉDITO
+                                </button>
+                                <button type="button" wire:click="$set('metodo_pago', 'CONTADO')"
+                                    class="px-4 py-2 rounded-full text-sm font-semibold border
+                        transition
+                        {{ $metodo_pago === 'CONTADO'
+                            ? 'bg-blue-600 text-white border-blue-600'
+                            : 'bg-gray-200 dark:bg-neutral-700 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-neutral-600 hover:bg-blue-100 dark:hover:bg-blue-900' }}">
+                                    CONTADO
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <span class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Estado de
+                                Venta:</span>
+                            <div class="flex space-x-2">
+                                <button type="button" wire:click="$set('estado_venta', 'COTIZACION')"
+                                    class="px-4 py-2 rounded-full text-sm font-semibold border transition
+                    {{ $estado_venta === 'COTIZACION'
+                        ? 'bg-blue-600 text-white border-blue-600'
+                        : 'bg-gray-200 dark:bg-neutral-700 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-neutral-600 hover:bg-blue-100 dark:hover:bg-blue-900' }}">
+                                    COTIZACION
+                                </button>
+                                <button type="button" wire:click="$set('estado_venta', 'VENTA')"
+                                    class="px-4 py-2 rounded-full text-sm font-semibold border transition
+                    {{ $estado_venta === 'VENTA'
+                        ? 'bg-blue-600 text-white border-blue-600'
+                        : 'bg-gray-200 dark:bg-neutral-700 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-neutral-600 hover:bg-blue-100 dark:hover:bg-blue-900' }}">
+                                    VENTA
+                                </button>
+                            </div>
+                        </div>
+
+                        {{-- ...Tipo de Precio...
+
+                        <div class="mt-4">
+                            <span class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tipo de
+                                Precio:</span>
+                            <div class="flex space-x-2">
+                                <button type="button" wire:click="$set('tipo_precio', 'FERRETERO')"
+                                    class="px-4 py-2 rounded-full text-sm font-semibold border transition
+                    {{ $tipo_precio === 'FERRETERO'
+                        ? 'bg-blue-600 text-white border-blue-600'
+                        : 'bg-gray-200 dark:bg-neutral-700 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-neutral-600 hover:bg-blue-100 dark:hover:bg-blue-900' }}">
+                                    FERRETERO
+                                </button>
+                                <button type="button" wire:click="$set('tipo_precio', 'MAYORISTA')"
+                                    class="px-4 py-2 rounded-full text-sm font-semibold border transition
+                    {{ $tipo_precio === 'MAYORISTA'
+                        ? 'bg-blue-600 text-white border-blue-600'
+                        : 'bg-gray-200 dark:bg-neutral-700 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-neutral-600 hover:bg-blue-100 dark:hover:bg-blue-900' }}">
+                                    MAYORISTA
+                                </button>
+                                <button type="button" wire:click="$set('tipo_precio', 'DETAL')"
+                                    class="px-4 py-2 rounded-full text-sm font-semibold border transition
+                    {{ $tipo_precio === 'DETAL'
+                        ? 'bg-blue-600 text-white border-blue-600'
+                        : 'bg-gray-200 dark:bg-neutral-700 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-neutral-600 hover:bg-blue-100 dark:hover:bg-blue-900' }}">
+                                    DETAL
+                                </button>
+                            </div>
+                        </div>--}}
+
+                        {{-- ...Tipo de Venta... --}}
+                        <div class="mt-4">
+                            <span class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tipo de
+                                Venta:</span>
+                            <div class="flex space-x-2">
+                                <button type="button" wire:click="$set('tipo_venta', 'ELECTRONICA')"
+                                    class="px-4 py-2 rounded-full text-sm font-semibold border transition
+                    {{ $tipo_venta === 'ELECTRONICA'
+                        ? 'bg-blue-600 text-white border-blue-600'
+                        : 'bg-gray-200 dark:bg-neutral-700 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-neutral-600 hover:bg-blue-100 dark:hover:bg-blue-900' }}">
+                                    ELECTRÓNICA
+                                </button>
+                                <button type="button" wire:click="$set('tipo_venta', 'REMISIONADA')"
+                                    class="px-4 py-2 rounded-full text-sm font-semibold border transition
+                    {{ $tipo_venta === 'REMISIONADA'
+                        ? 'bg-blue-600 text-white border-blue-600'
+                        : 'bg-gray-200 dark:bg-neutral-700 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-neutral-600 hover:bg-blue-100 dark:hover:bg-blue-900' }}">
+                                    REMISIONADA
+                                </button>
+                            </div>
+                        </div>
+
+                        {{-- Comentarios --}}
+
+                        <div class="mt-4">
+                            <label for="primer_comentario"
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Primer
+                                comentario</label>
+                            <textarea id="primer_comentario" wire:model="primer_comentario" rows="2"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-neutral-900 dark:border-neutral-700 dark:text-gray-100 mb-2"
+                                placeholder="Escribe el primer comentario..."></textarea>
+                        </div>
+                        <div class="mt-2">
+                            <label for="segundo_comentario"
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Segundo
+                                comentario</label>
+                            <textarea id="segundo_comentario" wire:model="segundo_comentario" rows="2"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-neutral-900 dark:border-neutral-700 dark:text-gray-100"
+                                placeholder="Escribe el segundo comentario..."></textarea>
+                        </div>
+                        {{-- -Bodegas
+                        <div class="mt-4">
+                            <label for="bodega_id"
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Bodega</label>
+                            <select id="bodega_id" wire:model="bodegaSeleccionada"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-neutral-900 dark:border-neutral-700 dark:text-gray-100">
+                                <option value="">Selecciona una bodega</option>
+                                @foreach($bodegas as $bodega)
+                                    <option value="{{ $bodega->id }}">{{ $bodega->nombre_bodega }}</option>
+                                @endforeach
+                            </select>
+                        </div>--}}
+
+                        {{--flete--}}
+                        <div class="mt-4">
+                            <label for="flete"
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Flete (COP)</label>
+                            <input type="number" id="flete" wire:model.blur="flete"
+                                min="0" step="0.01"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-neutral-900 dark:border-neutral-700 dark:text-gray-100"
+                                placeholder="Ingresa el valor del flete..." />
+                        </div>
+                         {{-- Total a pagar --}}
+                        <div class="mt-6 pt-6 border-t border-gray-200 dark:border-neutral-700">
+
+                            <div class="flex justify-between items-center mb-2 text-lg font-bold">
+                                <span>Total a Pagar:</span>
+                                <span>COP {{ number_format(num: $this->subtotal() + $this->flete, decimals: 0) }}</span>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="flex-shrink-0 mt-6">
+
+                        <button wire:click="checkout" wire:loading.attr="disabled"
+                            class="w-full py-4 bg-green-600 text-white font-bold text-lg rounded-lg
+                       transition-colors duration-200 hover:bg-green-700
+                       disabled:opacity-50 disabled:cursor-not-allowed shadow-lg mb-3">
+                            Finalizar Venta
+                        </button>
+
+                        <!-- Botón para limpiar carrito -->
+                        <button wire:click="clearSession"
+                            class="w-full py-2 bg-red-500 text-white font-medium text-sm rounded-lg
+                       transition-colors duration-200 hover:bg-red-600 shadow-md"
+                            onclick="return confirm('¿Estás seguro de que quieres limpiar el carrito? Esta acción no se puede deshacer.')">
+                            Limpiar Carrito
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-        @include('livewire.pos.pos-panel-izquierdo')
-         @include('livewire.pos.pos-panel-derecho')
-        @include('livewire.pos.pos-modal-confirmacion-venta')
+
+    <!-- Modal de confirmación de venta (Alpine/Filament) -->
+    <div x-data="{ show: @entangle('showConfirmModal') }" x-show="show" x-transition class="fixed inset-0 z-50 flex items-center justify-center"
+        style="display: none;">
+        <div class="absolute inset-0 bg-black opacity-40"></div>
+        <div
+            class="relative bg-white dark:bg-neutral-800 rounded-2xl shadow-2xl w-full max-w-sm mx-auto p-8 z-50 flex flex-col items-center">
+            <h2 class="text-2xl font-bold mb-4 text-center text-gray-900 dark:text-gray-100">{{ $confirmModalTitle }}
+            </h2>
+            <p class="mb-6 text-center text-gray-700 dark:text-gray-200">{{ $confirmModalBody }}</p>
+            <div class="flex gap-4">
+                @if (session('pedido_pdf_url'))
+                    <a href="{{ session('pedido_pdf_url') }}" target="_blank"
+                        class="px-6 py-2 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700">Descargar
+                        PDF</a>
+                @endif
+                <button @click="show = false" wire:click="$set('showConfirmModal', false)"
+                    class="px-6 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700">Cerrar</button>
+            </div>
+        </div>
     </div>
-{{-- ...existing code... --}}
-<script>
 
-function pedidoForm(clientes = [], alistadores = [], bodegas = [], productos = [], users = [], empresa = null, bodegaSeleccionada = null, stockBodegas = [], userId = null) {
-    return {
-        mostrarToast: false,
-        mensajeToast: '',
-        error: '',
-        success: '',
-        clientes: clientes,
-        alistadores: alistadores,
-        bodegas: bodegas,
-        productos: productos,
-        users: users,
-        empresa: empresa,
-        bodegaSeleccionada: bodegaSeleccionada,
-        stockBodegas: stockBodegas,
-        totalCantidadProductos: 0, // Nueva propiedad reactiva
-        pedido: {
-            codigo: '',
-            fe: '',
-            cliente_id: null,
-            fecha: '',
-            dias_plazo_vencimiento: 30,
-            fecha_vencimiento: '',
-            ciudad: '',
-            estado: 'PENDIENTE',
-            stock_retirado: false,
-            en_cartera: false,
-            metodo_pago: 'CREDITO',
-            tipo_precio: 'FERRETERO',
-            tipo_venta: 'ELECTRONICA',
-            estado_pago: 'EN_CARTERA',
-            estado_cartera: 'CARTERA_AL_DIA',
-            estado_venta: 'VENTA',
-            estado_vencimiento: 'AL_DIA',
-            // Siempre asignar un valor válido a bodega_id
-            bodega_id: bodegaSeleccionada ?? (empresa ? empresa.bodega_id : null),
-            primer_comentario: '',
-            subtotal: 0,
-            abono: 0,
-            descuento: 0,
-            flete: 0,
-            total_a_pagar: 0,
-            saldo_pendiente: 0,
-            user_id: userId,
-            alistador_id: userId,
-            detalles: [],
-            created_at: '',
-            updated_at: '',
-            iva: 0
-        },
-        init() {
-            const pedidoGuardado = localStorage.getItem('pedidoPOS');
-            if (pedidoGuardado) {
-                this.pedido = JSON.parse(pedidoGuardado);
-                this.totalCantidadProductos = this.pedido.detalles.reduce((acc, d) => acc + (parseFloat(d.cantidad) || 0), 0);
-            }
-            // Watcher automático para guardar cualquier cambio en pedido
-            if (typeof this.$watch === 'function') {
-                this.$watch('pedido', value => {
-                    localStorage.setItem('pedidoPOS', JSON.stringify(value));
-                }, { deep: true });
-            }
-        },
-        // Obtener el tipo de precio seleccionado
-        get tipoPrecio() {
-            return this.pedido.tipo_precio;
-        },
-        // Funciones para manejar los detalles del pedido
-        agregarDetalle() {
-            const yaExiste = this.pedido.detalles.some(
-                d => d.producto_id === this.productoSeleccionado.id
-            );
-            if (yaExiste) {
-                this.mensajeToast = 'Este producto ya se encuentra en el carrito. Si desea modificar la cantidad, hágalo manualmente desde ahí.';
-                this.mostrarToast = true;
-                setTimeout(() => this.mostrarToast = false, 3000);
-                return;
-            }
-            const stockDescontado = this.getStockTotal(
-                this.productoSeleccionado.id,
-                this.empresa.bodega_id,
-                this.cantidadSeleccionada,
-                'agregar'
-            );
-            const detalle = {
-                producto_id: this.productoSeleccionado.id,
-                cantidad: this.cantidadSeleccionada,
-                precio_unitario: this.getPrecio({ producto_id: this.productoSeleccionado.id }, this.tipoPrecio),
-                aplicar_iva: true,
-                iva: this.productoSeleccionado.iva_producto || 0,
-                precio_con_iva: this.getPrecioConIva(
-                    { producto_id: this.productoSeleccionado.id },
-                    this.tipoPrecio,
-                    true,
-                    this.productoSeleccionado.iva_producto || 0
-                ),
-                subtotal: 0,
-                stockDescontado: stockDescontado
-            };
-            // Descontar stock visualmente
+    <div class="flex h-screen bg-gray-100 dark:bg-neutral-900 font-sans antialiased text-gray-800 dark:text-gray-100">
 
-            console.log('stockEntry:', stockDescontado);
-            //
-            this.pedido.detalles.push(detalle);
-            this.totalCantidadProductos = this.pedido.detalles.reduce((acc, d) => acc + (parseFloat(d.cantidad) || 0), 0);
-            this.guardarPedidoEnMemoria();
-        },
-        // Funcion para Remover Algun Detalle
-        removeDetalle(index) {
-            // Devolver stock visualmente
-            const detalle = this.pedido.detalles[index];
-            detalle.stockDescontado = this.getStockTotal(
-                this.detalle.producto_id,
-                this.empresa.bodega_id,
-                this.detalle.cantidad,
-                'remover'
-            );
-            console.log('Stock después de remover:', detalle.stockDescontado);
-            this.pedido.detalles.splice(index, 1);
-            this.totalCantidadProductos = this.pedido.detalles.reduce((acc, d) => acc + (parseFloat(d.cantidad) || 0), 0);
-            this.guardarPedidoEnMemoria();
-        },
-        // Funcion para actualizar la cantidad de un detalle
-        actualizarCantidad(index) {
-            const detalle = this.pedido.detalles[index];
-            detalle.stockDescontado = this.getStockTotal(
-                this.detalle.producto_id,
-                this.empresa.bodega_id,
-                this.detalle.cantidad,
-                'actualizar'
-            );
-            console.log('Stock Descontado Actualizado:', detalle.stockDescontado);
-            // También puedes actualizar otras propiedades si lo necesitas
-            this.guardarPedidoEnMemoria();
-        },
+        <!-- Panel izquierdo -->
+        <div class="w-full px-1 py-6 md:px-6 flex flex-col">
 
-        //Funcion para Enviar Pedido
-        enviar() {
-            // Validar que el carrito no esté vacío
-            if (!this.pedido.detalles || this.pedido.detalles.length === 0) {
-                this.mensajeToast = 'El carrito está vacío. Agregue al menos un producto antes de enviar el pedido.';
-                this.mostrarToast = true;
-                setTimeout(() => this.mostrarToast = false, 3000);
-                return;
-            }
-            // Validar que se haya seleccionado un cliente
-            if (!this.pedido.cliente_id) {
-                this.mensajeToast = 'Debe seleccionar un cliente antes de enviar el pedido.';
-                this.mostrarToast = true;
-                setTimeout(() => this.mostrarToast = false, 3000);
-                return;
-            }
-            const errores = this.validarDetalles();
-            if (errores.length > 0) {
-                alert(errores.join('\n'));
-                return;
-            }
-            // Actualizar saldo pendiente antes de guardar
-            this.getSaldoPendiente();
-            console.log('JSON generado para enviar:', JSON.stringify(this.pedido, null, 2));
-            console.log('Llamando a método Livewire: guardarPedido');
-            this.$wire.guardarPedido(this.pedido);
-            localStorage.removeItem('pedidoPOS');
-        },
-        //Funcion para Obtener Precio Segun Tipo
-        getPrecio(detalle, tipoPrecio = 'FERRETERO') {
-            const prod = this.productos.find(p => p.id == detalle.producto_id);
-            if (!prod) return 0;
-            switch (this.tipoPrecio) {
-                case 'MAYORISTA': return prod.valor_mayorista_producto ?? 0;
-                case 'FERRETERO': return prod.valor_ferretero_producto ?? 0;
-                default: return prod.valor_detal_producto ?? 0;
-            }
-        },
-        //Funcion para Obtener Precio con IVA
-        getPrecioConIva(detalle, tipoPrecio, aplicarIva, ivaProducto) {
-            const prod = this.productos.find(p => p.id == detalle.producto_id);
-            let precio = detalle.precio_unitario || this.getPrecio(detalle, tipoPrecio);
-            if (aplicarIva && prod && ivaProducto) {
-                precio = precio * (1 + ivaProducto / 100);
-            }
-            return Math.round(precio * 100) / 100;
-        },
-        //Funcion para Obtener Subtotal de los productos
-        getSubtotal(detalle) {
-            const prod = this.productos.find(p => p.id == detalle.producto_id);
-            if (!prod) return 0;
-            let precio = this.getPrecioConIva(detalle, this.tipoPrecio, detalle.aplicar_iva, detalle.iva);
-            return Math.round(precio * detalle.cantidad * 100) / 100;
-        },
-        //Funcion para Obtener Total General
-        getTotal() {
-            const total = this.pedido.detalles.reduce((acc, detalle) => acc + this.getSubtotal(detalle), 0);
-            this.pedido.subtotal = total;
-            return total;
-        },
-        //Funcion para Obtener Total a Pagar
-        getTotalAPagar() {
-            const subtotal = this.getTotal();
-            const flete = parseFloat(this.pedido.flete) || 0;
-            const totalAPagar = subtotal + flete;
-            this.pedido.total_a_pagar = totalAPagar;
-            return totalAPagar;
-        },
-        //Funcion para obtener el saldo PENDIENTE
-        getSaldoPendiente() {
-            const totalAPagar = this.getTotalAPagar();
-            const abono = parseFloat(this.pedido.abono) || 0;
-            const saldoPendiente = totalAPagar - abono;
-            this.pedido.saldo_pendiente = saldoPendiente;
-            return saldoPendiente;
-        },
+            <h2 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-6">
+                Productos
 
-        //Funcion para obtener el StockDisponible
-        getStockDisponible(idProducto, idBodega = this.empresa.bodega_id) {
-            const stockEntry = this.stockBodegas.find(entry =>
-                entry.bodega_id === idBodega && entry.producto_id === idProducto
-            );
-            return stockEntry ? stockEntry.stock : 0;
-        },
-        //Funcion para obtener el Stock Total (incluye descuentos visuales)
-        getStockTotal(idProducto, idBodega = this.empresa.bodega_id, cantidad, accion) {
-            let stockInicial = Number(this.getStockDisponible(idProducto, idBodega));
-            let stockTotal = stockInicial;
-            cantidad = Number(cantidad) || 0;
-            if (accion === 'agregar') {
-                stockTotal = stockInicial - cantidad;
-            } else if (accion === 'remover') {
-                stockTotal = stockInicial;
-            } else if (accion === 'actualizar') {
-                // Si tienes un valor especial para actualizar, pon la lógica aquí
-                stockTotal = stockInicial - cantidad; // O la lógica que necesites
-            }
-            return stockTotal;
-        },
-        // Función para resetear todos los datos del pedido
-        resetPedido() {
-            this.pedido = {
-                codigo: '',
-                fe: '',
-                cliente_id: null,
-                fecha: '',
-                dias_plazo_vencimiento: 30,
-                fecha_vencimiento: '',
-                ciudad: '',
-                estado: 'PENDIENTE',
-                stock_retirado: false,
-                en_cartera: false,
-                metodo_pago: 'CREDITO',
-                tipo_precio: 'FERRETERO',
-                tipo_venta: 'ELECTRONICA',
-                estado_pago: 'EN_CARTERA',
-                estado_cartera: 'CARTERA_AL_DIA',
-                estado_venta: 'VENTA',
-                estado_vencimiento: 'AL_DIA',
-                bodega_id: this.bodegaSeleccionada ?? (this.empresa ? this.empresa.bodega_id : null),
-                primer_comentario: '',
-                subtotal: 0,
-                abono: 0,
-                descuento: 0,
-                flete: 0,
-                total_a_pagar: 0,
-                saldo_pendiente: 0,
-                user_id: userId,
-                alistador_id: userId,
-                detalles: [],
-                created_at: '',
-                updated_at: '',
-                iva: 0
-            };
-            localStorage.removeItem('pedidoPOS');
-            this.totalCantidadProductos = 0;
-            // Emitir evento para sincronizar Tom Select
-            window.dispatchEvent(new CustomEvent('reset-tomselect-cliente'));
-        },
-        //Funcion para Validar Detalles
-        validarDetalles() {
-            let errores = [];
-            this.pedido.detalles.forEach((detalle, idx) => {
-                if (!detalle.producto_id) {
-                    errores.push(`Debe seleccionar un producto en la fila ${idx + 1}`);
-                }
-                if (!detalle.cantidad || detalle.cantidad < 1) {
-                    errores.push(`La cantidad debe ser mayor a 0 en la fila ${idx + 1}`);
-                }
-            });
-            return errores;
-        },
-        // --- Paginación de productos (Alpine.js) ---
-        paginaProductos: 1,
-        productosPorPagina: 10,
-        get totalPaginasProductos() {
-            return Math.ceil(this.productos.length / this.productosPorPagina);
-        },
-        get productosPaginados() {
-            const inicio = (this.paginaProductos - 1) * this.productosPorPagina;
-            return this.productos.slice(inicio, inicio + this.productosPorPagina);
-        },
-        cambiarPaginaProductos(nuevaPagina) {
-            if (nuevaPagina >= 1 && nuevaPagina <= this.totalPaginasProductos) {
-                this.paginaProductos = nuevaPagina;
-            }
-        },
-        // --- Buscador de productos (Alpine.js) ---
-        search: '',
-        setSearch(valor) {
-            this.search = valor;
-            this.paginaProductos = 1;
-        },
-        get productosFiltrados() {
-            if (!this.search) return this.productos;
-            // Permite búsqueda por palabras clave separadas por espacio
-            const palabras = this.search.toLowerCase().split(/\s+/).filter(Boolean);
-            return this.productos.filter(p => {
-                // Unir todos los campos relevantes en un solo string
-                const textoProducto = [
-                    p.nombre_producto,
-                    p.codigo_producto,
-                    p.concatenar_codigo_nombre
-                ].filter(Boolean).join(' ').toLowerCase();
-                // Cada palabra debe estar presente en el string
-                return palabras.every(palabra => textoProducto.includes(palabra));
-            });
-        },
-        get productosFiltradosPaginados() {
-            const inicio = (this.paginaProductos - 1) * this.productosPorPagina;
-            return this.productosFiltrados.slice(inicio, inicio + this.productosPorPagina);
-        },
-        get totalPaginasProductos() {
-            return Math.ceil(this.productosFiltrados.length / this.productosPorPagina);
-        },
-        // Puedes usar productosFiltrados en lugar de productos para mostrar la lista filtrada
-        get clienteSeleccionado() {
-            return this.clientes.find(c => c.id == this.pedido.cliente_id) || {};
-        },
+                <!-- Indicador de datos guardados -->
+                @if(count($this->cart) > 0 || $cliente_id || $primer_comentario || $segundo_comentario)
+                    <span class="ml-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                        <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        Datos guardados
+                    </span>
+                @endif
+            </h2>
 
-        productoSeleccionado: null,
-        cantidadSeleccionada: 1,
+            <!-- Buscador -->
+            <div class="flex-shrink-0 mb-4">
+                <input wire:model.live="search" type="text" placeholder="Buscar productos por nombre o SKU..."
+                    class="w-full px-5 py-3 border focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors
+                       dark:bg-neutral-800 dark:border-blue-700 dark:text-gray-100">
 
-        guardarPedidoEnMemoria() {
-            localStorage.setItem('pedidoPOS', JSON.stringify(this.pedido));
-        }
-    }
-}
-</script>
+                @if (session()->has('error'))
+                    <div
+                        class="mt-2 p-4 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 rounded-lg shadow-md">
+                        {{ session('error') }}
+                    </div>
+                @endif
+
+                @if (session()->has('success'))
+                    <div
+                        class="mt-2 p-4 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded-lg shadow-md">
+                        {{ session('success') }}
+                    </div>
+                @endif
+            </div>
+
+            <!-- Listado de productos -->
+            <div class="flex-grow overflow-y-auto pr-1">
+                @php($products = $this->filteredProducts) {{-- paginator --}}
+                <div class="grid grid-cols-1 gap-2 md:gap-6">
+                    @forelse($products as $product)
+                        <div wire:key="prod-{{ $product->id }}"
+                            class="bg-grey-100 dark:bg-neutral-800 rounded-2xl shadow-lg">
+                            <div class="bg-white dark:bg-neutral-800 rounded-2xl shadow-lg overflow-hidden transition-all duration-200 transform hover:scale-105 hover:shadow-xl p-2 md:p-4">
+
+                                <!-- Encabezado: Nombre del producto -->
+                                <div class="w-full mb-2">
+                                    {{--<p class="font-semibold text-gray-900 dark:text-gray-100 break-words text-sm md:text-base w-full">--}}
+                                         <p class="text-xs md:text-sm text-gray-700 dark:text-gray-300 mt-1 font-bold">
+                                        {{ $product->nombre_producto }}
+                                    </p>
+                                </div>
+
+                                <!-- Flex fila en móvil, grid en desktop -->
+                                <div class="flex flex-row items-center gap-3 md:grid md:grid-cols-12 md:gap-4">
+                                    <!-- Imagen -->
+                                    <div class="flex-shrink-0 flex items-center justify-center w-16 h-16 md:w-24 md:h-24 bg-gray-200 dark:bg-neutral-700 rounded-lg overflow-hidden md:col-span-3">
+                                        @if ($product->imagen_producto)
+                                            <img src="{{ asset('storage/' . $product->imagen_producto) }}"
+                                                alt="{{ $product->nombre_producto }}"
+                                                class="object-cover w-full h-full md:object-contain" />
+                                        @else
+                                            <span class="text-xs md:text-sm text-gray-500 dark:text-gray-400">Sin imagen</span>
+                                        @endif
+                                    </div>
+
+                                    <!-- Info -->
+                                    <div class="flex-1 md:col-span-6 ml-2 md:ml-0">
+                                        <p class="text-[10px] md:text-xs text-gray-500 dark:text-gray-400 mt-1">SKU:
+                                            {{ $product->codigo_producto }}</p>
+                                        {{--<p class="text-[10px] md:text-xs text-gray-800 dark:text-gray-100 mt-1">DETAL:
+                                            {{ number_format($product->valor_detal_producto * (($product->iva_producto / 100) + 1), 0) }}</p>--}}
+                                        <p class="text-[10px] md:text-xs text-gray-800 dark:text-gray-100 mt-1">FERRETERO:
+                                            {{ number_format($product->valor_ferretero_producto * (($product->iva_producto / 100) + 1), 0) }}</p>
+                                        <!-- Vamos a poner el Stock -->
+                                        @php($availableStock = $this->getAvailableStock($product->id))
+                                        <p class="text-[10px] md:text-xs mt-1 font-semibold
+                                            {{ $availableStock > 10 ? 'text-green-600 dark:text-green-400' : ($availableStock > 0 ? 'text-orange-600 dark:text-orange-400' : 'text-red-600 dark:text-red-400') }}">Stock disponible:
+                                            {{ $availableStock }}
+                                        </p>
+
+                                        {{--<p class="text-[10px] md:text-xs text-gray-800 dark:text-gray-100 mt-1">MAYORISTA:
+                                            {{ number_format($product->valor_mayorista_producto * (($product->iva_producto / 100) + 1), 0) }}</p>--}}
+                                        {{-- <p class="text-[10px] md:text-xs text-gray-800 dark:text-gray-100 mt-1">IVA:
+                                            {{ $product->iva_producto }}%</p> --}}
+                                    </div>
+
+                                    <!-- Botón -->
+                                    <div class="flex items-center justify-center md:col-span-3 mt-0 w-auto">
+                                        <div x-data="{ open: false, cantidad: 1 }" class="w-full">
+                                            <x-filament::button @click="open = true; cantidad = 1"
+                                                class="w-full py-2 px-4 font-bold rounded-lg text-xs md:text-base flex items-center justify-center"
+                                                color="primary"
+                                                size="md">
+                                                <!-- Ícono "+" solo en móvil -->
+                                                <svg class="w-5 h-5 md:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                                </svg>
+                                                <!-- Texto solo en escritorio -->
+                                                <span class="hidden md:block">+ Agregar</span>
+                                            </x-filament::button>
+
+                                            <!-- Modal de cantidad -->
+                                            <div x-show="open" x-transition
+                                                class="fixed inset-0 z-40 flex items-center justify-center"
+                                                style="display: none;">
+                                                <div @click="open = false"
+                                                    class="absolute inset-0 bg-white/40 dark:bg-neutral-900/40 backdrop-blur-sm transition-all">
+                                                </div>
+                                                <div
+                                                    class="relative bg-white dark:bg-neutral-800 rounded-2xl shadow-2xl w-full max-w-xs mx-auto p-6 z-50">
+                                                    <button @click="open = false"
+                                                        class="absolute top-3 right-3 text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white text-2xl">&times;</button>
+                                                    <div class="mb-4 flex items-end gap-2">
+                                                        <div class="flex-1">
+                                                            <label class="block text-xs md:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cantidad</label>
+                                                            @php($empresa = \App\Models\Empresa::first())
+                                                            @php($maxStockDisponible = $this->getAvailableStock($product->id))
+                                                            <input type="number" min="1"
+                                                                @if(!$empresa->mostrar_productos_sin_inventario)
+                                                                    max="{{ $maxStockDisponible }}"
+                                                                @endif
+                                                                x-model.number="cantidad"
+                                                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-neutral-900 dark:border-neutral-700 dark:text-gray-100 text-xs md:text-base" />
+                                                            @if(!$empresa->mostrar_productos_sin_inventario)
+                                                                <p class="text-[10px] text-gray-500 dark:text-gray-400 mt-1">
+                                                                    Máx: {{ $maxStockDisponible }}
+                                                                </p>
+                                                            @endif
+                                                        </div>
+                                                        <button
+                                                            @click="$wire.addToCart({{ $product->id }}, cantidad); open = false"
+                                                            class="py-2 px-4 bg-indigo-600 text-white font-bold rounded-lg transition hover:bg-indigo-700 whitespace-nowrap text-xs md:text-base">
+                                                            Agregar
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div> <!-- x-data -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @empty
+                        <p class="col-span-full text-center text-gray-500 dark:text-gray-400 mt-8">No products found.
+                        </p>
+                    @endforelse
+                </div>
+
+
+            </div>
+            <!-- Paginación Filament -->
+                <div class="mt-6">
+                    <x-filament::pagination :paginator="$products" :page-options="[5, 10, 20, 50, 'all']" current-page-option-property="perPage"
+                        {{-- ← sin dos puntos --}} extreme-links />
+
+                </div>
+        </div>
+    </div>
+</div>
