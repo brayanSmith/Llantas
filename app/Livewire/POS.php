@@ -165,8 +165,8 @@ class POS extends Component implements HasActions, HasSchemas
             'flete' => $pedido['flete'],
             'total_a_pagar' => $pedido['total_a_pagar'],
             'saldo_pendiente' => $pedido['saldo_pendiente'],
-            'user_id' => $pedido['user_id'],
-            'alistador_id' => $pedido['alistador_id'],
+            'user_id' => auth()->id(),
+            'alistador_id' => auth()->id(),
             'bodega_id' => $pedido['bodega_id'] ?? null,
             'iva' => $pedido['iva'] ?? 0,
         ]);
