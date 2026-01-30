@@ -48,7 +48,17 @@ class POS extends Component implements HasActions, HasSchemas
         $this->form->fill();
         $this->empresa = Empresa::first();
         //$this->stockBodegas = StockBodega::select('id', 'bodega_id', 'producto_id', 'stock')->get()->toArray();
-        $this->clientes = Cliente::select('id', 'razon_social', 'numero_documento', 'ciudad', 'retenedor_fuente', 'saldo_total_pedidos_en_cartera', 'saldo_total_pedidos_vencidos')->get()->toArray();
+        $this->clientes = Cliente::select(
+            'id',
+            'razon_social',
+            'numero_documento',
+            'ciudad',
+            'saldo_total_pedidos_en_cartera',
+            'saldo_total_pedidos_vencidos')
+            ->where('activo', 1)
+            ->where('comercial_id', $this->userId)
+            ->get()
+            ->toArray();
         $this->users = User::select('id', 'name')->get()->toArray();
         $this->bodegas = Bodega::select('id', 'nombre_bodega')->get()->toArray();
         $this->alistadores = User::select('id', 'name')->whereHas('roles', function ($query) {
