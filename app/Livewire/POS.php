@@ -47,7 +47,7 @@ class POS extends Component implements HasActions, HasSchemas
 
         $this->form->fill();
         $this->empresa = Empresa::first();
-        $this->stockBodegas = StockBodega::select('id', 'bodega_id', 'producto_id', 'stock')->get()->toArray();
+        //$this->stockBodegas = StockBodega::select('id', 'bodega_id', 'producto_id', 'stock')->get()->toArray();
         $this->clientes = Cliente::select('id', 'razon_social', 'numero_documento', 'ciudad', 'retenedor_fuente', 'saldo_total_pedidos_en_cartera', 'saldo_total_pedidos_vencidos')->get()->toArray();
         $this->users = User::select('id', 'name')->get()->toArray();
         $this->bodegas = Bodega::select('id', 'nombre_bodega')->get()->toArray();
@@ -202,7 +202,7 @@ class POS extends Component implements HasActions, HasSchemas
         // Solo pasar productos, clientes y stockBodegas si no se han cargado (para evitar recarga masiva tras guardar)
         $productos = request()->has('productos_cargados') ? [] : $this->productos;
         $clientes = request()->has('clientes_cargados') ? [] : $this->clientes;
-        $stockBodegas = request()->has('stock_bodegas_cargados') ? [] : $this->stockBodegas;
+        //$stockBodegas = request()->has('stock_bodegas_cargados') ? [] : $this->stockBodegas;
         return view('livewire.p-o-s', [
             'clientes' => $clientes,
             'alistadores' => $this->alistadores,
@@ -211,7 +211,7 @@ class POS extends Component implements HasActions, HasSchemas
             'users' => $this->users,
             'empresa' => $this->empresa,
             'bodegaSeleccionada' => $this->bodegaSeleccionada,
-            'stockBodegas' => $stockBodegas,
+            //'stockBodegas' => $stockBodegas,
             'userId' => $this->userId,
         ]);
     }

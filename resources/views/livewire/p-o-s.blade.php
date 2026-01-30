@@ -8,7 +8,7 @@
             @js($users),
             @js($empresa),
             @js($bodegaSeleccionada),
-            (localStorage.getItem('stockBodegasPOS') ? JSON.parse(localStorage.getItem('stockBodegasPOS')) : @js($stockBodegas)),
+            //(localStorage.getItem('stockBodegasPOS') ? JSON.parse(localStorage.getItem('stockBodegasPOS')) : @js($stockBodegas)),
             @js($userId)
         )"
         x-init="
@@ -18,9 +18,9 @@
             if (!localStorage.getItem('clientesPOS')) {
                 localStorage.setItem('clientesPOS', JSON.stringify(clientes));
             }
-            if (!localStorage.getItem('stockBodegasPOS')) {
+            /*if (!localStorage.getItem('stockBodegasPOS')) {
                 localStorage.setItem('stockBodegasPOS', JSON.stringify(stockBodegas));
-            }
+            }*/
             window.addEventListener('limpiar-catalogos', () => {
                 limpiarCacheCatalogos();
                 location.reload();
@@ -49,7 +49,7 @@ function pedidoForm(clientes = [], alistadores = [], bodegas = [], productos = [
                     localStorage.removeItem('clientesPOS');
                 },
                 limpiarCacheStockBodegas() {
-                    localStorage.removeItem('stockBodegasPOS');
+                    //localStorage.removeItem('stockBodegasPOS');
                 },
                 limpiarCacheCatalogos() {
                     this.limpiarCacheProductos();
@@ -131,12 +131,12 @@ function pedidoForm(clientes = [], alistadores = [], bodegas = [], productos = [
                 setTimeout(() => this.mostrarToast = false, 3000);
                 return;
             }
-            const stockDescontado = this.getStockTotal(
+            /*const stockDescontado = this.getStockTotal(
                 this.productoSeleccionado.id,
                 this.empresa.bodega_id,
                 this.cantidadSeleccionada,
                 'agregar'
-            );
+            );*/
             const detalle = {
                 producto_id: this.productoSeleccionado.id,
                 cantidad: this.cantidadSeleccionada,
@@ -150,11 +150,11 @@ function pedidoForm(clientes = [], alistadores = [], bodegas = [], productos = [
                     this.productoSeleccionado.iva_producto || 0
                 ),
                 subtotal: 0,
-                stockDescontado: stockDescontado
+                //stockDescontado: stockDescontado
             };
             // Descontar stock visualmente
 
-            console.log('stockEntry:', stockDescontado);
+            //console.log('stockEntry:', stockDescontado);
             //
             this.pedido.detalles.push(detalle);
             this.totalCantidadProductos = this.pedido.detalles.reduce((acc, d) => acc + (parseFloat(d.cantidad) || 0), 0);
@@ -164,13 +164,13 @@ function pedidoForm(clientes = [], alistadores = [], bodegas = [], productos = [
         removeDetalle(index) {
             // Devolver stock visualmente
             const detalle = this.pedido.detalles[index];
-            detalle.stockDescontado = this.getStockTotal(
+            /*detalle.stockDescontado = this.getStockTotal(
                 this.detalle.producto_id,
                 this.empresa.bodega_id,
                 this.detalle.cantidad,
                 'remover'
-            );
-            console.log('Stock después de remover:', detalle.stockDescontado);
+            );*/
+            //console.log('Stock después de remover:', detalle.stockDescontado);
             this.pedido.detalles.splice(index, 1);
             this.totalCantidadProductos = this.pedido.detalles.reduce((acc, d) => acc + (parseFloat(d.cantidad) || 0), 0);
             this.guardarPedidoEnMemoria();
@@ -178,13 +178,13 @@ function pedidoForm(clientes = [], alistadores = [], bodegas = [], productos = [
         // Funcion para actualizar la cantidad de un detalle
         actualizarCantidad(index) {
             const detalle = this.pedido.detalles[index];
-            detalle.stockDescontado = this.getStockTotal(
+            /*detalle.stockDescontado = this.getStockTotal(
                 this.detalle.producto_id,
                 this.empresa.bodega_id,
                 this.detalle.cantidad,
                 'actualizar'
-            );
-            console.log('Stock Descontado Actualizado:', detalle.stockDescontado);
+            );*/
+            //console.log('Stock Descontado Actualizado:', detalle.stockDescontado);
             // También puedes actualizar otras propiedades si lo necesitas
             this.guardarPedidoEnMemoria();
         },
