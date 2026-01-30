@@ -138,6 +138,8 @@ class POS extends Component implements HasActions, HasSchemas
     // Método para guardar pedido y detalles desde Alpine.js
     public function guardarPedido($pedido)
     {
+        \Log::info('guardarPedido: INICIO');
+        $start = microtime(true);
         $nuevoPedido = Pedido::create([
             'codigo' => $pedido['codigo'],
             'fe' => $pedido['fe'],
@@ -168,6 +170,8 @@ class POS extends Component implements HasActions, HasSchemas
             'bodega_id' => $pedido['bodega_id'] ?? null,
             'iva' => $pedido['iva'] ?? 0,
         ]);
+        $t1 = microtime(true);
+        \Log::info('guardarPedido: Pedido creado en ' . round(($t1 - $start)*1000, 2) . ' ms');
         foreach ($pedido['detalles'] as $detalle) {
             $nuevoPedido->detalles()->create([
                 'producto_id' => $detalle['producto_id'],
@@ -179,27 +183,34 @@ class POS extends Component implements HasActions, HasSchemas
                 'subtotal' => $detalle['subtotal'] ?? 0,
             ]);
         }
+        $t2 = microtime(true);
+        \Log::info('guardarPedido: Detalles creados en ' . round(($t2 - $t1)*1000, 2) . ' ms');
 
         // Guardar la URL del PDF en la sesión para mostrar el botón en la modal
+        $t3 = microtime(true);
         session(['pedido_pdf_url' => route('pedidos.pdf.download', $nuevoPedido->id)]);
+        $t4 = microtime(true);
+        \Log::info('guardarPedido: URL PDF en ' . round(($t4 - $t3)*1000, 2) . ' ms');
         $this->showConfirmModal = true;
         $this->confirmModalTitle = '¡Venta exitosa!';
         $this->confirmModalBody = 'El pedido fue ingresado exitosamente.';
+        $end = microtime(true);
+        \Log::info('guardarPedido: TOTAL ' . round(($end - $start)*1000, 2) . ' ms');
     }
     public function render(): View
     {
+        // Solo pasar productos si no se ha enviado el pedido (para evitar recarga masiva tras guardar)
+        $productos = request()->has('productos_cargados') ? [] : $this->productos;
         return view('livewire.p-o-s', [
             'clientes' => $this->clientes,
             'alistadores' => $this->alistadores,
             'bodegas' => $this->bodegas,
-            'productos' => $this->productos,
+            'productos' => $productos,
             'users' => $this->users,
             'empresa' => $this->empresa,
             'bodegaSeleccionada' => $this->bodegaSeleccionada,
             'stockBodegas' => $this->stockBodegas,
             'userId' => $this->userId,
-            //'stockDisponible' => $this->getStockDisponible,
-
         ]);
     }
 }

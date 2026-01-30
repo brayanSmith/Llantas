@@ -4,14 +4,19 @@
             @js($clientes),
             @js($alistadores),
             @js($bodegas),
-            @js($productos),
+            (localStorage.getItem('productosPOS') ? JSON.parse(localStorage.getItem('productosPOS')) : @js($productos)),
             @js($users),
             @js($empresa),
             @js($bodegaSeleccionada),
             @js($stockBodegas),
             @js($userId)
         )"
-        x-init="init()"
+        x-init="
+            if (!localStorage.getItem('productosPOS')) {
+                localStorage.setItem('productosPOS', JSON.stringify(productos));
+            }
+            init();
+        "
         class="space-y-4"
     >
     <div x-show="mostrarToast" x-transition class="fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded shadow" style="z-index:9999;">
