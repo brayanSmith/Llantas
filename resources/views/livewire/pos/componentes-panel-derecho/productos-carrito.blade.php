@@ -15,6 +15,7 @@
             <div class="flex items-center space-x-2">
                 <input type="number" min="1"
                     x-model.number="detalle.cantidad"
+                    @change="actualizarCantidad(index)"
                     class="py-2.5 sm:py-3 px-4 block w-20 border-gray-200 rounded-lg sm:text-sm
                         focus:border-blue-500 focus:ring-blue-500
                         dark:bg-neutral-900 dark:border-neutral-700

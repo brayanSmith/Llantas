@@ -18,7 +18,11 @@
                     </p>
                 </template>
             </div>
-            <button @click.prevent="agregarDetalle(); open = false"
+            <button
+            @click.prevent="
+                agregarDetalle();
+                open = false
+                "
                 class="py-2 px-4 bg-indigo-600 text-white font-bold rounded-lg transition hover:bg-indigo-700 whitespace-nowrap text-xs md:text-base">
                 Agregar
             </button>

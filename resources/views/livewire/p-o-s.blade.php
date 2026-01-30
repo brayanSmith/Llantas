@@ -85,13 +85,6 @@ function pedidoForm(clientes = [], alistadores = [], bodegas = [], productos = [
                     localStorage.setItem('pedidoPOS', JSON.stringify(value));
                 }, { deep: true });
             }
-            /*console.log('Productos Inicializados', this.productos);
-            console.log('Clientes Inicializados', this.clientes);
-            console.log('Bodegas Inicializadas', this.bodegas);
-            console.log('Usuarios Inicializados', this.users);
-            console.log('bodega Seleccionada:', this.empresa.bodega_id);
-            console.log('Stock disponible producto 6:', this.getStockDisponible(6, this.empresa.bodega_id));*/
-
         },
         // Obtener el tipo de precio seleccionado
         get tipoPrecio() {
@@ -108,8 +101,12 @@ function pedidoForm(clientes = [], alistadores = [], bodegas = [], productos = [
                 setTimeout(() => this.mostrarToast = false, 3000);
                 return;
             }
-            const stockInicial = Number(this.getStockDisponible(this.productoSeleccionado.id, this.empresa.bodega_id));
-            const stockDescontado = stockInicial - Number(this.cantidadSeleccionada);
+            const stockDescontado = this.getStockTotal(
+                this.productoSeleccionado.id,
+                this.empresa.bodega_id,
+                this.cantidadSeleccionada,
+                'agregar'
+            );
             const detalle = {
                 producto_id: this.productoSeleccionado.id,
                 cantidad: this.cantidadSeleccionada,
@@ -123,7 +120,6 @@ function pedidoForm(clientes = [], alistadores = [], bodegas = [], productos = [
                     this.productoSeleccionado.iva_producto || 0
                 ),
                 subtotal: 0,
-                stockInicial: stockInicial,
                 stockDescontado: stockDescontado
             };
             // Descontar stock visualmente
@@ -133,23 +129,36 @@ function pedidoForm(clientes = [], alistadores = [], bodegas = [], productos = [
             this.pedido.detalles.push(detalle);
             this.totalCantidadProductos = this.pedido.detalles.reduce((acc, d) => acc + (parseFloat(d.cantidad) || 0), 0);
             this.guardarPedidoEnMemoria();
-            console.log('Detalle agregado:', detalle);
-            console.log('Detalles actuales:', this.pedido.detalles);
-            console.log('Stock después de agregar:', this.stockBodegas);
         },
         // Funcion para Remover Algun Detalle
         removeDetalle(index) {
             // Devolver stock visualmente
             const detalle = this.pedido.detalles[index];
-            const stockInicial = Number(detalle?.stockDescontado ?? 0);
-            const cantidad = Number(detalle?.cantidad ?? 0);
-            const devolverStock = stockInicial + cantidad;
-            console.log('Stock antes de devolver:', stockInicial);
-            console.log('Stock después de devolver:', devolverStock);
+            detalle.stockDescontado = this.getStockTotal(
+                this.detalle.producto_id,
+                this.empresa.bodega_id,
+                this.detalle.cantidad,
+                'remover'
+            );
+            console.log('Stock después de remover:', detalle.stockDescontado);
             this.pedido.detalles.splice(index, 1);
             this.totalCantidadProductos = this.pedido.detalles.reduce((acc, d) => acc + (parseFloat(d.cantidad) || 0), 0);
             this.guardarPedidoEnMemoria();
         },
+        // Funcion para actualizar la cantidad de un detalle
+        actualizarCantidad(index) {
+            const detalle = this.pedido.detalles[index];
+            detalle.stockDescontado = this.getStockTotal(
+                this.detalle.producto_id,
+                this.empresa.bodega_id,
+                this.detalle.cantidad,
+                'actualizar'
+            );
+            console.log('Stock Descontado Actualizado:', detalle.stockDescontado);
+            // También puedes actualizar otras propiedades si lo necesitas
+            this.guardarPedidoEnMemoria();
+        },
+
         //Funcion para Enviar Pedido
         enviar() {
             // Validar que el carrito no esté vacío
@@ -234,7 +243,21 @@ function pedidoForm(clientes = [], alistadores = [], bodegas = [], productos = [
             );
             return stockEntry ? stockEntry.stock : 0;
         },
-
+        //Funcion para obtener el Stock Total (incluye descuentos visuales)
+        getStockTotal(idProducto, idBodega = this.empresa.bodega_id, cantidad, accion) {
+            let stockInicial = Number(this.getStockDisponible(idProducto, idBodega));
+            let stockTotal = stockInicial;
+            cantidad = Number(cantidad) || 0;
+            if (accion === 'agregar') {
+                stockTotal = stockInicial - cantidad;
+            } else if (accion === 'remover') {
+                stockTotal = stockInicial;
+            } else if (accion === 'actualizar') {
+                // Si tienes un valor especial para actualizar, pon la lógica aquí
+                stockTotal = stockInicial - cantidad; // O la lógica que necesites
+            }
+            return stockTotal;
+        },
         // Función para resetear todos los datos del pedido
         resetPedido() {
             this.pedido = {
@@ -285,11 +308,9 @@ function pedidoForm(clientes = [], alistadores = [], bodegas = [], productos = [
                 if (!detalle.cantidad || detalle.cantidad < 1) {
                     errores.push(`La cantidad debe ser mayor a 0 en la fila ${idx + 1}`);
                 }
-
             });
             return errores;
         },
-
         // --- Paginación de productos (Alpine.js) ---
         paginaProductos: 1,
         productosPorPagina: 10,

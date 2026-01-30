@@ -180,11 +180,11 @@ class POS extends Component implements HasActions, HasSchemas
             ]);
         }
 
-         // Guardar la URL del PDF en la sesión para mostrar el botón en la modal
-            session(['pedido_pdf_url' => route('pedidos.pdf.download', $nuevoPedido->id)]);
-            $this->showConfirmModal = true;
-            $this->confirmModalTitle = '¡Venta exitosa!';
-            $this->confirmModalBody = 'El pedido fue ingresado exitosamente.';
+        // Guardar la URL del PDF en la sesión para mostrar el botón en la modal
+        session(['pedido_pdf_url' => route('pedidos.pdf.download', $nuevoPedido->id)]);
+        $this->showConfirmModal = true;
+        $this->confirmModalTitle = '¡Venta exitosa!';
+        $this->confirmModalBody = 'El pedido fue ingresado exitosamente.';
     }
     public function render(): View
     {

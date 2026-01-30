@@ -58,7 +58,9 @@
 
     <!-- Encabezado -->
   <div class="section">
-    <div class="bold">REMISIÓN N°: {{ $pedido->id }}</span></div>
+    <div class="bold" style="font-size:18px;">REMISIÓN N°: {{ $pedido->id }}</div>
+    <div class="bold">TIPO VENTA: {{ $pedido->tipo_venta }}</span></div>
+    <div class="bold">RUTA: {{ $pedido->cliente->ruta->ruta }}</span></div>
   </div>
 
   <div class="separator"></div>
@@ -104,8 +106,8 @@
                 <tr>
                     <td>{{ $detalle->producto->codigo_producto ?? 'N/A' }}</td>
                     <td>{{ $detalle->producto->ubicacion_producto ?? 'N/A' }}</td>
-                    <td>{{ $detalle->producto->nombre_producto ?? 'N/A' }}</td>
-                    <td>{{ $detalle->cantidad }}</td>
+                    <td><strong style="font-size:13px;">{{ $detalle->producto->nombre_producto ?? 'N/A' }}</strong></td>
+                    <td><strong style="font-size:13px;">{{ $detalle->cantidad }}</strong></td>
                     <td></td>
                     <td>${{ number_format(($detalle->subtotal / $detalle->cantidad), 0) }}</td>
                     <td>${{ number_format($detalle->subtotal, 0) }}</td>
@@ -114,7 +116,6 @@
             @endforeach
         </tbody>
   </table>
-
 
     <table align="right" style="width: 23%" class="table">
       <tr>
@@ -126,6 +127,98 @@
   </table>
 
   <div class="separator"></div>
+
+
+  <table style="width: 100%; border: none; border-collapse: collapse; margin-bottom: 10px;">
+    <tr>
+      <td style="vertical-align: top; width: 33%; border: none;">
+        <table class="table" style="width: 100%;">
+          <tr>
+            <th style="width: 70%;">CÓDIGO</th>
+            <th style="width: 15%;">CANTIDAD</th>
+          </tr>
+          <tr>
+            <td style="height: 20px;"></td>
+            <td style="font-size: 10px;"></td>
+          </tr>
+          <tr>
+            <td style="height: 20px;"></td>
+            <td style="font-size: 10px;"></td>
+          </tr>
+          <tr>
+            <td style="height: 20px;"></td>
+            <td style="font-size: 10px;"></td>
+          </tr>
+          <tr>
+            <td style="height: 20px;"></td>
+            <td style="font-size: 10px;"></td>
+          </tr>
+          <tr>
+            <td style="height: 20px;"></td>
+            <td style="font-size: 10px;"></td>
+          </tr>
+        </table>
+      </td>
+      <td style="vertical-align: top; width: 33%; border: none;">
+        <table class="table" style="width: 100%;">
+          <tr>
+            <th style="width: 70%;">CÓDIGO</th>
+            <th style="width: 15%;">CANTIDAD</th>
+          </tr>
+          <tr>
+            <td style="height: 20px;"></td>
+            <td style="font-size: 10px;"></td>
+          </tr>
+          <tr>
+            <td style="height: 20px;"></td>
+            <td style="font-size: 10px;"></td>
+          </tr>
+          <tr>
+            <td style="height: 20px;"></td>
+            <td style="font-size: 10px;"></td>
+          </tr>
+          <tr>
+            <td style="height: 20px;"></td>
+            <td style="font-size: 10px;"></td>
+          </tr>
+          <tr>
+            <td style="height: 20px;"></td>
+            <td style="font-size: 10px;"></td>
+          </tr>
+        </table>
+      </td>
+      <td style="vertical-align: top; width: 33%; border: none;">
+        <table class="table" style="width: 100%;">
+          <tr>
+            <th style="width: 70%;">CÓDIGO</th>
+            <th style="width: 15%;">CANTIDAD</th>
+          </tr>
+          <tr>
+            <td style="height: 20px;"></td>
+            <td style="font-size: 10px;"></td>
+          </tr>
+          <tr>
+            <td style="height: 20px;"></td>
+            <td style="font-size: 10px;"></td>
+          </tr>
+          <tr>
+            <td style="height: 20px;"></td>
+            <td style="font-size: 10px;"></td>
+          </tr>
+          <tr>
+            <td style="height: 20px;"></td>
+            <td style="font-size: 10px;"></td>
+          </tr>
+          <tr>
+            <td style="height: 20px;"></td>
+            <td style="font-size: 10px;"></td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+
+<div class="separator"></div>
 
   <!-- Remisionado -->
   <div class="section-title"><span id="tipoCliente"></span></div>

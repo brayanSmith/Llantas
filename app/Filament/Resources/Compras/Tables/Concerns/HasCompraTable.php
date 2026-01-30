@@ -1,6 +1,7 @@
 <?php
 namespace App\Filament\Resources\Compras\Tables\Concerns;
 
+use Dom\Text;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -18,6 +19,10 @@ trait HasCompraTable
     {
         return $table
             ->columns([
+                TextColumn::make('id')
+                    ->label('ID')
+                    ->sortable()
+                    ->searchable(),
                 TextColumn::make('fecha')
                     ->label('Fecha Recibido')
                     ->date()
@@ -50,7 +55,7 @@ trait HasCompraTable
             ->filters([
                 //
                 //Filter::make('item_compra')
-                    
+
             ], layout: FiltersLayout::AboveContent)
             ->recordActions([
                 EditAction::make()

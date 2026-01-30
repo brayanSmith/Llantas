@@ -43,7 +43,15 @@
 
                             <!-- Vamos a poner el Stock -->
                             <p class="text-[10px] md:text-xs text-gray-800 dark:text-gray-100 mt-1">STOCK:
-                                <strong x-text="getStockDisponible(product.id)"></strong></p>
+                                <strong
+                                    :class="{
+                                        'text-green-600': (pedido.detalles.find(d => d.producto_id === product.id)?.stockDescontado ?? getStockDisponible(product.id)) > 10,
+                                        'text-yellow-500': (pedido.detalles.find(d => d.producto_id === product.id)?.stockDescontado ?? getStockDisponible(product.id)) > 0 && (pedido.detalles.find(d => d.producto_id === product.id)?.stockDescontado ?? getStockDisponible(product.id)) <= 10,
+                                        'text-red-600': (pedido.detalles.find(d => d.producto_id === product.id)?.stockDescontado ?? getStockDisponible(product.id)) == 0
+                                    }"
+                                    x-text="pedido.detalles.find(d => d.producto_id === product.id)?.stockDescontado ?? getStockDisponible(product.id)">
+                                </strong>
+                            </p>
 
                         </div>
 
