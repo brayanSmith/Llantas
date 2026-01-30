@@ -16,7 +16,7 @@
             Ciudad
         </label>
         <div class="mt-2">
-            <span x-text="clienteSeleccionado.ciudad" class="inline-flex items-center px-4 py-2 rounded-lg text-base font-medium bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100"></span>
+            <span x-text="clienteSeleccionado.ciudad" x-model="pedido.ciudad" class="inline-flex items-center px-4 py-2 rounded-lg text-base font-medium bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100"></span>
         </div>
     </div>
 

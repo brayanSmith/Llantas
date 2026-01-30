@@ -16,34 +16,69 @@ class ProveedorImporter extends Importer
     {
         return [
             ImportColumn::make('nombre_proveedor')
-                ->requiredMapping()
+                ->example('Proveedor Ejemplo S.A.S')
+                ->validationAttribute('Nombre del proveedor inválido')
                 ->rules(['required', 'max:255']),
             ImportColumn::make('razon_social_proveedor')
+                ->example('Proveedor Ejemplo S.A.S')
+                ->validationAttribute('Razón social del proveedor inválida')
                 ->rules(['max:255']),
             ImportColumn::make('nit_proveedor')
-                ->requiredMapping()
+                ->example('900123456-7')
+                ->validationAttribute('NIT del proveedor inválido')
+                ->rules(['required', 'max:255', 'unique:proveedors,nit_proveedor']),
+            ImportColumn::make('ciudad_nit_proveedor')
+                ->example('Bogotá')
+                ->validationAttribute('Ciudad del NIT del proveedor inválida')
                 ->rules(['required', 'max:255']),
-            ImportColumn::make('rut_proveedor_imagen')
-                ->rules(['max:255']),
             ImportColumn::make('tipo_proveedor')
-                ->requiredMapping()
-                ->rules(['required']),
+                ->example('REMISIONADO')
+                ->validationAttribute('Tipo de proveedor inválido solo se acepta REMISIONADO o ELECTRONICO')
+                ->rules(['nullable', 'in:REMISIONADO,ELECTRONICO']),
             ImportColumn::make('categoria_proveedor')
-                ->requiredMapping()
-                ->rules(['required']),
+                ->example('NO_DECLARANTE')
+                ->validationAttribute('Categoría del proveedor inválida solo se acepta DECLARANTE, NO_DECLARANTE o RETENEDOR')
+                ->rules(['nullable', 'in:DECLARANTE,NO_DECLARANTE,RETENEDOR']),
+            ImportColumn::make('convenio')
+                ->example('CONV12345')
+                ->rules(['nullable', 'max:255']),
             ImportColumn::make('departamento_proveedor')
-                ->rules(['max:255']),
+                ->example('Cundinamarca')
+                ->rules(['nullable', 'max:255']),
             ImportColumn::make('ciudad_proveedor')
-                ->rules(['max:255']),
+                ->example('Bogotá')
+                ->rules(['nullable', 'max:255']),
             ImportColumn::make('direccion_proveedor')
-                ->rules(['max:255']),
+                ->example('Calle 123 #45-67')
+                ->rules(['nullable', 'max:255']),
             ImportColumn::make('telefono_proveedor')
-                ->rules(['max:255']),
+                ->example('3001234567')
+                ->rules(['nullable', 'max:255']),
             ImportColumn::make('banco_proveedor')
-                ->rules(['max:255']),
-            ImportColumn::make('tipo_cuenta_proveedor'),
+                ->example('Banco Ejemplo')
+                ->rules(['nullable', 'max:255']),
+            ImportColumn::make('tipo_cuenta_proveedor')
+                ->example('AHORRO')
+                ->validationAttribute('Tipo de cuenta del proveedor inválida solo se acepta AHORRO o CORRIENTE')
+                ->rules(['nullable', 'in:AHORRO,CORRIENTE']),
             ImportColumn::make('numero_cuenta_proveedor')
-                ->rules(['max:255']),
+                ->example('1234567890')
+                ->rules(['nullable', 'max:255']),
+            ImportColumn::make('tiempo_respuesta')
+                ->example('48 horas')
+                ->rules(['nullable', 'max:255']),
+            ImportColumn::make('fabricante')
+                ->example('Fabricante Ejemplo')
+                ->rules(['nullable', 'max:255']),
+            ImportColumn::make('flete')
+                ->example('1')
+                ->validationAttribute('Flete inválido, debe ser 1 (true) o 0 (false)')
+                ->boolean()
+                ->rules(['nullable', 'boolean']),
+            ImportColumn::make('valor_flete')
+                ->example('15000.50')
+                ->validationAttribute('Valor del flete inválido')
+                ->rules(['nullable', 'numeric']),
         ];
     }
 

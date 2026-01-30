@@ -18,8 +18,8 @@ class ClienteImporter extends Importer
     {
         return [
             ImportColumn::make('tipo_documento')
-                ->example('CC') 
-                ->validationAttribute('Tipo de documento inválido')               
+                ->example('CC')
+                ->validationAttribute('Tipo de documento inválido')
                 ->rules(['nullable', 'max:255', 'required']),
             ImportColumn::make('numero_documento')
                 ->example('1234567890', 'unique')
@@ -63,7 +63,7 @@ class ClienteImporter extends Importer
                 ->relationship(resolveUsing: 'ruta')
                 ->validationAttribute('Ruta Invalida')
                 ->rules(['nullable', 'max:255']),
-            ImportColumn::make('comercial') 
+            ImportColumn::make('comercial')
                 ->example('Comercial')
                 ->validationAttribute('Comercial inválido')
                 ->relationship(resolveUsing: 'name')
