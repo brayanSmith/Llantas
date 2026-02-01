@@ -30,9 +30,7 @@ class POS extends Component implements HasActions, HasSchemas
     public array $bodegas = [];
     public array $productos = [];
     public ?Empresa $empresa = null;
-    public array $stockBodegas = [];
     public ?string $bodegaSeleccionada = null;
-    public array $stockDisponible = [];
     public ?int $userId = null;
     public $showConfirmModal = false;
     public $confirmModalTitle = '';
@@ -41,24 +39,22 @@ class POS extends Component implements HasActions, HasSchemas
     public function mount(): void
     {
         // Si no hay user_id en sesión, usar el usuario logueado
-        if (!$this->userId) {
-            $this->userId = auth()->id();
-        }
-
+        if (!$this->userId) { $this->userId = auth()->id();}
         $this->form->fill();
         $this->empresa = Empresa::first();
-        //$this->stockBodegas = StockBodega::select('id', 'bodega_id', 'producto_id', 'stock')->get()->toArray();
-        $this->clientes = Cliente::select(
+        $user = auth()->user();
+        $clientesQuery = Cliente::select(
             'id',
             'razon_social',
             'numero_documento',
             'ciudad',
             'saldo_total_pedidos_en_cartera',
             'saldo_total_pedidos_vencidos')
-            ->where('activo', 1)
-            ->where('comercial_id', $this->userId)
-            ->get()
-            ->toArray();
+            ->where('activo', 1);
+        if (!$user->hasRole('super_admin')) {
+            $clientesQuery->where('comercial_id', $this->userId);
+        }
+        $this->clientes = $clientesQuery->get()->toArray();
         $this->users = User::select('id', 'name')->get()->toArray();
         $this->bodegas = Bodega::select('id', 'nombre_bodega')->get()->toArray();
         $this->alistadores = User::select('id', 'name')->whereHas('roles', function ($query) {
@@ -66,7 +62,6 @@ class POS extends Component implements HasActions, HasSchemas
         })->get()->toArray();
         $this->productos = $this->getFilteredProductos();
         $this->bodegaSeleccionada = $this->empresa->bodega_id;
-        $this->stockDisponible = $this->getAvailableStock();
 
     }
     protected function getFilteredProductos()
@@ -91,42 +86,21 @@ class POS extends Component implements HasActions, HasSchemas
                     ->where('stock', '>', 0);
             });
         }
-        $productos = $productosQuery->get()->toArray();
-        return $productos;
-    }
+        // Eager loading solo los stocks de la bodega seleccionada
+        $productos = $productosQuery->with(['stockBodegas' => function ($q) use ($bodega) {
+            $q->where('bodega_id', $bodega);
+        }])->get();
 
-    public function getAvailableStock()
-    {
-        $empresa = $this->empresa;
-        $bodega = $this->bodegaSeleccionada ?? ($empresa->bodega_id ?? null);
-        $productos = $this->productos;
-        $stockBodegas = $this->stockBodegas;
-
-        // Filtrar stock por bodega y producto
-        $stockPorProducto = [];
+        $productosArray = [];
         foreach ($productos as $producto) {
-            $stock = 0;
-            foreach ($stockBodegas as $sb) {
-                if ($sb['bodega_id'] == $bodega && $sb['producto_id'] == $producto['id']) {
-                    $stock = $sb['stock'];
-                    break;
-                }
-            }
-            $stockPorProducto[$producto['id']] = $stock;
+            $stock = $producto->stockBodegas->first()?->stock ?? 0;
+            $productoArr = $producto->toArray();
+            unset($productoArr['stock_bodegas']); // Eliminar el array de stock_bodegas
+            $productoArr['stock'] = $stock;
+            $productosArray[] = $productoArr;
         }
-        return $stockPorProducto;
+        return $productosArray;
     }
-
-    public function getStockDisponible($idProducto)
-        {
-            $empresa = $this->empresa;
-            $bodega = $this->bodegaSeleccionada ?? ($empresa->bodega_id ?? null);
-            $stockBodega = StockBodega::where('bodega_id', $bodega)
-                ->where('producto_id', $idProducto)
-                ->first();
-
-            return $stockBodega ? $stockBodega->stock : 0;
-        }
 
     public function form(Schema $schema): Schema
     {
@@ -148,8 +122,6 @@ class POS extends Component implements HasActions, HasSchemas
     // Método para guardar pedido y detalles desde Alpine.js
     public function guardarPedido($pedido)
     {
-        \Log::info('guardarPedido: INICIO');
-        $start = microtime(true);
         $nuevoPedido = Pedido::create([
             'codigo' => $pedido['codigo'],
             'fe' => $pedido['fe'],
@@ -180,8 +152,6 @@ class POS extends Component implements HasActions, HasSchemas
             'bodega_id' => $pedido['bodega_id'] ?? null,
             'iva' => $pedido['iva'] ?? 0,
         ]);
-        $t1 = microtime(true);
-        \Log::info('guardarPedido: Pedido creado en ' . round(($t1 - $start)*1000, 2) . ' ms');
         foreach ($pedido['detalles'] as $detalle) {
             $nuevoPedido->detalles()->create([
                 'producto_id' => $detalle['producto_id'],
@@ -193,27 +163,20 @@ class POS extends Component implements HasActions, HasSchemas
                 'subtotal' => $detalle['subtotal'] ?? 0,
             ]);
         }
-        $t2 = microtime(true);
-        \Log::info('guardarPedido: Detalles creados en ' . round(($t2 - $t1)*1000, 2) . ' ms');
 
         // Guardar la URL del PDF en la sesión para mostrar el botón en la modal
-        $t3 = microtime(true);
         session(['pedido_pdf_url' => route('pedidos.pdf.download', $nuevoPedido->id)]);
-        $t4 = microtime(true);
-        \Log::info('guardarPedido: URL PDF en ' . round(($t4 - $t3)*1000, 2) . ' ms');
         $this->showConfirmModal = true;
         $this->confirmModalTitle = '¡Venta exitosa!';
         $this->confirmModalBody = 'El pedido fue ingresado exitosamente.';
-        $end = microtime(true);
-        \Log::info('guardarPedido: TOTAL ' . round(($end - $start)*1000, 2) . ' ms');
     }
     public function render(): View
     {
         // Solo pasar productos, clientes y stockBodegas si no se han cargado (para evitar recarga masiva tras guardar)
         $productos = request()->has('productos_cargados') ? [] : $this->productos;
+
         $clientes = request()->has('clientes_cargados') ? [] : $this->clientes;
-        //$stockBodegas = request()->has('stock_bodegas_cargados') ? [] : $this->stockBodegas;
-        return view('livewire.p-o-s', [
+        $view = view('livewire.p-o-s', [
             'clientes' => $clientes,
             'alistadores' => $this->alistadores,
             'bodegas' => $this->bodegas,
@@ -221,8 +184,8 @@ class POS extends Component implements HasActions, HasSchemas
             'users' => $this->users,
             'empresa' => $this->empresa,
             'bodegaSeleccionada' => $this->bodegaSeleccionada,
-            //'stockBodegas' => $stockBodegas,
             'userId' => $this->userId,
         ]);
+        return $view;
     }
 }

@@ -37,21 +37,18 @@
                             <p class="text-[10px] md:text-xs text-gray-800 dark:text-gray-100 mt-1">FERRETERO:
                                 <strong x-text="new Intl.NumberFormat().format((isNaN(product.valor_ferretero_producto) ? 0 : parseFloat(product.valor_ferretero_producto)))"></strong>
                             </p>
-                            <p class="text-[10px] md:text-xs text-gray-800 dark:text-gray-100 mt-1">FERRETERO + IVA:
-                                <strong x-text="new Intl.NumberFormat().format((isNaN(product.valor_ferretero_producto) ? 0 : parseFloat(product.valor_ferretero_producto)) * ((isNaN(product.iva_producto) ? 0 : parseFloat(product.iva_producto)) / 100 + 1))"></strong>
-                            </p>
 
                             <!-- Vamos a poner el Stock -->
-                           {{-- <p class="text-[10px] md:text-xs text-gray-800 dark:text-gray-100 mt-1">STOCK:
+                           <p class="text-[10px] md:text-xs text-gray-800 dark:text-gray-100 mt-1">STOCK:
                                 <strong
-                                    :class="{
+                                    {{--:class="{
                                         'text-green-600': (pedido.detalles.find(d => d.producto_id === product.id)?.stockDescontado ?? getStockDisponible(product.id)) > 10,
                                         'text-yellow-500': (pedido.detalles.find(d => d.producto_id === product.id)?.stockDescontado ?? getStockDisponible(product.id)) > 0 && (pedido.detalles.find(d => d.producto_id === product.id)?.stockDescontado ?? getStockDisponible(product.id)) <= 10,
                                         'text-red-600': (pedido.detalles.find(d => d.producto_id === product.id)?.stockDescontado ?? getStockDisponible(product.id)) == 0
-                                    }"
-                                    x-text="pedido.detalles.find(d => d.producto_id === product.id)?.stockDescontado ?? getStockDisponible(product.id)">
+                                    }"--}}
+                                    x-text="product.stock">
                                 </strong>
-                            </p>--}}
+                            </p>
 
                         </div>
 

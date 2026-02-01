@@ -59,18 +59,15 @@ class PedidoFormLivewire extends Component implements HasActions, HasSchemas
                 //
             ])
             ->statePath('data')
-            ->model(Pedido::class);
+            ->model($this->record);
     }
 
-    public function create(): void
+    public function save(): void
     {
         $data = $this->form->getState();
 
-        $record = Pedido::create($data);
-
-        $this->form->model($record)->saveRelationships();
+        $this->record->update($data);
     }
-
     // Método para guardar pedido y detalles desde Alpine.js
     public function guardarPedido($pedido)
     {

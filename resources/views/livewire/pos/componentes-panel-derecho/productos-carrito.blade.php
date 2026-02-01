@@ -9,7 +9,7 @@
                     COP:
                         <span x-text="Number(detalle.precio_con_iva).toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 2 })"></span>
                         <span class="font-bold">| TOTAL:</span>
-                        <span x-text="Number(getSubtotal(detalle)).toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 2 })"></span>
+                        <span x-text="Number(getSubtotal(detalle.precio_con_iva, detalle.cantidad)).toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 2 })"></span>
                 </p>
             </div>
             <div class="flex items-center space-x-2">
