@@ -1,65 +1,85 @@
 <div
-    x-data="pedidoForm(
-        @js($clientes),
-        @js($alistadores),
-        @js($bodegas),
-        @js($productos),
-        @js($users)
-    )"
+    x-data="pedidoForm({
+        pedido: @js($pedidoEncontrado),
+        clientes: @js($clientes),
+        bodegas: @js($bodegas),
+        alistadores: @js($alistadores),
+        users: @js($users),
+        productos: @js($productos),
+        detalles: @js($detalles)
+    })"
     x-init="init()"
     class="space-y-4"
-
-
 >
+
+<div class="bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6 mb-6">
     @include('livewire.pedidos.livewire-pedidos-seccion-general')
-    @include('livewire.pedidos.livewire-pedidos-seccion-detalle')
-    @include('livewire.pedidos.livewire-pedidos-seccion-resumen')
-    <br>
-    <button @click="enviar()" type="button" class="bg-blue-600 text-white px-4 py-2 rounded">Guardar Pedido</button>
 </div>
+<div class="bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6 mb-6">
+@include('livewire.pedidos.livewire-pedidos-seccion-detalle')
+</div>
+<div class="sticky bottom-0 left-0 w-full z-30 bg-white/80 dark:bg-gray-900/80 backdrop-blur border-t border-gray-200 dark:border-gray-700 shadow-lg flex flex-col items-center py-4 space-y-2 transition-colors duration-300">
+    @include('livewire.pedidos.livewire-pedidos-seccion-resumen')
+</div>
+@include('livewire.pos.pos-modal-confirmacion-venta')
+</div>
+
+
+<script src="{{ asset('js/pedidos.js') }}"></script>
+<script src="{{ asset('js/pedidosCalculos.js') }}"></script>
+
 <script>
-function pedidoForm(clientes = [], alistadores = [], bodegas = [], productos = [], users = []) {
+function formatDateForInput(fecha) {
+    if (!fecha) return '';
+    // Si la fecha tiene formato ISO con zona horaria, recorta a yyyy-MM-ddTHH:mm
+    if (fecha.length >= 16) {
+        return fecha.slice(0, 16);
+    }
+    return fecha;
+}
+
+function pedidoForm({ pedido, clientes, bodegas, alistadores, users, productos, detalles }) {
     return {
-        clientes: clientes,
-        alistadores: alistadores,
-        bodegas: bodegas,
-        productos: productos,
-        users: users,
-        pedido: {
-            codigo: '',
-            fe: '',
-            cliente_id: null,
-            fecha: '',
-            dias_plazo_vencimiento: null,
-            fecha_vencimiento: '',
-            ciudad: '',
-            estado: 'PENDIENTE',
-            stock_retirado: false,
-            en_cartera: false,
-            metodo_pago: 'CREDITO',
-            tipo_precio: 'FERRETERO',
-            tipo_venta: 'ELECTRONICA',
-            estado_pago: 'EN_CARTERA',
-            estado_cartera: 'CARTERA_AL_DIA',
-            estado_venta: 'VENTA',
-            estado_vencimiento: 'AL_DIA',
-            bodega_id: "1",
-            primer_comentario: '',
-            subtotal: 0,
-            abono: 0,
-            descuento: 0,
-            flete: 0,
-            total_a_pagar: 0,
-            saldo_pendiente: 0,
-            user_id: null,
-            alistador_id: null,
-            detalles: [],
-            created_at: '',
-            updated_at: '',
-            iva: 0
-        },
+        pedido,
+        clientes,
+        bodegas,
+        alistadores,
+        users,
+        productos,
+        detalles,
+        formatDateForInput, // disponible en Alpine
+        productoSeleccionado: null,
+        cantidadSeleccionada: 1,
         init() {
-            // Inicialización si necesitas
+            console.log('Datos del pedido:', this.pedido);
+
+            // Forzar actualización de selects después de inicializar datos
+            this.$nextTick(() => {
+                // Bodega
+                const selectBodega = document.querySelector('select[x-model="pedido.bodega_id"]');
+                if (selectBodega && this.pedido.bodega_id !== undefined && this.pedido.bodega_id !== null) {
+                    selectBodega.value = this.pedido.bodega_id;
+                }
+                // Alistador
+                const selectAlistador = document.querySelector('select[x-model="pedido.alistador_id"]');
+                if (selectAlistador && this.pedido.alistador_id !== undefined && this.pedido.alistador_id !== null) {
+                    selectAlistador.value = this.pedido.alistador_id;
+                }
+                // Usuario
+                const selectUsuario = document.querySelector('select[x-model="pedido.user_id"]');
+                if (selectUsuario && this.pedido.user_id !== undefined && this.pedido.user_id !== null) {
+                    selectUsuario.value = this.pedido.user_id;
+                }
+                // Obtener los Detalles
+                this.pedido.detalles = detalles.map(detalle => ({
+                    producto_id: detalle.producto_id,
+                    cantidad: detalle.cantidad,
+                    precio_unitario: detalle.precio_unitario,
+                    aplicar_iva: detalle.aplicar_iva,
+                    precio_con_iva: detalle.precio_con_iva,
+                    subtotal: detalle.subtotal
+                }));
+            });
         },
         // Obtener el tipo de precio seleccionado
         get tipoPrecio() {
@@ -71,7 +91,8 @@ function pedidoForm(clientes = [], alistadores = [], bodegas = [], productos = [
                 producto_id: null,
                 cantidad: 1,
                 precio_unitario: null,
-                aplicar_iva: true
+                aplicar_iva: true,
+                subtotal: 0
             });
         },
         // Funcion para Remover Algun Detalle
@@ -105,10 +126,14 @@ function pedidoForm(clientes = [], alistadores = [], bodegas = [], productos = [
             return Math.round(precio * detalle.cantidad * 100) / 100;
         },
         //Funcion para Obtener Total General
-        getTotal() {
-            return this.pedido.detalles.reduce((acc, detalle) => acc + this.getSubtotal(detalle), 0);
+        getTotal(pedido) {
+            return pedido.detalles.reduce((acc, detalle) => acc + this.getSubtotal(detalle), 0);
         },
-
+        getTotalFinal(pedido) {
+            if (!pedido || !Array.isArray(pedido.detalles)) return 0;
+            // tu lógica aquí, por ejemplo:
+            return this.getTotal(pedido) + (pedido.flete || 0) - (pedido.descuento || 0);
+        },
 
         //Funcion para Validar Detalles
         validarDetalles() {
@@ -120,9 +145,6 @@ function pedidoForm(clientes = [], alistadores = [], bodegas = [], productos = [
                 if (!detalle.cantidad || detalle.cantidad < 1) {
                     errores.push(`La cantidad debe ser mayor a 0 en la fila ${idx + 1}`);
                 }
-                /*if (detalle.precio_unitario === null || detalle.precio_unitario === '' || isNaN(detalle.precio_unitario)) {
-                    errores.push(`Debe ingresar el precio unitario en la fila ${idx + 1}`);
-                }*/
             });
             return errores;
         },
@@ -132,9 +154,29 @@ function pedidoForm(clientes = [], alistadores = [], bodegas = [], productos = [
                 alert(errores.join('\n'));
                 return;
             }
+            // Recalcular y sincronizar todos los detalles antes de enviar
+            if (Array.isArray(this.pedido.detalles)) {
+                this.pedido.detalles.forEach((detalle, idx) => {
+                    // Si el usuario modificó manualmente el precio_unitario, se respeta
+                    // pero siempre recalculamos precio_con_iva y subtotal
+                    detalle.precio_unitario = detalle.precio_unitario ?? this.getPrecio(detalle, this.tipoPrecio);
+                    detalle.precio_con_iva = this.getPrecioConIva(detalle, this.tipoPrecio);
+                    detalle.subtotal = this.getSubtotal(detalle);
+                });
+            }
+            // Actualizar subtotal y total_a_pagar del pedido
+            this.pedido.subtotal = this.getTotal(this.pedido);
+            this.pedido.total_a_pagar = this.getTotalFinal(this.pedido);
             console.log('JSON generado para enviar:', JSON.stringify(this.pedido, null, 2));
-            console.log('Llamando a método Livewire: guardarPedido');
-            this.$wire.guardarPedido(this.pedido);
+            console.log('Llamando a método Livewire: editarPedido');
+            console.log('Enviando petición editarPedido...');
+            this.$wire.editarPedido(this.pedido)
+                .then(() => {
+                    console.log('Petición editarPedido terminada (éxito)');
+                })
+                .catch(() => {
+                    console.log('Petición editarPedido terminada (error)');
+                });
         }
     }
 }

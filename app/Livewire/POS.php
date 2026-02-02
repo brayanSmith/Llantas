@@ -2,7 +2,7 @@
 
 namespace App\Livewire;
 
-use App\Models\User;;
+use App\Models\User;
 
 use App\Models\Bodega;
 use App\Models\Pedido;
@@ -23,7 +23,6 @@ class POS extends Component implements HasActions, HasSchemas
     use InteractsWithActions;
     use InteractsWithSchemas;
 
-    public ?array $data = [];
     public array $clientes = [];
     public array $users = [];
     public array $alistadores = [];
@@ -40,7 +39,6 @@ class POS extends Component implements HasActions, HasSchemas
     {
         // Si no hay user_id en sesión, usar el usuario logueado
         if (!$this->userId) { $this->userId = auth()->id();}
-        $this->form->fill();
         $this->empresa = Empresa::first();
         $user = auth()->user();
         $clientesQuery = Cliente::select(
@@ -90,7 +88,6 @@ class POS extends Component implements HasActions, HasSchemas
         $productos = $productosQuery->with(['stockBodegas' => function ($q) use ($bodega) {
             $q->where('bodega_id', $bodega);
         }])->get();
-
         $productosArray = [];
         foreach ($productos as $producto) {
             $stock = $producto->stockBodegas->first()?->stock ?? 0;
@@ -100,24 +97,6 @@ class POS extends Component implements HasActions, HasSchemas
             $productosArray[] = $productoArr;
         }
         return $productosArray;
-    }
-
-    public function form(Schema $schema): Schema
-    {
-        return $schema
-            ->components([
-                //
-            ])
-            ->statePath('data')
-            ->model(Pedido::class);
-    }
-    public function create(): void
-    {
-        $data = $this->form->getState();
-
-        $record = Pedido::create($data);
-
-        $this->form->model($record)->saveRelationships();
     }
     // Método para guardar pedido y detalles desde Alpine.js
     public function guardarPedido($pedido)
@@ -174,7 +153,6 @@ class POS extends Component implements HasActions, HasSchemas
     {
         // Solo pasar productos, clientes y stockBodegas si no se han cargado (para evitar recarga masiva tras guardar)
         $productos = request()->has('productos_cargados') ? [] : $this->productos;
-
         $clientes = request()->has('clientes_cargados') ? [] : $this->clientes;
         $view = view('livewire.p-o-s', [
             'clientes' => $clientes,

@@ -46,7 +46,11 @@ class PedidoCotizacionsTable
                 //
             ])
             ->recordActions([
-                EditAction::make(),
+                Action::make('edit')
+                    ->label('Editar')
+                    ->icon('heroicon-o-pencil')
+                    ->url(fn ($record) => route('filament.admin.resources.pedido-cotizacions.edit', ['record' => $record->getKey(), 'pedido_id' => $record->getKey()]))
+                    ->openUrlInNewTab(false),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

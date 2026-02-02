@@ -22,14 +22,14 @@ class PedidoCotizacionForm
     {
         return $schema
             ->components([
-                ...PedidoCotizacionDatosGenerales::sectionDatosGenerales(true),
-                ...PedidoCotizacionDetail::sectionDetalles(),
+                //...PedidoCotizacionDatosGenerales::sectionDatosGenerales(true),
+                //...PedidoCotizacionDetail::sectionDetalles(),
                 /*Livewire::make('repeater_pedido')
                 ->component('livewire-repeater-pedido')
                 ->relationship('detalles')
                 ->key('mi-repeater-personalizado')
                 ->columnSpanFull()*/
-                //Livewire::make(PedidoFormLivewire::class)->columnSpanFull(),
+                Livewire::make(PedidoFormLivewire::class)->columnSpanFull(),
                 //Livewire::make(POS::class)->columnSpanFull(),
 
 

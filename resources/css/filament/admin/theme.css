@@ -15,4 +15,46 @@
 [data-sidebar-nav-item][href*="pos"] .fi-sidebar-nav-item-label {
     font-size: 0.525rem !important; /* 10px - mucho más pequeño */
 }
+.input-pedido {
+    @apply border border-gray-300 rounded w-full px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-50;
+}
+.input-pedido:focus {
+    @apply border-blue-400;
+}
+.dark .input-pedido {
+    @apply border-gray-600 bg-gray-800 text-gray-100;
+}
+.dark .input-pedido:focus {
+    @apply border-blue-500 bg-gray-700;
+}
+.input-pedido-select {
+    @apply border border-gray-300 rounded w-full px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-50 appearance-none relative;
+    background-image: url('data:image/svg+xml;utf8,<svg fill=\'none\' stroke=\'%23333\' stroke-width=\'2\' viewBox=\'0 0 24 24\' xmlns=\'http://www.w3.org/2000/svg\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' d=\'M19 9l-7 7-7-7\'/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1.25em 1.25em;
+}
+.input-pedido-select:focus {
+    @apply border-blue-400;
+}
+.dark .input-pedido-select {
+    @apply border-gray-600 bg-gray-800 text-gray-100;
+    background-image: url('data:image/svg+xml;utf8,<svg fill=\'none\' stroke=\'%23ccc\' stroke-width=\'2\' viewBox=\'0 0 24 24\' xmlns=\'http://www.w3.org/2000/svg\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' d=\'M19 9l-7 7-7-7\'/></svg>');
+}
+.dark .input-pedido-select:focus {
+    @apply border-blue-500 bg-gray-700;
+}
 
+/* Inputs y selects integrados en celdas de tabla */
+.input-table {
+    @apply w-full px-2 py-1 text-gray-800 bg-transparent border-none focus:ring-0 focus:outline-none;
+}
+.dark .input-table {
+    @apply text-gray-100 bg-transparent;
+}
+.input-table-select {
+    @apply w-full px-2 py-1 text-gray-800 bg-transparent border-none focus:ring-0 focus:outline-none appearance-none;
+}
+.dark .input-table-select {
+    @apply text-gray-100 bg-transparent;
+}

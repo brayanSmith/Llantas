@@ -55,32 +55,37 @@ function enviarPedidoReutilizable(pedido, guardarPedidoWireFn) {
 }
 
 function agregarDetalleReutilizable(pedido, productoSeleccionado, cantidadSeleccionada, precioUnitario, aplicarIva, precioConIva, subTotal, mostrarToastFn) {
-	const detalles = pedido.detalles;
-	const yaExiste = detalles.some(
-		d => d.producto_id === productoSeleccionado.id
-	);
-	if (yaExiste) {
-		if (typeof mostrarToastFn === 'function') {
-			mostrarToastFn('Este producto ya se encuentra en el carrito. Si desea modificar la cantidad, hágalo manualmente desde ahí.');
-		} else {
-			alert('Este producto ya se encuentra en el carrito. Si desea modificar la cantidad, hágalo manualmente desde ahí.');
-		}
-		return;
-	}
-	const detalle = {
-		producto_id: productoSeleccionado.id,
-		cantidad: cantidadSeleccionada,
-		precio_unitario: precioUnitario,
-		aplicar_iva: aplicarIva,
+    if (!productoSeleccionado) {
+        if (typeof mostrarToastFn === 'function') {
+            mostrarToastFn('Debe seleccionar un producto válido.');
+        } else {
+            alert('Debe seleccionar un producto válido.');
+        }
+        return;
+    }
+    const detalles = pedido.detalles;
+    const yaExiste = detalles.some(
+        d => d.producto_id === productoSeleccionado.id
+    );
+    if (yaExiste) {
+        if (typeof mostrarToastFn === 'function') {
+            mostrarToastFn('Este producto ya se encuentra en el carrito. Si desea modificar la cantidad, hágalo manualmente desde ahí.');
+        } else {
+            alert('Este producto ya se encuentra en el carrito. Si desea modificar la cantidad, hágalo manualmente desde ahí.');
+        }
+        return;
+    }
+    const detalle = {
+        producto_id: productoSeleccionado.id,
+        cantidad: cantidadSeleccionada,
+        precio_unitario: precioUnitario,
+        aplicar_iva: aplicarIva,
         iva: productoSeleccionado.iva_producto || 0,
-		precio_con_iva: precioConIva,
-		subtotal: subTotal
-	};
-	detalles.push(detalle);
-	/*if (typeof setTotalCantidadProductosFn === 'function') {
-		setTotalCantidadProductosFn(detalles.reduce((acc, d) => acc + (parseFloat(d.cantidad) || 0), 0));
-	}*/
-    //console.log('Detalle agregado:', detalle);
+        precio_con_iva: precioConIva,
+        subtotal: subTotal
+    };
+    detalles.push(detalle);
+    // ...resto del código...
 }
 
 function removeDetalleReutilizable(pedido, index, setTotalCantidadProductosFn) {
