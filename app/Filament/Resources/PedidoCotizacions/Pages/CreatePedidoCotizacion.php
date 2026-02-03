@@ -15,5 +15,4 @@ class CreatePedidoCotizacion extends CreateRecord
     {
         return [];
     }
-
 }

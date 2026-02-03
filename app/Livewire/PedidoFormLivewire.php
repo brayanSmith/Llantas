@@ -189,11 +189,13 @@ class PedidoFormLivewire extends Component implements HasActions, HasSchemas
         }
 
 
-        $this->confirmModalTitle = 'Éxito';
-        $this->confirmModalBody = 'El pedido ha sido actualizado correctamente.';
+        // Guardar la URL del PDF en la sesión para mostrar el botón en la modal
+        session(['pedido_pdf_url' => route('pedidos.pdf.stream', $pedidoExistente->id)]);
+        session(['pedido_facturado_pdf_url' => route('pedidosFacturados.pdf.stream', $pedidoExistente->id)]);
         $this->showConfirmModal = true;
+        $this->confirmModalTitle = '¡Venta exitosa!';
+        $this->confirmModalBody = 'El pedido fue ingresado exitosamente.';
     }
-
 
     public function render(): View
     {

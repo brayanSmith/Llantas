@@ -13,7 +13,12 @@ class EditPedidoCotizacion extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            DeleteAction::make(),
+            // DeleteAction::make(),
         ];
+    }
+
+    protected function getFormActions(): array
+    {
+        return [];
     }
 }

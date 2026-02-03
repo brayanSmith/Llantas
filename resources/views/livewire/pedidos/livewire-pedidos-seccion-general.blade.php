@@ -6,69 +6,47 @@
         return fecha.toISOString().slice(0, 16);
     }
 }">
+
     <div>
-        <label class="block text-sm font-semibold text-gray-700 mb-1">Estado Venta</label>
-        <div class="flex gap-4 mt-2">
-            <label class="inline-flex items-center cursor-pointer">
-                <input type="radio" x-model="pedido.estado_venta" value="COTIZACION" class="form-radio text-blue-600 focus:ring-blue-400" />
-                <span class="ml-2">COTIZACION</span>
-            </label>
-            <label class="inline-flex items-center cursor-pointer">
-                <input type="radio" x-model="pedido.estado_venta" value="VENTA" class="form-radio text-blue-600 focus:ring-blue-400" />
-                <span class="ml-2">VENTA</span>
-            </label>
-        </div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Cliente</label>
+        <x-select-dinamico
+            label="Cliente"
+            placeholder="Seleccione un cliente"
+            model="pedido.cliente_id"
+            :options="$clientes"
+            idKey="id"
+            textKey="razon_social"
+            selectId="select-cliente"
+        />
     </div>
-    <div x-data x-init="
-        $nextTick(() => {
-            const select = $el.querySelector('select');
-            // Destruir instancia previa si existe
-            if (select.tomselect) {
-                select.tomselect.destroy();
-            }
-            const tom = new TomSelect(select, {
-                placeholder: 'Seleccione un cliente',
-                allowEmptyOption: true,
-                onChange: function(value) {
-                    pedido.cliente_id = value;
-                }
-            });
-            // Preload: setear valor inicial
-            tom.setValue(pedido.cliente_id);
-            // Cuando cambia Alpine, actualizar Tom Select
-            $watch('pedido.cliente_id', value => {
-                tom.setValue(value);
-            });
-        });
-    " class="w-full">
-        <label>Cliente</label>
-        <select x-model="pedido.cliente_id" id="select-cliente">
-            <option value="">Seleccione un cliente</option>
-            <template x-for="cliente in clientes" :key="cliente.id">
-                <option :value="cliente.id" x-text="cliente.numero_documento + ' - ' + cliente.razon_social"></option>
-            </template>
-        </select>
-    </div>
+
 <div class="grid grid-cols-3 gap-4">
     <div>
-        <label>Fecha</label>
-        <input type="datetime-local" x-model="formatDateForInput(pedido.fecha)" class="input-pedido" />
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Fecha</label>
+            <input type="datetime-local"
+                :value="formatDateForInput(pedido.fecha)"
+                @input="pedido.fecha = $event.target.value"
+                class="input-pedido"
+                @change="console.log('Fecha actual:', pedido.fecha)" />
     </div>
     <div>
-        <label>Días Plazo Vencimiento</label>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Días Plazo Vencimiento</label>
         <input type="number" x-model="pedido.dias_plazo_vencimiento" class="input-pedido" />
     </div>
     <div>
-        <label>Fecha Vencimiento</label>
-        <input type="datetime-local" x-model="formatDateForInput(pedido.fecha_vencimiento)" :value="calcularFechaVencimiento()" class="input-pedido" readonly />
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Fecha Vencimiento</label>
+        <input type="datetime-local"
+            :value="calcularFechaVencimiento(pedido.fecha, pedido.dias_plazo_vencimiento)"
+            @input="pedido.fecha_vencimiento = $event.target.value"
+            class="input-pedido" readonly />
     </div>
 </div>
     <div>
-        <label>Ciudad</label>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Ciudad</label>
         <input type="text" x-model="pedido.ciudad" class="input-pedido" />
     </div>
     <div>
-        <label>Método de Pago</label>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Método de Pago</label>
         <select x-model="pedido.metodo_pago" class="input-pedido-select" >
             <option value="">Seleccione un método de pago</option>
             <option value="CREDITO">CREDITO</option>
@@ -76,8 +54,8 @@
         </select>
     </div>
     <div>
-        <label>Tipo Precio</label>
-        <select x-model="pedido.tipo_precio" class="input-pedido-select">
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Tipo Precio</label>
+        <select x-model="pedido.tipo_precio" class="input-pedido-select" @change="actualizarTodosLosDetalles()">
             <option value="FERRETERO">FERRETERO</option>
             <option value="MAYORISTA">MAYORISTA</option>
             <option value="DETAL">DETAL</option>
@@ -85,7 +63,7 @@
     </div>
 
     <div>
-        <label>Estado</label>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Estado</label>
         <select x-model="pedido.estado" class="input-pedido-select">
             <option value="PENDIENTE">Pendiente</option>
             <option value="FACTURADO">Facturado</option>
@@ -93,14 +71,14 @@
         </select>
     </div>
     <div>
-        <label>Tipo Venta</label>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Tipo Venta</label>
         <select x-model="pedido.tipo_venta" class="input-pedido-select">
             <option value="ELECTRONICA">ELECTRONICA</option>
             <option value="REMISIONADA">REMISIONADA</option>
         </select>
     </div>
     <div>
-        <label>Bodega</label>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Bodega</label>
         <select x-model="pedido.bodega_id" class="input-pedido-select">
             <option value="">Seleccione una bodega</option>
             <template x-for="bodega in bodegas" :key="bodega.id">
@@ -109,11 +87,7 @@
         </select>
     </div>
     <div>
-        <label>BodegaTexto</label>
-        <input type="text" x-model="pedido.bodega.nombre_bodega" class="input-pedido" />
-    </div>
-    <div>
-        <label>Alistador</label>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Alistador</label>
         <select x-model="pedido.alistador_id" class="input-pedido-select">
             <option value="">Seleccione un Alistador</option>
             <template x-for="alistador in alistadores" :key="alistador.id">
@@ -122,7 +96,7 @@
         </select>
     </div>
     <div>
-        <label>Vendedor</label>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Vendedor</label>
         <select x-model="pedido.user_id" class="input-pedido-select">
             <option value="">Seleccione un Vendedor</option>
             <template x-for="user in users" :key="user.id">
@@ -130,10 +104,18 @@
             </template>
         </select>
     </div>
+    <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">F.E.</label>
+        <input type="text" x-model="pedido.fe" class="input-pedido" />
+    </div>
 
     <div>
-        <label>Primer Comentario</label>
-        <input type="text" x-model="pedido.primer_comentario" class="input-pedido" />
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Primer Comentario</label>
+        <textarea x-model="pedido.primer_comentario" class="input-pedido"></textarea>
+    </div>
+    <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Segundo Comentario</label>
+        <textarea x-model="pedido.segundo_comentario" class="input-pedido"></textarea>
     </div>
 </div>
 
