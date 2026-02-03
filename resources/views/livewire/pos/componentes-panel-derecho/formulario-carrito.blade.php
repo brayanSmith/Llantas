@@ -57,20 +57,20 @@
         <span class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tipo de Venta:</span>
         <div class="inline-flex rounded-base shadow-xs -space-x-px" role="group">
             <button type="button"
-                :class="pedido.tipo_venta === 'ELECTRONICA' ?
-                    'bg-blue-600 text-white border-blue-600' :
-                    'text-body bg-neutral-primary-soft border border-default hover:bg-neutral-secondary-medium hover:text-heading'"
-                class="font-medium leading-5 rounded-s-base text-sm px-3 py-2 focus:outline-none"
-                @click="pedido.tipo_venta = 'ELECTRONICA'">
-                ELECTRONICA
-            </button>
-            <button type="button"
                 :class="pedido.tipo_venta === 'REMISIONADA' ?
                     'bg-blue-600 text-white border-blue-600' :
                     'text-body bg-neutral-primary-soft border border-default hover:bg-neutral-secondary-medium hover:text-heading'"
                 class="font-medium leading-5 rounded-e-base text-sm px-3 py-2 focus:outline-none"
                 @click="pedido.tipo_venta = 'REMISIONADA'">
                 REMISIONADA
+            </button>
+            <button type="button"
+                :class="pedido.tipo_venta === 'ELECTRONICA' ?
+                    'bg-blue-600 text-white border-blue-600' :
+                    'text-body bg-neutral-primary-soft border border-default hover:bg-neutral-secondary-medium hover:text-heading'"
+                class="font-medium leading-5 rounded-s-base text-sm px-3 py-2 focus:outline-none"
+                @click="pedido.tipo_venta = 'ELECTRONICA'">
+                ELECTRONICA
             </button>
         </div>
     </div>

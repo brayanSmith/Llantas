@@ -106,9 +106,9 @@
                     if (selectUsuario && this.pedido.user_id !== undefined && this.pedido.user_id !== null) {
                         selectUsuario.value = this.pedido.user_id;
                     }
-                    // Obtener los Detalles
+                    // Obtener los Detalles (normalizar producto_id a string)
                     this.pedido.detalles = detalles.map(detalle => ({
-                        producto_id: detalle.producto_id,
+                        producto_id: String(detalle.producto_id),
                         cantidad: detalle.cantidad,
                         precio_unitario: detalle.precio_unitario,
                         aplicar_iva: detalle.aplicar_iva,

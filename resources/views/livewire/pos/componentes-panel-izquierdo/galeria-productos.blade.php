@@ -1,4 +1,4 @@
-<div class="flex-grow overflow-y-auto pr-1">
+<div class="flex-grow overflow-y-auto pr-1" x-data="{ open: false, productoSeleccionado: null, cantidadSeleccionada: 1 }">
    {{-- @php($products = $this->filteredProducts)  paginator --}}
     <div class="grid grid-cols-1 gap-2 md:gap-6">
         {{-- @forelse($products as $product) --}}
@@ -54,7 +54,7 @@
 
                         <!-- Botón -->
                         <div class="flex items-center justify-center md:col-span-3 mt-0 w-auto">
-                            <div x-data="{ open: false, cantidad: 1 }" class="w-full">
+                            <div class="w-full">
                                 <x-filament::button
                                     @click.prevent="productoSeleccionado = product; cantidadSeleccionada = 1; open = true"
                                     class="w-full py-2 px-4 font-bold rounded-lg text-xs md:text-base flex items-center justify-center"
@@ -70,7 +70,7 @@
                                 </x-filament::button>
 
                                 <!-- Modal de cantidad, solo uno fuera del x-for -->
-                                @include('livewire.pos.pos-modal-agregar-producto')
+                                {{-- La modal se incluye fuera del x-for para evitar múltiples instancias --}}
                             </div> <!-- x-data -->
                         </div>
                     </div>
@@ -83,5 +83,6 @@
         </template>
     </div>
 
+    @include('livewire.pos.pos-modal-agregar-producto')
 
 </div>

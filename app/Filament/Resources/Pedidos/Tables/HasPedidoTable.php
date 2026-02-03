@@ -11,6 +11,9 @@ class HasPedidoTable
     public static function tableColumns(): array
     {
         return [
+            TextColumn::make('estado')
+                ->label('Estado')
+                ->sortable(),
             TextColumn::make('created_at')
                 ->label('Creación')
                 ->dateTime()

@@ -65,9 +65,11 @@
     <div>
         <label class="block text-sm font-semibold text-gray-700 mb-1">Estado</label>
         <select x-model="pedido.estado" class="input-pedido-select">
-            <option value="PENDIENTE">Pendiente</option>
-            <option value="FACTURADO">Facturado</option>
-            <option value="ANULADO">Anulado</option>
+            <option value="PENDIENTE">PENDIENTE</option>
+            <option value="FACTURADO">FACTURADO</option>
+            <option value="EN_RUTA">EN RUTA</option>
+            <option value="ENTREGADO">ENTREGADO</option>
+            <option value="ANULADO">ANULADO</option>
         </select>
     </div>
     <div>

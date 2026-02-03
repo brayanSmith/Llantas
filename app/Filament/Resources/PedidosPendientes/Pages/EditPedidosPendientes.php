@@ -15,7 +15,12 @@ class EditPedidosPendientes extends EditRecord
     {
         return $this->getResource()::getUrl('index');
     }
-    
+
+    protected function getFormActions(): array
+    {
+        return [];
+    }
+
     protected function getHeaderActions(): array
     {
         return [

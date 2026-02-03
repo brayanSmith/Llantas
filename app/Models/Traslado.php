@@ -15,6 +15,7 @@ class Traslado extends Model
         'bodega_destino_id',
         'producto_id',
         'cantidad',
+        'observaciones',
     ];
 
     public function bodegaDonante()

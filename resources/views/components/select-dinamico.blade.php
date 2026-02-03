@@ -22,24 +22,32 @@
             }
             ref[modelPath[modelPath.length - 1]] = val;
         };
-        const tom = new TomSelect(select, {
-            placeholder: '{{ $placeholder }}',
-            allowEmptyOption: true,
-            dropdownParent: 'body',
-            onChange: function(value) {
-                setModel(value);
-            }
-        });
-        tom.setValue(getModel());
+        let tom;
+        const initTomSelect = () => {
+            tom = new TomSelect(select, {
+                placeholder: '{{ $placeholder }}',
+                allowEmptyOption: true,
+                dropdownParent: 'body',
+                onChange: function(value) {
+                    setModel(value);
+                }
+            });
+            tom.setValue(getModel());
+        };
+        initTomSelect();
         $watch('{{ $model }}', value => {
-            tom.setValue(value);
+            if (tom) tom.setValue(value);
+        });
+        // Si el valor inicial cambia después de montar, re-inicializa TomSelect
+        $watch(() => getModel(), value => {
+            if (tom) tom.setValue(value);
         });
     });
 " class="w-full">
     <select x-model="{{ $model }}" id="{{ $selectId }}" {{ $attributes }}>
         <option value="">{{ $placeholder }}</option>
         @foreach($options as $item)
-            <option value="{{ $item[$idKey] }}">{{ $item[$textKey] }}</option>
+            <option value="{{ (string) $item[$idKey] }}">{{ $item[$textKey] }}</option>
         @endforeach
     </select>
 </div>

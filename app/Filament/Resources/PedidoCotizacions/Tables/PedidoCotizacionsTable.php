@@ -41,6 +41,10 @@ class PedidoCotizacionsTable
                     ->label('Cliente')
                     ->searchable()
                     ->sortable(),
+                TextColumn::make('total_a_pagar')
+                    ->label('Total a Pagar')
+                    ->money('COP', true)
+                    ->sortable(),
             ])
             ->filters([
                 //

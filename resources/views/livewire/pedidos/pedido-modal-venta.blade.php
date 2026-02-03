@@ -18,7 +18,7 @@
                     class="px-6 py-2 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700">Ver
                     PDF Facturado</a>
             @endif
-            <button wire:click="$set('showConfirmModal', false)" @click.prevent="history.back()"
+            <button @click.prevent="history.back()"
                 class="px-6 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700">Salir
             </button>
         </div>

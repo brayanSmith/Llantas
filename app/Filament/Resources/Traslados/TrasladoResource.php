@@ -14,12 +14,14 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Filament\Forms\Components\Select;
 use App\Models\Producto;
 use App\Models\StockBodega;
 use App\Services\StockCalculoService;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\Textarea;
 
 class TrasladoResource extends Resource
 {
@@ -37,8 +39,9 @@ class TrasladoResource extends Resource
                     ->relationship('bodegaDonante', 'nombre_bodega')
                     ->required()
                     ->live()
-                    ->afterStateUpdated(fn (callable $set) => $set('producto_id', null)),                    
-                    
+                    ->afterStateUpdated(fn (callable $set) => $set('producto_id', null))
+                    ->searchable(),
+
                 Select::make('bodega_destino_id')
                     ->relationship('bodegaDestino', 'nombre_bodega')
                     ->required(),
@@ -46,11 +49,11 @@ class TrasladoResource extends Resource
                     ->label('Producto')
                     ->options(function ($get) {
                         $bodegaDonanteId = $get('bodega_donante_id');
-                        
+
                         if (!$bodegaDonanteId) {
                             return [];
                         }
-                        
+
                         return Producto::whereHas('stockBodegas', function ($query) use ($bodegaDonanteId) {
                             $query->where('bodega_id', $bodegaDonanteId)
                                   ->where('entradas', '>', 0);
@@ -68,7 +71,7 @@ class TrasladoResource extends Resource
                     ->searchable()
                     ->preload()
                     ->live()
-                    ->afterStateUpdated(fn (callable $set) => $set('cantidad', null)),             
+                    ->afterStateUpdated(fn (callable $set) => $set('cantidad', null)),
                 TextInput::make('cantidad')
                     ->label('Cantidad')
                     ->required()
@@ -77,14 +80,14 @@ class TrasladoResource extends Resource
                     ->placeholder(function ($get) {
                         $productoId = $get('producto_id');
                         $bodegaDonanteId = $get('bodega_donante_id');
-                        
+
                         if (!$productoId || !$bodegaDonanteId) {
                             return 'Seleccione un producto';
                         }
-                        
+
                         $stockCalculoService = app(StockCalculoService::class);
                         $stockDisponible = $stockCalculoService->calcularEntradasFacturadas($productoId, $bodegaDonanteId);
-                        
+
                         return "Disponible: {$stockDisponible}";
                     })
                     ->rules([
@@ -92,20 +95,25 @@ class TrasladoResource extends Resource
                             return function (string $attribute, $value, $fail) use ($get) {
                                 $productoId = $get('producto_id');
                                 $bodegaDonanteId = $get('bodega_donante_id');
-                                
+
                                 if (!$productoId || !$bodegaDonanteId) {
                                     return;
                                 }
-                                
+
                                 $stockCalculoService = app(StockCalculoService::class);
                                 $stockDisponible = $stockCalculoService->calcularEntradasFacturadas($productoId, $bodegaDonanteId);
-                                
+
                                 if ($value > $stockDisponible) {
                                     $fail("La cantidad no puede ser mayor a {$stockDisponible} (stock disponible).");
                                 }
                             };
                         },
                     ]),
+                TextArea::make('observaciones')
+                    ->label('Observaciones')
+                    ->rows(3)
+                    ->maxLength(500)
+                    ->nullable(),
             ]);
     }
 
@@ -115,14 +123,18 @@ class TrasladoResource extends Resource
             ->recordTitleAttribute('producto_id')
             ->columns([
                 TextColumn::make('bodegaDonante.nombre_bodega')
-                    ->sortable(),
+                    ->sortable()
+                    ->searchable(),
                 TextColumn::make('bodegaDestino.nombre_bodega')
-                    ->sortable(),
+                    ->sortable()
+                    ->searchable(),
                 TextColumn::make('producto.concatenar_codigo_nombre')
-                    ->sortable(),
+                    ->sortable()
+                    ->searchable(),
                 TextColumn::make('cantidad')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->searchable(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -134,6 +146,12 @@ class TrasladoResource extends Resource
             ])
             ->filters([
                 //
+                SelectFilter::make('bodega_donante_id')
+                    ->relationship('bodegaDonante', 'nombre_bodega'),
+                SelectFilter::make('bodega_destino_id')
+                    ->relationship('bodegaDestino', 'nombre_bodega'),
+                SelectFilter::make('producto_id')
+                    ->relationship('producto', 'nombre_producto'),
             ])
             ->recordActions([
                 //EditAction::make(),

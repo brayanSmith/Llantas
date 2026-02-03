@@ -88,12 +88,12 @@ class PedidoFormLivewire extends Component implements HasActions, HasSchemas
             'codigo_producto',
         )->where('categoria_producto', '!=', 'MATERIA_PRIMA')
             ->where('activo', 1);
-        if ($empresa && !$empresa->mostrar_productos_sin_inventario) {
+        /*if ($empresa && !$empresa->mostrar_productos_sin_inventario) {
             $productos = $productosQuery->whereHas('stockBodegas', function ($q) use ($bodega) {
                 $q->where('bodega_id', $bodega)
                     ->where('stock', '>', 0);
             });
-        }
+        }*/
         // Eager loading solo los stocks de la bodega seleccionada
         $productos = $productosQuery->with(['stockBodegas' => function ($q) use ($bodega) {
             $q->where('bodega_id', $bodega);

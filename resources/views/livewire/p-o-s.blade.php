@@ -79,7 +79,7 @@ init();" class="space-y-4">
                 en_cartera: false,
                 metodo_pago: 'CREDITO',
                 tipo_precio: 'FERRETERO',
-                tipo_venta: 'ELECTRONICA',
+                tipo_venta: 'REMISIONADA',
                 estado_pago: 'EN_CARTERA',
                 estado_cartera: 'CARTERA_AL_DIA',
                 estado_venta: 'VENTA',

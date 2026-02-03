@@ -32,7 +32,7 @@ class PedidoEnRutasTable
     {
         return $table
             ->modifyQueryUsing(function ($query) {
-                $query->whereIn('estado', ['FACTURADO', 'EN_RUTA'])
+                $query->whereIn('estado', ['FACTURADO'])
                     ->where('estado_venta', 'VENTA');
 
                 // Si el usuario no es super_admin, mostrar solo sus pedidos
