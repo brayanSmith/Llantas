@@ -6,115 +6,87 @@ use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Filament\Support\Icons\Heroicon;
 use Filament\Support\Enums\IconPosition;
-use App\Models\User;
-use App\Models\Pedido;
 use App\Services\ChartPedidoService;
-use App\Filament\Traits\HasDateRangeFilter;
-use App\Filament\Traits\HasCountTypeFilter;
+use Filament\Widgets\Concerns\InteractsWithPageFilters;
 
 class StatsOverview extends StatsOverviewWidget
 {
-    use HasDateRangeFilter, HasCountTypeFilter;
+    use InteractsWithPageFilters;
     protected static ?int $sort = 1;
     protected int | string | array $columnSpan = 'full';
 
     protected ?string $heading = 'Resumen de Pedidos';
-    public array $selectedVendedores = [];
-
-    protected $listeners = ['vendedoresChanged' => 'setVendedores'];
-
-    public function setVendedores($ids)
-    {
-        logger('IDs recibidos en StatsOverview:', $ids);
-        $this->selectedVendedores = array_map('intval', $ids);
-    }
 
     protected function getStats(): array
     {
-        [$startDate, $endDate] = $this->getDateRange();
 
-        $query = Pedido::query();
-        if ($startDate && $endDate) {
-            $query->whereBetween('fecha', [$startDate, $endDate]);
-        }
-
-        // Determinar si mostrar cantidad o valor
-        $isCantidad = $this->countType === 'cantidad';
-
+        $startDate = $this->pageFilters['startDate'] ?? null;
+        $endDate = $this->pageFilters['endDate'] ?? null;
+        $userIds = $this->pageFilters['user_id'] ?? null;
+        $calculo = $this->pageFilters['calculo'] ?? 'valor';
 
         return [
             //
+
             Stat::make(
-                $isCantidad ? 'Pedidos Facturados' : 'Total Facturado',
-                $isCantidad
-                    ? (clone $query)
-                        ->whereIn('estado', ['FACTURADO'])
-                        ->when(!empty($this->selectedVendedores), function ($q) {
-                            $q->whereIn('user_id', $this->selectedVendedores);
-                        })
-                        ->count()
-                    : '$' . number_format(
-                        (clone $query)
-                            ->whereIn('estado', ['FACTURADO'])
-                            ->when(!empty($this->selectedVendedores), function ($q) {
-                                $q->whereIn('user_id', $this->selectedVendedores);
-                            })
-                            ->sum('total_a_pagar'),
-                        0
-                    )
+                label: 'Total pedidos facturados',
+                value: ChartPedidoService::obtenerTotalPedidos(
+                    estado: 'FACTURADO',
+                    calculo: $calculo,
+                    startDate: $startDate,
+                    endDate: $endDate,
+                    userIds: $userIds
+                ),
             )
             ->icon(Heroicon::OutlinedPresentationChartBar, IconPosition::Before)
             ->color('success')
-            ->description($isCantidad ? 'Total de pedidos facturados' : 'Valor total facturado')
+            ->description('Total de pedidos facturados')
             ->chart(ChartPedidoService::obtenerVentasPorDia('FACTURADO')),
 
             Stat::make(
-                $isCantidad ? 'Pedidos Pendientes' : 'Total Pendiente',
-                $isCantidad
-                    ? (clone $query)
-                        ->whereIn('estado', ['PENDIENTE'])
-                        ->when(!empty($this->selectedVendedores), function ($q) {
-                            $q->whereIn('user_id', $this->selectedVendedores);
-                        })
-                        ->count()
-                    : '$' . number_format(
-                        (clone $query)
-                            ->whereIn('estado', ['PENDIENTE'])
-                            ->when(!empty($this->selectedVendedores), function ($q) {
-                                $q->whereIn('user_id', $this->selectedVendedores);
-                            })
-                            ->sum('total_a_pagar'),
-                        0
-                    )
+                label: 'Total pedidos pendientes',
+                value: ChartPedidoService::obtenerTotalPedidos(
+                    estado: 'PENDIENTE',
+                    calculo: $calculo,
+                    startDate: $startDate,
+                    endDate: $endDate,
+                    userIds: $userIds
+                ),
             )
-            ->icon(Heroicon::OutlinedClock, IconPosition::Before)
+            ->icon(Heroicon::OutlinedPresentationChartBar, IconPosition::Before)
             ->color('warning')
-            ->description($isCantidad ? 'Total de pedidos pendientes' : 'Valor total pendiente')
+            ->description('Total de pedidos pendientes')
             ->chart(ChartPedidoService::obtenerVentasPorDia('PENDIENTE')),
 
             Stat::make(
-                $isCantidad ? 'Pedidos Entregados' : 'Total Entregado',
-                $isCantidad
-                    ? (clone $query)->whereIn('estado', ['ENTREGADO'])->count()
-                    : '$' . number_format((clone $query)->whereIn('estado', ['ENTREGADO'])->sum('total_a_pagar'), 0)
+                label: 'Total pedidos entregados',
+                value: ChartPedidoService::obtenerTotalPedidos(
+                    estado: 'ENTREGADO',
+                    calculo: $calculo,
+                    startDate: $startDate,
+                    endDate: $endDate,
+                    userIds: $userIds
+                ),
             )
-            ->icon(Heroicon::OutlinedCheckCircle, IconPosition::Before)
+            ->icon(Heroicon::OutlinedPresentationChartBar, IconPosition::Before)
             ->color('primary')
-            ->description($isCantidad ? 'Total de pedidos entregados' : 'Valor total entregado')
+            ->description('Total de pedidos entregados')
             ->chart(ChartPedidoService::obtenerVentasPorDia('ENTREGADO')),
 
             Stat::make(
-                $isCantidad ? 'Pedidos Anulados' : 'Total Anulado',
-                $isCantidad
-                    ? (clone $query)->whereIn('estado', ['ANULADO'])->count()
-                    : '$' . number_format((clone $query)->whereIn('estado', ['ANULADO'])->sum('total_a_pagar'), 0)
+                label: 'Total pedidos anulados',
+                value: ChartPedidoService::obtenerTotalPedidos(
+                    estado: 'ANULADO',
+                    calculo: $calculo,
+                    startDate: $startDate,
+                    endDate: $endDate,
+                    userIds: $userIds
+                ),
             )
-            ->icon(Heroicon::OutlinedXCircle, IconPosition::Before)
+            ->icon(Heroicon::OutlinedPresentationChartBar, IconPosition::Before)
             ->color('danger')
-            ->description($isCantidad ? 'Total de pedidos anulados' : 'Valor total anulado')
+            ->description('Total de pedidos anulados')
             ->chart(ChartPedidoService::obtenerVentasPorDia('ANULADO')),
-
-
         ];
     }
 }

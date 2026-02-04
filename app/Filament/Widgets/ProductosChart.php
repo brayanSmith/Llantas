@@ -2,22 +2,25 @@
 
 namespace App\Filament\Widgets;
 
-use Filament\Widgets\ChartWidget;
 use App\Models\Producto;
-use App\Filament\Traits\HasDateRangeFilter;
-use App\Filament\Traits\HasCountTypeFilter;
+use Filament\Widgets\ChartWidget;
+use Filament\Widgets\Concerns\InteractsWithPageFilters;
 
 class ProductosChart extends ChartWidget
 {
-    use HasDateRangeFilter, HasCountTypeFilter;
+    use InteractsWithPageFilters;
     protected static ?int $sort = 3;
     protected int | string | array $columnSpan = 1;
-    
+
     protected ?string $heading = 'Top 5 Productos Más Vendidos';
 
     protected function getData(): array
     {
-        [$startDate, $endDate] = $this->getDateRange();
+
+        $startDate = $this->pageFilters['startDate'] ?? null;
+        $endDate = $this->pageFilters['endDate'] ?? null;
+        $userIds = $this->pageFilters['user_id'] ?? null;
+        $calculo = $this->pageFilters['calculo'] ?? 'valor';
 
         // Obtener los 5 productos más vendidos con ambos datos
         $productosVendidos = Producto::query()
@@ -42,12 +45,12 @@ class ProductosChart extends ChartWidget
                     });
                 }
             ], 'subtotal')
-            ->orderByDesc($this->countType === 'cantidad' ? 'cantidad_vendida' : 'total_ventas')
+            ->orderByDesc($calculo === 'cantidad' ? 'cantidad_vendida' : 'total_ventas')
             ->limit(5)
             ->get();
 
         // Determinar qué datos mostrar según el filtro
-        if ($this->countType === 'cantidad') {
+        if ($calculo === 'cantidad') {
             $data = $productosVendidos->pluck('cantidad_vendida')->toArray();
             $label = 'Cantidad Vendida (Unidades)';
         } else {

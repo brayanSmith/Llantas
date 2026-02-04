@@ -2,14 +2,13 @@
 
 namespace App\Filament\Widgets;
 
-use Filament\Widgets\ChartWidget;
 use App\Models\User;
-use App\Filament\Traits\HasDateRangeFilter;
-use App\Filament\Traits\HasCountTypeFilter;
+use Filament\Widgets\ChartWidget;
+use Filament\Widgets\Concerns\InteractsWithPageFilters;
 
 class VendedoresChart extends ChartWidget
 {
-    use HasDateRangeFilter, HasCountTypeFilter;
+    use InteractsWithPageFilters;
     protected static ?int $sort = 2;
     protected int | string | array $columnSpan = 1;
 
@@ -17,7 +16,11 @@ class VendedoresChart extends ChartWidget
 
     protected function getData(): array
     {
-        [$startDate, $endDate] = $this->getDateRange();
+
+        $startDate = $this->pageFilters['startDate'] ?? null;
+        $endDate = $this->pageFilters['endDate'] ?? null;
+        $userIds = $this->pageFilters['user_id'] ?? null;
+        $calculo = $this->pageFilters['calculo'] ?? 'valor';
 
         // Obtener los 5 mejores vendedores con ambos datos
         $mejoresVendedores = User::query()
@@ -38,12 +41,12 @@ class VendedoresChart extends ChartWidget
                     }
                 }
             ], 'total_a_pagar')
-            ->orderByDesc($this->countType === 'cantidad' ? 'cantidad' : 'total_ventas')
+            ->orderByDesc($calculo === 'cantidad' ? 'cantidad' : 'total_ventas')
             ->limit(5)
             ->get();
 
         // Determinar qué datos mostrar según el filtro
-        if ($this->countType === 'cantidad') {
+        if ($calculo === 'cantidad') {
             $data = $mejoresVendedores->pluck('cantidad')->toArray();
             $label = 'Cantidad de Pedidos';
         } else {

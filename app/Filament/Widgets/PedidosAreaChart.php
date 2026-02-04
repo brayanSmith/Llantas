@@ -7,10 +7,11 @@ use App\Models\Pedido;
 use App\Filament\Traits\HasDateRangeFilter;
 use App\Filament\Traits\HasCountTypeFilter;
 use Carbon\Carbon;
+use Filament\Widgets\Concerns\InteractsWithPageFilters;
 
 class PedidosAreaChart extends ChartWidget
 {
-    use HasDateRangeFilter, HasCountTypeFilter;
+    use InteractsWithPageFilters;
 
     protected static ?int $sort = 4;
     protected int | string | array $columnSpan = [
@@ -24,17 +25,21 @@ class PedidosAreaChart extends ChartWidget
 
     protected function getData(): array
     {
-        [$startDate, $endDate] = $this->getDateRange();
+        $startDate = $this->pageFilters['startDate'] ?? null;
+        $endDate = $this->pageFilters['endDate'] ?? null;
+        $userIds = $this->pageFilters['user_id'] ?? null;
+        $calculo = $this->pageFilters['calculo'] ?? 'valor';
 
         $query = Pedido::query()
-            ->whereIn('estado', ['FACTURADO', 'ENTREGADO']);
+            ->whereIn('estado', ['FACTURADO', 'ENTREGADO'])
+            ->whereIn('user_id', $userIds ?? Pedido::pluck('user_id')->toArray());
 
         if ($startDate && $endDate) {
             $query->whereBetween('fecha', [$startDate, $endDate]);
         }
 
         // Agrupar por fecha
-        if ($this->countType === 'cantidad') {
+        if ($calculo === 'cantidad') {
             $datos = $query
                 ->selectRaw('DATE(fecha) as fecha, COUNT(*) as total')
                 ->groupBy('fecha')
