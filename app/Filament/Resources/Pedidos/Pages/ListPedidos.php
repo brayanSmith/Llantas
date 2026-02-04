@@ -27,6 +27,12 @@ class ListPedidos extends ListRecords
         'FACTURADO' => Tab::make()
             ->modifyQueryUsing(fn (EloquentBuilder $query) => $query->where('estado', 'FACTURADO')),
            // ->badge(fn () => \App\Models\Pedido::where('estado', 'FACTURADO')->count()),
+        'ENTREGADO' => Tab::make()
+            ->modifyQueryUsing(fn (EloquentBuilder $query) => $query->where('estado', 'ENTREGADO')),
+           // ->badge(fn () => \App\Models\Pedido::where('estado', 'ENTREGADO')->count()),
+        'DEVUELTO' => Tab::make()
+            ->modifyQueryUsing(fn (EloquentBuilder $query) => $query->where('estado', 'DEVUELTO')),
+           // ->badge(fn () => \App\Models\Pedido::where('estado', 'DEVUELTO')->count()),
 
         'ANULADO' => Tab::make()
             ->modifyQueryUsing(fn (EloquentBuilder $query) => $query->where('estado', 'ANULADO')),

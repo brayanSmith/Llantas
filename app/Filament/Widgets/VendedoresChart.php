@@ -12,7 +12,7 @@ class VendedoresChart extends ChartWidget
     use HasDateRangeFilter, HasCountTypeFilter;
     protected static ?int $sort = 2;
     protected int | string | array $columnSpan = 1;
-    
+
     protected ?string $heading = 'Top 5 Mejores Vendedores';
 
     protected function getData(): array
@@ -21,7 +21,7 @@ class VendedoresChart extends ChartWidget
 
         // Obtener los 5 mejores vendedores con ambos datos
         $mejoresVendedores = User::query()
-            ->role('COMERCIAL')
+            ->role(['Comercial'])
             ->withCount([
                 'pedidos as cantidad' => function ($query) use ($startDate, $endDate) {
                     $query->whereIn('estado', ['FACTURADO', 'ENTREGADO']);

@@ -21,7 +21,7 @@ class PedidoCotizacionsTable
                 ->where('estado_venta', 'COTIZACION');
 
                 // Si el usuario no es super_admin, mostrar solo sus pedidos
-                if (!auth()->user()->hasRole('super_admin')) {
+                if (!auth()->user()->hasRole('super_admin', 'financiero')) {
                     $query->where('user_id', auth()->id());
                 }
 

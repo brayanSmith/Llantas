@@ -30,6 +30,7 @@ class Compra extends Model
         'item_compra',
         'bodega_id',
         'saldo_pendiente',
+        'solicitado',
     ];
 
     public function proveedor()

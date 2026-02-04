@@ -18,10 +18,10 @@ use UnitEnum;
 class PedidoResource extends Resource
 {
     protected static ?string $model = Pedido::class;
-    
+
     // Slug único para permisos de Shield
     protected static ?string $slug = 'pedidos';
-    
+
     // Labels personalizados para Shield
     protected static ?string $modelLabel = 'Pedido General';
     protected static ?string $pluralModelLabel = 'Pedidos Generales';
@@ -82,5 +82,10 @@ class PedidoResource extends Resource
             //'create' => CreatePedido::route('/create'),
             'edit' => EditPedido::route('/{record}/edit'),
         ];
+    }
+
+    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        return parent::getEloquentQuery()->orderByDesc('created_at');
     }
 }

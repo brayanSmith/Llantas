@@ -45,7 +45,7 @@ init();" class="space-y-4">
                 localStorage.removeItem('clientesPOS');
             },
             limpiarCacheStockBodegas() {
-                //localStorage.removeItem('stockBodegasPOS');
+                localStorage.removeItem('stockBodegasPOS');
             },
             limpiarCacheCatalogos() {
                 this.limpiarCacheProductos();

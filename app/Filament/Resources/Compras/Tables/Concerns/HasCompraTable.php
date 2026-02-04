@@ -9,6 +9,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Columns\CheckboxColumn;
 
 trait HasCompraTable
 {
@@ -23,6 +24,9 @@ trait HasCompraTable
                     ->label('ID')
                     ->sortable()
                     ->searchable(),
+                CheckboxColumn::make('solicitado')
+                    ->label('Solicitado')
+                    ->sortable(),
                 TextColumn::make('fecha')
                     ->label('Fecha Recibido')
                     ->date()

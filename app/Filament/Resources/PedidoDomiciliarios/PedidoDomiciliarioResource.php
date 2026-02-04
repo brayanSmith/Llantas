@@ -150,9 +150,9 @@ class PedidoDomiciliarioResource extends Resource
                        return $codigo ? "Código: {$codigo}" : 'Sin código';
                     })
                     ->searchable(),
-                TextColumn::make('total_a_pagar')
-                    ->label('Total')
-                    ->money('COP', decimalPlaces: 0)
+                TextColumn::make('fecha')
+                    ->label('Fecha')
+                    ->dateTime('Y-m-d H:i')
                     ->weight(FontWeight::Bold),
 
                 TextColumn::make('cliente.razon_social')
@@ -162,7 +162,7 @@ class PedidoDomiciliarioResource extends Resource
                     })
                     ->label('Cliente')
                     ->searchable(),
-                TextColumn::make('estado')
+                /*TextColumn::make('estado')
                     ->badge()
                     ->sortable()
                     ->weight(FontWeight::Bold)
@@ -170,7 +170,7 @@ class PedidoDomiciliarioResource extends Resource
                         'ENTREGADO' => 'success',
                         'DEVUELTO' => 'danger',
                     ])
-                    ->searchable(),
+                    ->searchable(),*/
 
             ])->from('md')
             ])

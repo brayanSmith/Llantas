@@ -32,7 +32,7 @@ class PedidosPendientesTable
                     ->where('estado_venta', 'VENTA');
 
                 // Si el usuario no es super_admin, mostrar solo sus pedidos
-                if (!auth()->user()->hasRole('super_admin')) {
+                if (!auth()->user()->hasRole('super_admin', 'financiero')) {
                     $query->where('user_id', auth()->id());
                 }
 
@@ -46,7 +46,7 @@ class PedidosPendientesTable
                 Group::make('cliente.ruta.ruta')
                     ->collapsible(),
 
-            ])->defaultGroup('fecha')
+            ])->defaultGroup('cliente.ruta.ruta')
 
             ->columns([
                 TextColumn::make('created_at')

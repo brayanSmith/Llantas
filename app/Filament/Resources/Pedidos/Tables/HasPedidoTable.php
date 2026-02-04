@@ -21,8 +21,7 @@ class HasPedidoTable
                 ->toggleable(isToggledHiddenByDefault: false),
             TextColumn::make('codigo')
                 ->label('Remisión')
-                ->searchable()
-                ->sortable(),
+                ->searchable(),
             DescargarPdfColumn::make('descargar_pdf')
                 ->label('Pdf'),
             ToggleColumn::make('impresa')

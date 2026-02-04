@@ -49,7 +49,7 @@ class PedidoEnRutasTable
                 Group::make('cliente.ruta.ruta')
                     ->collapsible(),
 
-            ])->defaultGroup('fecha')
+            ])->defaultGroup('cliente.ruta.ruta')
             ->columns([
                 Split::make([
                     TextColumn::make('codigo')

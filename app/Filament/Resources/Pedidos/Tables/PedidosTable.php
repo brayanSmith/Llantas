@@ -32,9 +32,8 @@ class PedidosTable
                     ->collapsible(),
                 Group::make('cliente.ruta.ruta')
                     ->collapsible(),
+            ])->defaultGroup('cliente.ruta.ruta')
 
-
-            ])->defaultGroup('fecha')
             ->columns([
                 ...HasPedidoTable::tableColumns(),
             ])

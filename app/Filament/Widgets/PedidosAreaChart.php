@@ -11,15 +11,15 @@ use Carbon\Carbon;
 class PedidosAreaChart extends ChartWidget
 {
     use HasDateRangeFilter, HasCountTypeFilter;
-    
+
     protected static ?int $sort = 4;
     protected int | string | array $columnSpan = [
         'md' => 2,
         'xl' => 2,
     ];
-    
+
     protected ?string $heading = 'Tendencia de Pedidos';
-    
+
     protected ?string $maxHeight = '300px';
 
     protected function getData(): array
@@ -40,7 +40,7 @@ class PedidosAreaChart extends ChartWidget
                 ->groupBy('fecha')
                 ->orderBy('fecha')
                 ->get();
-            
+
             $label = 'Cantidad de Pedidos';
         } else {
             $datos = $query
@@ -48,7 +48,7 @@ class PedidosAreaChart extends ChartWidget
                 ->groupBy('fecha')
                 ->orderBy('fecha')
                 ->get();
-            
+
             $label = 'Total en Ventas ($)';
         }
 
