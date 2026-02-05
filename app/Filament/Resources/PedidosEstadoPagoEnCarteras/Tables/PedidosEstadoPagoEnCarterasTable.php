@@ -27,7 +27,7 @@ class PedidosEstadoPagoEnCarterasTable
                 $query->where('estado_pago', 'EN_CARTERA')->whereIn('estado', ['FACTURADO', 'EN_RUTA', 'ENTREGADO'])->where('estado_venta', 'VENTA');
 
                 // Si el usuario no es super_admin, mostrar solo sus pedidos
-                if (!auth()->user()->hasRole('super_admin')) {
+                if (!auth()->user()->hasRole(['super_admin','financiero' ])) {
                     $query->where('user_id', auth()->id());
                 }
 
