@@ -1,19 +1,22 @@
 {{-- ...existing code... --}}
 <div x-data="pedidoForm(
-    (localStorage.getItem('clientesPOS') ? JSON.parse(localStorage.getItem('clientesPOS')) : @js($clientes)),
+    //(localStorage.getItem('clientesPOS') ? JSON.parse(localStorage.getItem('clientesPOS')) : @js($clientes)),
+    @js($clientes),
     @js($alistadores),
     @js($bodegas),
-    (localStorage.getItem('productosPOS') ? JSON.parse(localStorage.getItem('productosPOS')) : @js($productos)),
+    //(localStorage.getItem('productosPOS') ? JSON.parse(localStorage.getItem('productosPOS')) : @js($productos)),
+    @js($productos),
     @js($users),
     @js($empresa),
     @js($bodegaSeleccionada),
     @js($userId)
-)" x-init="if (!localStorage.getItem('productosPOS')) {
-    localStorage.setItem('productosPOS', JSON.stringify(productos));
-}
-if (!localStorage.getItem('clientesPOS')) {
-    localStorage.setItem('clientesPOS', JSON.stringify(clientes));
-}
+)" x-init="
+// if (!localStorage.getItem('productosPOS')) {
+//     localStorage.setItem('productosPOS', JSON.stringify(productos));
+// }
+// if (!localStorage.getItem('clientesPOS')) {
+//     localStorage.setItem('clientesPOS', JSON.stringify(clientes));
+// }
 window.addEventListener('limpiar-catalogos', () => {
     limpiarCacheCatalogos();
     location.reload();
