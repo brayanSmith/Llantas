@@ -81,7 +81,7 @@ function agregarDetalleReutilizable(pedido, productoSeleccionado, cantidadSelecc
         precio_unitario: precioUnitario,
         aplicar_iva: aplicarIva,
         iva: productoSeleccionado.iva_producto || 0,
-        precio_con_iva: precioConIva,
+        precio_con_iva: precioUnitario,
         subtotal: subTotal
     };
     detalles.push(detalle);

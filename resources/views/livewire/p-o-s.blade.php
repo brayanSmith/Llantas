@@ -124,15 +124,15 @@ init();" class="space-y-4">
             agregarDetalle() {
                 const precio = getPrecio(this.productoSeleccionado, this.pedido.tipo_precio);
                 const precioConIva = getPrecioConIva(this.productoSeleccionado, precio, true);
-                const subTotal = getSubtotal(precioConIva, this.cantidadSeleccionada);
+                const subTotal = getSubtotal(precio, this.cantidadSeleccionada);
 
                 agregarDetalleReutilizable(
                     this.pedido,
                     this.productoSeleccionado,
                     this.cantidadSeleccionada,
                     precio,
-                    true,
-                    precioConIva,
+                    false,
+                    precio,
                     subTotal,
                     (msg) => {
                         this.mensajeToast = msg;

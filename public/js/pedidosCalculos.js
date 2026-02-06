@@ -1,9 +1,3 @@
-// Calcula el subtotal total del pedido sumando los subtotales de cada detalle
-function getTotal(pedido) {
-    const total = (pedido.detalles || []).reduce((acc, detalle) => acc + (detalle.subtotal || 0), 0);
-    pedido.subtotal = total;
-    return total;
-}
 // Funciones de cálculo reutilizables para pedidos
 
 function getPrecio(productoSeleccionado, tipoPrecio) {
@@ -19,7 +13,7 @@ function getPrecio(productoSeleccionado, tipoPrecio) {
 function getPrecioConIva(productoSeleccionado, precio, aplicarIva) {
     const prod = productoSeleccionado
     if (aplicarIva) {
-        precioConIva = precio * (1 + (prod.iva_producto || 0) / 100);
+        precioConIva = precio;
     }else{precioConIva = precio;
     }
     return Math.round(precioConIva * 100) / 100;
