@@ -35,12 +35,8 @@
                             <p class="text-[10px] md:text-xs text-gray-500 dark:text-gray-400 mt-1">SKU:
                                 <strong x-text="product.codigo_producto"></strong></p>
                             <p class="text-[10px] md:text-xs text-gray-800 dark:text-gray-100 mt-1">FERRETERO:
-                                <strong x-text="product.valor_ferretero_producto"></strong>
+                                <strong x-text="new Intl.NumberFormat().format((isNaN(product.valor_ferretero_producto) ? 0 : parseFloat(product.valor_ferretero_producto)))"></strong>
                             </p>
-                            <p class="text-[10px] md:text-xs text-gray-800 dark:text-gray-100 mt-1">DETAL:
-                                <strong x-text="product.valor_detal_producto"></strong>
-                            </p>
-
                             <!-- Vamos a poner el Stock -->
                            <p class="text-[10px] md:text-xs text-gray-800 dark:text-gray-100 mt-1">STOCK:
                                 <strong

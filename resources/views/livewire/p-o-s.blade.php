@@ -23,6 +23,12 @@ init();" class="space-y-4">
         style="z-index:9999;">
         <span x-text="mensajeToast"></span>
     </div>
+    <!-- Botón para limpiar cache de productos -->
+    <div class="mb-2 flex justify-end">
+        <button @click="limpiarCacheProductos(); location.reload();" class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-xs font-bold">
+            Limpiar cache de productos
+        </button>
+    </div>
     @include('livewire.pos.pos-panel-izquierdo')
     @include('livewire.pos.pos-panel-derecho')
     @include('livewire.pos.pos-modal-confirmacion-venta')
