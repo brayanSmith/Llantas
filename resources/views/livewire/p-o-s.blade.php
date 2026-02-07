@@ -38,6 +38,12 @@ init();" class="space-y-4">
 </div>
 {{-- ...existing code... --}}
 <script src="{{ asset('js/pedidos.js') }}"></script>
+
+
+
+
+
+
 <script src="{{ asset('js/pedidosCalculos.js') }}"></script>
 <script src="{{ asset('js/pedidosCalculosStock.js') }}"></script>
 <script src="{{ asset('js/pedidosPaginadoSearch.js') }}"></script>
@@ -47,20 +53,7 @@ init();" class="space-y-4">
         //console.log('Productos cargados en Alpine:', productos);
         return {
             // --- Funciones para limpiar catálogos cacheados ---
-            limpiarCacheProductos() {
-                localStorage.removeItem('productosPOS');
-            },
-            limpiarCacheClientes() {
-                localStorage.removeItem('clientesPOS');
-            },
-            limpiarCacheStockBodegas() {
-                localStorage.removeItem('stockBodegasPOS');
-            },
-            limpiarCacheCatalogos() {
-                this.limpiarCacheProductos();
-                this.limpiarCacheClientes();
-                this.limpiarCacheStockBodegas();
-            },
+            // Eliminadas funciones de limpieza de cache localStorage
             mostrarToast: false,
             mensajeToast: '',
             error: '',
@@ -255,4 +248,16 @@ init();" class="space-y-4">
             }
         }
     }
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        if (window.Echo && window.Livewire) {
+            window.Echo.channel('stock')
+                .listen('.StockActualizado', (e) => {
+                    // Emitir a Livewire el evento con los productos y la bodega
+                    window.Livewire.emit('stockActualizado', { productos: e.productos, bodegaId: e.bodegaId });
+                });
+        }
+    });
 </script>
