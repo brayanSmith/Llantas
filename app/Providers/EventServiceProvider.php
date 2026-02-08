@@ -12,11 +12,11 @@ class EventServiceProvider extends ServiceProvider
      *
      * @var array<class-string, array<int, class-string>>
      */
-    protected $listen = [
+    /*protected $listen = [
         \App\Events\StockActualizado::class => [
             \App\Listeners\RecalcularStockListener::class,
         ],
-    ];
+    ];*/
 
     /**
      * Register any events for your application.

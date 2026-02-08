@@ -10,8 +10,7 @@
     @js($empresa),
     @js($bodegaSeleccionada),
     @js($userId)
-)" x-init="
-// if (!localStorage.getItem('productosPOS')) {
+)" x-init="// if (!localStorage.getItem('productosPOS')) {
 //     localStorage.setItem('productosPOS', JSON.stringify(productos));
 // }
 // if (!localStorage.getItem('clientesPOS')) {
@@ -28,7 +27,8 @@ init();" class="space-y-4">
     </div>
     <!-- Botón para limpiar cache de productos -->
     <div class="mb-2 flex justify-end">
-        <button @click="limpiarCacheProductos(); location.reload();" class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-xs font-bold">
+        <button @click="limpiarCacheProductos(); location.reload();"
+            class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-xs font-bold">
             Limpiar cache de productos
         </button>
     </div>
@@ -38,20 +38,56 @@ init();" class="space-y-4">
 </div>
 {{-- ...existing code... --}}
 <script src="{{ asset('js/pedidos.js') }}"></script>
-
-
-
-
-
-
 <script src="{{ asset('js/pedidosCalculos.js') }}"></script>
 <script src="{{ asset('js/pedidosCalculosStock.js') }}"></script>
 <script src="{{ asset('js/pedidosPaginadoSearch.js') }}"></script>
+
+@vite(['resources/js/app.js'])
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('¿window.Echo existe?', !!window.Echo);
+        console.log('¿window.Livewire existe?', !!window.Livewire);
+        if (window.Echo) {
+            console.log('Echo conectado, canal stock listo para escuchar eventos StockActualizado');
+            window.Echo.channel('stock')
+                .listen('.StockActualizado', (e) => {
+                    console.log('Evento recibido', e);
+                    // Actualizar el stock en Alpine.js
+                    if (Array.isArray(e.productos)) {
+                        // Busca el elemento principal con x-data
+                        const root = document.querySelector('[x-data]');
+                        if (root && root.__x) {
+                            const alpineData = root.__x.$data;
+                            e.productos.forEach(prod => {
+                                alpineData.stockActualizadoPorProducto[`${prod.producto_id}_${prod.bodega_id}`] = prod.stock;
+                            });
+                        }
+                        e.productos.forEach(prod => {
+                            console.log(
+                                '[STOCK] Producto:', prod.producto_id,
+                                'Bodega:', prod.bodega_id,
+                                'Stock:', prod.stock
+                            );
+                        });
+                    } else {
+                        console.log('[STOCK] No hay productos actualizados');
+                    }
+                });
+        } else {
+            if (!window.Echo) {
+                console.warn('Echo NO está definido en window. Revisa la carga de echo.js/app.js');
+            }
+        }
+    });
+</script>
 <script>
     function pedidoForm(clientes = [], alistadores = [], bodegas = [], productos = [], users = [], empresa = null,
         bodegaSeleccionada = null, stockBodegas = [], userId = null) {
         //console.log('Productos cargados en Alpine:', productos);
         return {
+            // Almacena el stock actualizado por producto y bodega
+            stockActualizadoPorProducto: {},
             // --- Funciones para limpiar catálogos cacheados ---
             // Eliminadas funciones de limpieza de cache localStorage
             mostrarToast: false,
@@ -103,6 +139,15 @@ init();" class="space-y-4">
                 iva: 0
             },
             init() {
+                // Escuchar el evento stockActualizado para actualizar el stock de productos específicos
+                window.Livewire && window.Livewire.on && window.Livewire.on('stockActualizado', ({ productos, bodegaId }) => {
+                    if (Array.isArray(productos)) {
+                        productos.forEach(prod => {
+                            // Guarda el stock por producto y bodega
+                            this.stockActualizadoPorProducto[`${prod.producto_id}_${prod.bodega_id}`] = prod.stock;
+                        });
+                    }
+                });
                 const pedidoGuardado = localStorage.getItem('pedidoPOS');
                 if (pedidoGuardado) {
                     this.pedido = JSON.parse(pedidoGuardado);
@@ -154,7 +199,8 @@ init();" class="space-y-4">
                 // Imprimir el pedido completo
                 console.log('Pedido completo:', this.pedido);
                 // Actualizar total y guardar en memoria después de agregar
-                this.totalCantidadProductos = this.pedido.detalles.reduce((acc, d) => acc + (parseFloat(d.cantidad) || 0), 0);
+                this.totalCantidadProductos = this.pedido.detalles.reduce((acc, d) => acc + (parseFloat(d.cantidad) ||
+                    0), 0);
                 this.guardarPedidoEnMemoria();
             },
             removeDetalle(index) {
@@ -182,7 +228,29 @@ init();" class="space-y-4">
             enviar() {
                 enviarPedidoReutilizable(
                     this.pedido,
-                    (pedido) => this.$wire.guardarPedido(pedido)
+                    (pedido) => {
+                        const payload = {
+                            productos: pedido.detalles.map(d => ({
+                                producto_id: d.producto_id,
+                                bodega_id: pedido.bodega_id
+                            })),
+                            bodega_id: pedido.bodega_id
+                        };
+                        console.log('Payload enviado a /api/recalcular-stock:', payload);
+                        this.$wire.guardarPedido(pedido).then(() => {
+                            // Después de guardar el pedido, recalcula el stock por API
+                            fetch('/api/recalcular-stock', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')
+                                        .content
+                                },
+                                body: JSON.stringify(payload)
+                            });
+                        });
+                    }
                 );
             },
 
@@ -211,10 +279,12 @@ init();" class="space-y-4">
             paginaProductos: 1,
             productosPorPagina: 10,
             get totalPaginasProductos() {
-                return productosFiltradosPaginados.getTotalPaginasProductos(this.productos, this.productosPorPagina);
+                return productosFiltradosPaginados.getTotalPaginasProductos(this.productos, this
+                .productosPorPagina);
             },
             get productosPaginados() {
-                return productosFiltradosPaginados.getProductosPaginados(this.productos, this.paginaProductos, this.productosPorPagina);
+                return productosFiltradosPaginados.getProductosPaginados(this.productos, this.paginaProductos, this
+                    .productosPorPagina);
             },
             cambiarPaginaProductos(nuevaPagina) {
                 if (nuevaPagina >= 1 && nuevaPagina <= this.totalPaginasProductos) {
@@ -232,11 +302,13 @@ init();" class="space-y-4">
             },
             //Paguinación de productos filtrados
             get productosFiltradosPaginados() {
-                return productosFiltradosPaginados.getProductosFiltradosPaginados(this.productos, this.search, this.paginaProductos, this
+                return productosFiltradosPaginados.getProductosFiltradosPaginados(this.productos, this.search, this
+                    .paginaProductos, this
                     .productosPorPagina);
             },
             get totalPaginasProductos() {
-                return productosFiltradosPaginados.getTotalPaginasProductosFiltrados(this.productos, this.search, this.productosPorPagina);
+                return productosFiltradosPaginados.getTotalPaginasProductosFiltrados(this.productos, this.search,
+                    this.productosPorPagina);
             },
 
             // Puedes usar productosFiltrados en lugar de productos para mostrar la lista filtrada
@@ -248,16 +320,4 @@ init();" class="space-y-4">
             }
         }
     }
-</script>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        if (window.Echo && window.Livewire) {
-            window.Echo.channel('stock')
-                .listen('.StockActualizado', (e) => {
-                    // Emitir a Livewire el evento con los productos y la bodega
-                    window.Livewire.emit('stockActualizado', { productos: e.productos, bodegaId: e.bodegaId });
-                });
-        }
-    });
 </script>

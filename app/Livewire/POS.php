@@ -102,32 +102,28 @@ class POS extends Component implements HasActions, HasSchemas
     }
     protected $listeners = ['stockActualizado' => 'actualizarStock'];
     /**
-     * Actualiza los productos afectados por el evento StockActualizado
+     * Actualiza solo los productos afectados por el evento StockActualizado
      * @param array $data ['productos' => [], 'bodegaId' => int]
      */
     public function actualizarStock($data)
     {
-        // Recargar solo los productos afectados en la bodega indicada
-        $productosActualizados = [];
         $bodega = $data['bodegaId'] ?? $this->bodegaSeleccionada;
-        $todos = $this->getFilteredProductos();
-        foreach ($todos as $producto) {
-            if (in_array($producto['id'], $data['productos'])) {
-                $productosActualizados[] = $producto;
-            }
-        }
-        // Si quieres actualizar solo los afectados:
+        $idsAfectados = $data['productos'] ?? [];
+        if (empty($idsAfectados)) return;
+
+        // Obtener solo los productos afectados desde la base de datos
+        $productosActualizados = $this->getFilteredProductos();
+        $productosActualizados = collect($productosActualizados)
+            ->whereIn('id', $idsAfectados)
+            ->keyBy('id');
+
+        // Actualizar solo los productos afectados en el array actual
         foreach ($this->productos as &$producto) {
-            if (in_array($producto['id'], $data['productos'])) {
-                $nuevo = collect($productosActualizados)->firstWhere('id', $producto['id']);
-                if ($nuevo) {
-                    $producto = $nuevo;
-                }
+            if (isset($productosActualizados[$producto['id']])) {
+                $producto = $productosActualizados[$producto['id']];
             }
         }
         unset($producto);
-        // Si quieres recargar todos, descomenta:
-        // $this->productos = $this->getFilteredProductos();
     }
 
     // Método para guardar pedido y detalles desde Alpine.js
@@ -176,11 +172,7 @@ class POS extends Component implements HasActions, HasSchemas
             ]);
             $productosAfectados[] = $detalle['producto_id'];
         }
-
-        // Emitir evento StockActualizado con los productos afectados (únicos) y la bodega
-        if (!empty($productosAfectados)) {
-            event(new \App\Events\StockActualizado(array_unique($productosAfectados), $pedido['bodega_id'] ?? ($this->bodegaSeleccionada ?? null)));
-        }
+        // Ya no se emite el evento StockActualizado aquí, se maneja desde Alpine.js
 
         // Guardar la URL del PDF en la sesión para mostrar el botón en la modal
         session(['pedido_pdf_url' => route('pedidos.pdf.download', $nuevoPedido->id)]);
