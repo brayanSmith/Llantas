@@ -40,7 +40,7 @@
                             <!-- Vamos a poner el Stock -->
                         <p class="text-[10px] md:text-xs text-gray-800 dark:text-gray-100 mt-1">STOCK:
                             <strong
-                                x-text="stockActualizadoPorProducto[`${product.id}_${bodegaSeleccionada}`] ?? product.stock">
+                                x-text="product.stock">
                             </strong>
                         </p>
 

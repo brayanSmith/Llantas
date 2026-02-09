@@ -1,36 +1,23 @@
 {{-- ...existing code... --}}
-<div x-data="pedidoForm(
-    //(localStorage.getItem('clientesPOS') ? JSON.parse(localStorage.getItem('clientesPOS')) : @js($clientes)),
+<div id="alpine-pos" x-data="pedidoForm(
     @js($clientes),
     @js($alistadores),
     @js($bodegas),
-    //(localStorage.getItem('productosPOS') ? JSON.parse(localStorage.getItem('productosPOS')) : @js($productos)),
     @js($productos),
     @js($users),
     @js($empresa),
     @js($bodegaSeleccionada),
     @js($userId)
-)" x-init="// if (!localStorage.getItem('productosPOS')) {
-//     localStorage.setItem('productosPOS', JSON.stringify(productos));
-// }
-// if (!localStorage.getItem('clientesPOS')) {
-//     localStorage.setItem('clientesPOS', JSON.stringify(clientes));
-// }
+)" x-init="
 window.addEventListener('limpiar-catalogos', () => {
     limpiarCacheCatalogos();
     location.reload();
 });
 init();" class="space-y-4">
-    <div x-show="mostrarToast" x-transition class="fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded shadow"
-        style="z-index:9999;">
+
+    <div id="alpine-pos" x-show="mostrarToast" x-transition
+        class="fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded shadow" style="z-index:9999;">
         <span x-text="mensajeToast"></span>
-    </div>
-    <!-- Botón para limpiar cache de productos -->
-    <div class="mb-2 flex justify-end">
-        <button @click="limpiarCacheProductos(); location.reload();"
-            class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-xs font-bold">
-            Limpiar cache de productos
-        </button>
     </div>
     @include('livewire.pos.pos-panel-izquierdo')
     @include('livewire.pos.pos-panel-derecho')
@@ -45,49 +32,10 @@ init();" class="space-y-4">
 @vite(['resources/js/app.js'])
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('¿window.Echo existe?', !!window.Echo);
-        console.log('¿window.Livewire existe?', !!window.Livewire);
-        if (window.Echo) {
-            console.log('Echo conectado, canal stock listo para escuchar eventos StockActualizado');
-            window.Echo.channel('stock')
-                .listen('.StockActualizado', (e) => {
-                    console.log('Evento recibido', e);
-                    // Actualizar el stock en Alpine.js
-                    if (Array.isArray(e.productos)) {
-                        // Busca el elemento principal con x-data
-                        const root = document.querySelector('[x-data]');
-                        if (root && root.__x) {
-                            const alpineData = root.__x.$data;
-                            e.productos.forEach(prod => {
-                                alpineData.stockActualizadoPorProducto[`${prod.producto_id}_${prod.bodega_id}`] = prod.stock;
-                            });
-                        }
-                        e.productos.forEach(prod => {
-                            console.log(
-                                '[STOCK] Producto:', prod.producto_id,
-                                'Bodega:', prod.bodega_id,
-                                'Stock:', prod.stock
-                            );
-                        });
-                    } else {
-                        console.log('[STOCK] No hay productos actualizados');
-                    }
-                });
-        } else {
-            if (!window.Echo) {
-                console.warn('Echo NO está definido en window. Revisa la carga de echo.js/app.js');
-            }
-        }
-    });
-</script>
-<script>
     function pedidoForm(clientes = [], alistadores = [], bodegas = [], productos = [], users = [], empresa = null,
         bodegaSeleccionada = null, stockBodegas = [], userId = null) {
-        //console.log('Productos cargados en Alpine:', productos);
+
         return {
-            // Almacena el stock actualizado por producto y bodega
-            stockActualizadoPorProducto: {},
             // --- Funciones para limpiar catálogos cacheados ---
             // Eliminadas funciones de limpieza de cache localStorage
             mostrarToast: false,
@@ -139,15 +87,6 @@ init();" class="space-y-4">
                 iva: 0
             },
             init() {
-                // Escuchar el evento stockActualizado para actualizar el stock de productos específicos
-                window.Livewire && window.Livewire.on && window.Livewire.on('stockActualizado', ({ productos, bodegaId }) => {
-                    if (Array.isArray(productos)) {
-                        productos.forEach(prod => {
-                            // Guarda el stock por producto y bodega
-                            this.stockActualizadoPorProducto[`${prod.producto_id}_${prod.bodega_id}`] = prod.stock;
-                        });
-                    }
-                });
                 const pedidoGuardado = localStorage.getItem('pedidoPOS');
                 if (pedidoGuardado) {
                     this.pedido = JSON.parse(pedidoGuardado);
@@ -162,7 +101,39 @@ init();" class="space-y-4">
                         deep: true
                     });
                 }
+                // Suscripción a eventos de Echo dentro de Alpine
+                if (window.Echo) {
+                    window.Echo.channel('stock')
+                        .listen('.StockActualizado', (e) => {
+                            if (Array.isArray(e.productos)) {
+                                this.modificarStockProducto(e.productos);
+                                // Aquí puedes actualizar this.productos si lo necesitas:
+                                // this.productos = e.productos;
+                            }
+                        });
+                }
             },
+            // Función para modificar el stock de productos, ahora soporta un array de productos con id y stock
+            modificarStockProducto(productosActualizar, nuevoStock = null) {
+                if (Array.isArray(productosActualizar)) {
+                    // Soporta objetos con 'id' o 'producto_id'
+                    productosActualizar.forEach(item => {
+                        const id = item.producto_id;
+                        const stock = item.stock;
+                        const prod = this.productos.find(p => p.id === id);
+                        if (prod) {
+                            prod.stock = stock;
+                        }
+                    });
+                } else {
+                    // Caso original: id y nuevoStock como argumentos
+                    const prod = this.productos.find(p => p.id === productosActualizar);
+                    if (prod) {
+                        prod.stock = nuevoStock;
+                    }
+                }
+            },
+
             // Obtener el tipo de precio seleccionado
             get tipoPrecio() {
                 return this.pedido.tipo_precio;
@@ -280,7 +251,7 @@ init();" class="space-y-4">
             productosPorPagina: 10,
             get totalPaginasProductos() {
                 return productosFiltradosPaginados.getTotalPaginasProductos(this.productos, this
-                .productosPorPagina);
+                    .productosPorPagina);
             },
             get productosPaginados() {
                 return productosFiltradosPaginados.getProductosPaginados(this.productos, this.paginaProductos, this
