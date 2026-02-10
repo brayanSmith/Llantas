@@ -58,3 +58,25 @@
 .dark .input-table-select {
     @apply text-gray-100 bg-transparent;
 }
+
+/* --- Tom Select custom background fix --- */
+.ts-control {
+    background-color: #fff !important;
+}
+.ts-dropdown, .ts-dropdown .option {
+    background-color: #fff !important;
+}
+.dark .ts-control {
+    background-color: #23272f !important;
+}
+.dark .ts-dropdown, .dark .ts-dropdown .option {
+    background-color: #23272f !important;
+}
+
+/* --- Tom Select custom text color fix --- */
+.ts-control, .ts-dropdown, .ts-dropdown .option {
+    color: #23272f !important;
+}
+.dark .ts-control, .dark .ts-dropdown, .dark .ts-dropdown .option {
+    color: #fff !important;
+}

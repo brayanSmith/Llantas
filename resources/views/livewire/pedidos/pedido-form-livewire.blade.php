@@ -8,7 +8,8 @@
     detalles: @js($detalles)
 })" x-init="init()" class="space-y-4">
 
-    <div class="flex items-center justify-center gap-4 bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6 mb-6">
+    <div
+        class="flex items-center justify-center gap-4 bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6 mb-6">
         <label class="block text-sm font-semibold text-gray-700 mb-0 text-center whitespace-nowrap">Estado Venta</label>
         <div class="flex gap-4">
             <label class="inline-flex items-center cursor-pointer">
@@ -24,11 +25,13 @@
         </div>
     </div>
 
-    <div x-show="pedido.estado_venta !== 'COTIZACION'" class="bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6 mb-6">
+    <div x-show="pedido.estado_venta !== 'COTIZACION'"
+        class="bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6 mb-6">
         @include('livewire.pedidos.livewire-pedidos-seccion-general')
     </div>
 
-    <div x-show="pedido.estado_venta === 'COTIZACION'" class="bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6 mb-6">
+    <div x-show="pedido.estado_venta === 'COTIZACION'"
+        class="bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6 mb-6">
         @include('livewire.pedidos.livewire-pedidos-seccion-general-cotizacion')
     </div>
 
@@ -81,6 +84,16 @@
             isLoading: false,
             init() {
                 console.log('Datos del pedido:', this.pedido);
+
+                // Guardar los detalles originales para recalculo de stock
+                this.detallesOriginales = detalles.map(detalle => ({
+                    producto_id: String(detalle.producto_id),
+                    cantidad: detalle.cantidad,
+                    precio_unitario: detalle.precio_unitario,
+                    aplicar_iva: detalle.aplicar_iva,
+                    precio_con_iva: detalle.precio_con_iva,
+                    subtotal: detalle.subtotal
+                }));
 
                 // Forzar actualización de selects después de inicializar datos
                 this.$nextTick(() => {
@@ -228,7 +241,8 @@
                     this.pedido.detalles.forEach((detalle, idx) => {
                         // Si el usuario modificó manualmente el precio_unitario, se respeta
                         // pero siempre recalculamos precio_con_iva y subtotal
-                        detalle.precio_unitario = detalle.precio_unitario ?? this.getPrecio(detalle, this.tipoPrecio);
+                        detalle.precio_unitario = detalle.precio_unitario ?? this.getPrecio(detalle, this
+                            .tipoPrecio);
                         detalle.precio_con_iva = this.getPrecioConIva(detalle, this.tipoPrecio);
                         detalle.subtotal = this.getSubtotal(detalle);
                     });
@@ -238,13 +252,43 @@
                 this.pedido.subtotal = this.getTotal(this.pedido);
                 this.pedido.total_a_pagar = this.getTotalFinal(this.pedido);
                 this.pedido.fecha = this.formatDateForInput(this.pedido.fecha);
-                this.pedido.fecha_vencimiento = this.calcularFechaVencimiento(this.pedido.fecha, this.pedido.dias_plazo_vencimiento);
+                this.pedido.fecha_vencimiento = this.calcularFechaVencimiento(this.pedido.fecha, this.pedido
+                    .dias_plazo_vencimiento);
                 console.log('JSON generado para enviar:', JSON.stringify(this.pedido, null, 2));
                 console.log('Llamando a método Livewire: editarPedido');
                 console.log('Enviando petición editarPedido...');
+
+                // Construir el payload con los detalles normalizados
+                const productos = [
+                    ...this.pedido.detalles.map(detalle => ({
+                        producto_id: detalle.producto_id,
+                        bodega_id: this.pedido.bodega_id
+                    })),
+                    ...this.detallesOriginales.map(detalle => ({
+                        producto_id: detalle.producto_id,
+                        bodega_id: this.pedido.bodega_id
+                    }))
+                ];
+
+                const payload = {
+                    productos,
+                    bodega_id: this.pedido.bodega_id
+                };
+                console.log('Payload enviado a /api/recalcular-stock:', payload);
+
                 this.$wire.editarPedido(this.pedido)
                     .then(() => {
                         this.isLoading = false;
+                        // Aquí puedes agregar el fetch para recalcular el stock
+                        fetch('/api/recalcular-stock', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content
+                            },
+                            body: JSON.stringify(payload) // payload debe estar definido antes
+                        });
                         console.log('Petición editarPedido terminada (éxito)');
                     })
                     .catch(() => {

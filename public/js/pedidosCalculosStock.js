@@ -1,26 +1,17 @@
 // Funciones de cálculo de stock reutilizables para pedidos
 
-function getStockDisponible(stockBodegas, idProducto, idBodega) {
-    const stockEntry = stockBodegas.find(entry =>
-        entry.bodega_id === idBodega && entry.producto_id === idProducto
-    );
-    return stockEntry ? stockEntry.stock : 0;
-}
-
-function getStockTotal(stockBodegas, idProducto, idBodega, cantidad, accion) {
-    let stockInicial = Number(getStockDisponible(stockBodegas, idProducto, idBodega));
-    let stockTotal = stockInicial;
+function changeStockDisplay(producto, cantidad, accion) {
+    const stockActual = Number(producto.stock);
+    let stockTotal = stockActual;
     cantidad = Number(cantidad) || 0;
     if (accion === 'agregar') {
-        stockTotal = stockInicial - cantidad;
+        stockTotal = stockActual - cantidad;
     } else if (accion === 'remover') {
-        stockTotal = stockInicial;
+        stockTotal = stockActual;
     } else if (accion === 'actualizar') {
-        // Si tienes un valor especial para actualizar, pon la lógica aquí
-        stockTotal = stockInicial - cantidad; // O la lógica que necesites
+        stockTotal = stockActual - cantidad; // O la lógica que necesites
     }
     return stockTotal;
 }
 
-window.getStockDisponible = getStockDisponible;
-window.getStockTotal = getStockTotal;
+window.changeStockDisplay = changeStockDisplay;

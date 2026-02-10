@@ -170,11 +170,13 @@ init();" class="space-y-4">
                 // Imprimir el pedido completo
                 console.log('Pedido completo:', this.pedido);
                 // Actualizar total y guardar en memoria después de agregar
-                this.totalCantidadProductos = this.pedido.detalles.reduce((acc, d) => acc + (parseFloat(d.cantidad) ||
-                    0), 0);
+                this.totalCantidadProductos = this.pedido.detalles.reduce((acc, d) => acc + (parseFloat(d.cantidad) || 0), 0);
+
                 this.guardarPedidoEnMemoria();
             },
             removeDetalle(index) {
+                //const producto = this.pedido.detalles[index];
+                //const productoId = producto ? producto.producto_id : null;
                 removeDetalleReutilizable(
                     this.pedido,
                     index,
@@ -208,6 +210,7 @@ init();" class="space-y-4">
                             bodega_id: pedido.bodega_id
                         };
                         console.log('Payload enviado a /api/recalcular-stock:', payload);
+                        // Guardar el pedido primero y luego recalcular el stock por API
                         this.$wire.guardarPedido(pedido).then(() => {
                             // Después de guardar el pedido, recalcula el stock por API
                             fetch('/api/recalcular-stock', {

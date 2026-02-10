@@ -26,7 +26,9 @@
             Cartera Total
         </label>
         <div class="mt-2">
-            <span x-text="clienteSeleccionado.saldo_total_pedidos_en_cartera" class="inline-flex items-center px-4 py-2 rounded-lg text-lg font-boldbg-amber-100 text-amber-900 dark:bg-amber-900/20 dark:text-amber-400">
+            <span
+                x-text="new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(clienteSeleccionado.saldo_total_pedidos_en_cartera) || 0)"
+                class="inline-flex items-center px-4 py-2 rounded-lg text-lg font-bold bg-amber-100 text-amber-900 dark:bg-amber-900/20 dark:text-amber-400">
             </span>
         </div>
     </div>
@@ -36,7 +38,9 @@
             Cartera Vencida
         </label>
         <div class="mt-2">
-            <span x-text="clienteSeleccionado.saldo_total_pedidos_vencidos" class="inline-flex items-center px-4 py-2 rounded-lg text-lg font-bold bg-red-100 text-red-900 dark:bg-red-900/20 dark:text-red-400">
+            <span
+                x-text="new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(clienteSeleccionado.saldo_total_pedidos_vencidos) || 0)"
+                class="inline-flex items-center px-4 py-2 rounded-lg text-lg font-bold bg-red-100 text-red-900 dark:bg-red-900/20 dark:text-red-400">
             </span>
         </div>
     </div>

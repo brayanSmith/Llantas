@@ -40,10 +40,15 @@
                             <!-- Vamos a poner el Stock -->
                         <p class="text-[10px] md:text-xs text-gray-800 dark:text-gray-100 mt-1">STOCK:
                             <strong
-                                x-text="product.stock">
+                                x-text="product.stock"
+                                :class="product.stock > product.alerta_producto
+                                    ? 'bg-green-600 text-white px-2 py-0.5 rounded'
+                                    : (product.stock > 0
+                                        ? 'bg-yellow-500 text-white px-2 py-0.5 rounded'
+                                        : 'bg-red-600 text-white px-2 py-0.5 rounded')"
+                            >
                             </strong>
                         </p>
-
                         </div>
 
                         <!-- Botón -->

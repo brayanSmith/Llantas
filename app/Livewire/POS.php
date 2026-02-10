@@ -78,6 +78,7 @@ class POS extends Component implements HasActions, HasSchemas
             'imagen_producto',
             'nombre_producto',
             'codigo_producto',
+            'alerta_producto',
         )->where('categoria_producto', '!=', 'MATERIA_PRIMA')
             ->where('activo', 1);
         if ($empresa && !$empresa->mostrar_productos_sin_inventario) {
