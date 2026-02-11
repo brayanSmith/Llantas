@@ -111,26 +111,29 @@ function agregarDetalleReutilizable(
     // ...resto del código...
 }
 
-function removeDetalleReutilizable(pedido, index, setTotalCantidadProductosFn) {
-
-    pedido.detalles.splice(index, 1);
-    if (typeof setTotalCantidadProductosFn === "function") {
-        setTotalCantidadProductosFn(
-            pedido.detalles.reduce(
-                (acc, d) => acc + (parseFloat(d.cantidad) || 0),
-                0,
-            ),
-        );
-
-    }
-}
-
 function actualizarCantidadReutilizable(
     pedido,
     index,
     setTotalCantidadProductosFn,
 ) {
-    // Puedes agregar lógica adicional aquí si lo necesitas
+    // Recalcular el subtotal del detalle modificado
+    const detalle = pedido.detalles[index];
+    if (detalle) {
+        detalle.subtotal = detalle.precio_con_iva * detalle.cantidad;
+    }
+
+    // Recalcular todos los totales del pedido
+    if (typeof getTotal === 'function') {
+        pedido.subtotal = getTotal(pedido);
+    }
+    if (typeof getTotalAPagar === 'function') {
+        pedido.total_a_pagar = getTotalAPagar(pedido);
+    }
+    if (typeof getSaldoPendiente === 'function') {
+        pedido.saldo_pendiente = getSaldoPendiente(pedido);
+    }
+
+    // Actualizar el total de cantidad de productos
     if (typeof setTotalCantidadProductosFn === "function") {
         setTotalCantidadProductosFn(
             pedido.detalles.reduce(
@@ -140,6 +143,34 @@ function actualizarCantidadReutilizable(
         );
     }
 }
+
+function removeDetalleReutilizable(pedido, index, setTotalCantidadProductosFn) {
+    // Eliminar el detalle
+    pedido.detalles.splice(index, 1);
+
+    // Recalcular todos los totales del pedido
+    if (typeof getTotal === 'function') {
+        pedido.subtotal = getTotal(pedido);
+    }
+    if (typeof getTotalAPagar === 'function') {
+        pedido.total_a_pagar = getTotalAPagar(pedido);
+    }
+    if (typeof getSaldoPendiente === 'function') {
+        pedido.saldo_pendiente = getSaldoPendiente(pedido);
+    }
+
+    // Actualizar el total de cantidad de productos
+    if (typeof setTotalCantidadProductosFn === "function") {
+        setTotalCantidadProductosFn(
+            pedido.detalles.reduce(
+                (acc, d) => acc + (parseFloat(d.cantidad) || 0),
+                0,
+            ),
+        );
+    }
+}
+
+
 
 // Función reutilizable para validar detalles de un pedido
 function validarDetalles(detalles) {

@@ -161,6 +161,26 @@
                         return prod.valor_detal_producto ?? 0;
                 }
             },
+            //PRECIOS PARA EL AGREGADOR PRINCIPAL------------------------------------------
+            getPrecioIndividual(productoId, tipoPrecio) {
+                const prod = this.productos.find(p => p.id == productoId);
+                let precioUnitario = 0;
+                if (!prod) return 0;
+                switch (tipoPrecio) {
+                    case 'MAYORISTA':
+                        precioUnitario = prod.valor_mayorista_producto ?? 0;
+                        break;
+                    case 'FERRETERO':
+                        precioUnitario = prod.valor_ferretero_producto ?? 0;
+                        break;
+                    default:
+                        precioUnitario = prod.valor_detal_producto ?? 0;
+                }
+                //console.log('Precio unitario obtenido para productoId', productoId, 'tipoPrecio', tipoPrecio, ':', precioUnitario);
+                return precioUnitario;
+            },
+            //----------------------------------------------------------------------------
+
             //Funcion para Obtener Precio con IVA
             getPrecioConIva(detalle, tipoPrecio) {
                 const prod = this.productos.find(p => p.id == detalle.producto_id);
@@ -185,7 +205,10 @@
                 detalle.subtotal = this.getSubtotal(detalle);
             },
 
-            actualizarTodosLosDetalles() {
+            actualizarTodosLosDetalles(tipoPrecio) {
+                if (tipoPrecio) {
+                    this.pedido.tipo_precio = tipoPrecio;
+                }
                 if (Array.isArray(this.pedido.detalles)) {
                     this.pedido.detalles.forEach(detalle => {
                         this.actualizarValoresDetalle(detalle);

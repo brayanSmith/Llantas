@@ -192,6 +192,10 @@ init();" class="space-y-4">
                     index,
                     (total) => {
                         this.totalCantidadProductos = total;
+                        // Recalcular todos los totales del pedido
+                        this.pedido.subtotal = getTotal(this.pedido);
+                        this.pedido.total_a_pagar = getTotalAPagar(this.pedido);
+                        this.pedido.saldo_pendiente = getSaldoPendiente(this.pedido);
                         this.guardarPedidoEnMemoria();
                     }
                 );

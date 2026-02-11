@@ -19,16 +19,16 @@
 
         <!-- panel slide-over -->
         <div
-            class="relative bg-white dark:bg-neutral-800 rounded-l-2xl shadow-2xl w-full max-w-md h-full overflow-auto p-6 z-50">
+            class="relative bg-white dark:bg-neutral-800 rounded-l-2xl shadow-2xl w-full max-w-md h-full flex flex-col z-50">
             <!-- Close button arriba -->
-            <div class="flex justify-end">
+            <div class="flex justify-end p-6 pb-0">
                 <button @click.prevent="open = false"
                     class="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white text-2xl p-1"
                     aria-label="Cerrar">&times;</button>
             </div>
 
-            {{-- Modal content --}}
-            <div class="space-y-6 max-w-full ">
+            {{-- Contenido con scroll --}}
+            <div class="flex-1 overflow-auto px-6 py-6 space-y-6">
                 <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
                     Productos agregados:
                 </h2>
@@ -36,7 +36,10 @@
                 @include('livewire.pos.componentes-panel-derecho.productos-carrito')
                 {{-- Checkear carrito--}}
                 @include('livewire.pos.componentes-panel-derecho.formulario-carrito')
-                {{-- Botones de acción --}}
+            </div>
+
+            {{-- Botones fijos en la parte inferior con transparencia --}}
+            <div class="sticky bottom-0 bg-white/80 dark:bg-neutral-800/80 backdrop-blur-sm border-t border-gray-200 dark:border-gray-700 p-6 shadow-lg">
                 @include('livewire.pos.componentes-panel-derecho.botones-carrito')
             </div>
         </div>
