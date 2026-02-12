@@ -81,7 +81,11 @@ class PedidosFacturadosTable
                     HasActionSections::registrarAbonoAction(),
                     ViewAction::make()
                         ->modalWidth('full'),
-                    EditAction::make(),
+                    Action::make('edit')
+                            ->label('Editar')
+                            ->icon('heroicon-o-pencil')
+                            ->url(fn($record) => route('filament.admin.resources.pedidos-facturados.edit', ['record' => $record->getKey(), 'pedido_id' => $record->getKey()]))
+                            ->openUrlInNewTab(false),
                     Action::make('download_pdf')
                         ->label(fn ($record) => 'Descargar PDF (' . ($record->contador_impresiones ?? 0) . ')')
                         //->icon('heroicon-o-document-download')

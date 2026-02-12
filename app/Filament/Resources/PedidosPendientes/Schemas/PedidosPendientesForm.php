@@ -14,19 +14,6 @@ class PedidosPendientesForm
 {
     public static function configure(Schema $schema): Schema
     {
-
-        // Componer el schema usando las secciones del trait
-        /*$components = array_merge(
-            self::placeholders(),
-            // solicitar la sección de datos generales en modo full para este formulario
-            self::sectionDatosGenerales(true, ['PENDIENTE' => 'Pendiente', 'FACTURADO' => 'Facturado' , 'ANULADO' => 'Anulado' ] ),
-            //self::sectionResumen(),
-            self::sectionComentarios(),
-            self::sectionDetalles(),
-            //self::sectionAbonos()
-            //self::sectionRecibido()
-        );*/
-
         return $schema->components([
             Livewire::make(PedidoFormLivewire::class)->columnSpanFull(),
 
