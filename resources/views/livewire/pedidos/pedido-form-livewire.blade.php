@@ -1,4 +1,10 @@
 <div x-data="pedidoForm({
+
+    productoIngresado: null,
+    cantidadIngresada: 1,
+    valorIngresado: 0,
+    subTotalIngresado: 0,
+
     pedido: @js($pedidoEncontrado),
     clientes: @js($clientes),
     bodegas: @js($bodegas),
@@ -35,6 +41,10 @@
         @include('livewire.pedidos.livewire-pedidos-seccion-general-cotizacion')
     </div>
 
+    <div class="sticky top-16 z-10 bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6 mb-6">
+        @include('livewire.pedidos.livewire-pedidos-seccion-detalle-agregar')
+    </div>
+
     <div class="bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6 mb-6">
         @include('livewire.pedidos.livewire-pedidos-seccion-detalle')
     </div>
@@ -68,7 +78,11 @@
         alistadores,
         users,
         productos,
-        detalles
+        detalles,
+        cantidadIngresada = 1,
+        valorIngresado = 0,
+        subTotalIngresado = 0,
+        productoIngresado = null
     }) {
         return {
             pedido,
@@ -78,6 +92,11 @@
             users,
             productos,
             detalles,
+            cantidadIngresada,
+            valorIngresado,
+            subTotalIngresado,
+            productoIngresado,
+            detalleEditandoIndex: null,
             formatDateForInput, // disponible en Alpine
             productoSeleccionado: null,
             cantidadSeleccionada: 1,
@@ -135,19 +154,114 @@
                 return this.pedido.tipo_precio;
             },
             // Funciones para manejar los detalles del pedido
-            agregarDetalle() {
+            agregarDetalle(productoId, cantidad, valorUnitario) {
+                if (!productoId) {
+                    alert('Debe seleccionar un producto');
+                    return;
+                }
+                if (!cantidad || cantidad < 1) {
+                    alert('La cantidad debe ser mayor a 0');
+                    return;
+                }
+                // en caso de que el producto ya exista en el pedido, alertar y no agregar
+                const detalleExistente = this.pedido.detalles.find(detalle => detalle.producto_id === String(
+                    productoId));
+                if (detalleExistente) {
+                    alert('El producto ya está agregado al pedido');
+                    return;
+                }
+                // Calcular subtotal
+                const cantidadNum = parseFloat(cantidad) || 0;
+                const valorUnitarioNum = parseFloat(valorUnitario) || 0;
+                const subTotalCalculado = Math.round(cantidadNum * valorUnitarioNum * 100) / 100;
+
                 this.pedido.detalles.push({
-                    producto_id: null,
-                    cantidad: 1,
-                    precio_unitario: null,
+                    producto_id: productoId,
+                    cantidad: cantidadNum,
+                    precio_unitario: valorUnitarioNum,
                     aplicar_iva: false,
-                    subtotal: 0
+                    subtotal: subTotalCalculado
                 });
+                // Limpiar campos de ingreso
+                this.productoIngresado = null;
+                this.cantidadIngresada = 1;
+                this.valorIngresado = 0;
+                this.subTotalIngresado = 0;
+
+                // Limpiar Tom Select
+                setTimeout(() => {
+                    const selectProducto = document.getElementById('select-producto');
+                    if (selectProducto && selectProducto.tomselect) {
+                        selectProducto.tomselect.clear();
+                    }
+                }, 50);
             },
+
             // Funcion para Remover Algun Detalle
             removeDetalle(index) {
                 this.pedido.detalles.splice(index, 1);
             },
+            // Funcion para Traer Detalle a los campos de entrada para editar
+            traerDetalle(index) {
+                const detalle = this.pedido.detalles[index];
+                if (detalle) {
+                    this.productoIngresado = detalle.producto_id;
+                    this.cantidadIngresada = detalle.cantidad;
+                    this.valorIngresado = detalle.precio_unitario;
+                    this.detalleEditandoIndex = index;
+                    // Actualizar Tom Select manualmente
+                    this.$nextTick(() => {
+                        const selectProducto = document.querySelector('select[id="select-producto"]');
+                        if (selectProducto && selectProducto.tomselect) {
+                            selectProducto.tomselect.setValue(detalle.producto_id);
+                        }
+                    });
+
+                    console.log('Detalle cargado para editar:', detalle);
+                }
+            },
+            //Funcion para Actualizar Valores del Detalle
+            actualizarValoresDetalle(index, productoId, cantidad, valorUnitario) {
+                const detalle = this.pedido.detalles[index];
+                if (!productoId) {
+                    alert('Debe seleccionar un producto');
+                    return;
+                }
+                if (!cantidad || cantidad < 1) {
+                    alert('La cantidad debe ser mayor a 0');
+                    return;
+                }
+                //En caso de que el producto ya exista en el pedido (y no sea el mismo detalle que se está editando), alertar y no actualizar
+                const detalleExistente = this.pedido.detalles.find((d, i) => d.producto_id === String(productoId) &&
+                    i !== index);
+                if (detalleExistente) {
+                    alert('El producto ya está agregado al pedido');
+                    return;
+                }
+                // Calcular subtotal
+                const cantidadNum = parseFloat(cantidad) || 0;
+                const valorUnitarioNum = parseFloat(valorUnitario) || 0;
+                const subTotalCalculado = Math.round(cantidadNum * valorUnitarioNum * 100) / 100;
+
+                detalle.producto_id = productoId;
+                detalle.cantidad = parseFloat(cantidad) || 0;
+                detalle.precio_unitario = parseFloat(valorUnitario) || 0;
+                detalle.subtotal = subTotalCalculado;
+                // Limpiar campos de ingreso
+                this.productoIngresado = null;
+                this.cantidadIngresada = 1;
+                this.valorIngresado = 0;
+                this.subTotalIngresado = 0;
+
+                // Limpiar Tom Select
+                setTimeout(() => {
+                    const selectProducto = document.getElementById('select-producto');
+                    if (selectProducto && selectProducto.tomselect) {
+                        selectProducto.tomselect.clear();
+                    }
+                }, 50);
+            },
+
             //Funcion para Obtener Precio Segun Tipo
             getPrecio(detalle, tipoPrecio) {
                 const prod = this.productos.find(p => p.id == detalle.producto_id);
@@ -198,20 +312,16 @@
                 return Math.round(precio * detalle.cantidad * 100) / 100;
             },
 
-
-            actualizarValoresDetalle(detalle) {
-                detalle.precio_unitario = this.getPrecio(detalle, this.tipoPrecio);
-                detalle.precio_con_iva = this.getPrecioConIva(detalle, this.tipoPrecio);
-                detalle.subtotal = this.getSubtotal(detalle);
-            },
-
             actualizarTodosLosDetalles(tipoPrecio) {
                 if (tipoPrecio) {
                     this.pedido.tipo_precio = tipoPrecio;
                 }
                 if (Array.isArray(this.pedido.detalles)) {
-                    this.pedido.detalles.forEach(detalle => {
-                        this.actualizarValoresDetalle(detalle);
+                    this.pedido.detalles.forEach((detalle, index) => {
+                        // Actualizar precios según el tipo de precio
+                        detalle.precio_unitario = this.getPrecio(detalle, this.tipoPrecio);
+                        detalle.precio_con_iva = this.getPrecioConIva(detalle, this.tipoPrecio);
+                        detalle.subtotal = this.getSubtotal(detalle);
                     });
                 }
             },

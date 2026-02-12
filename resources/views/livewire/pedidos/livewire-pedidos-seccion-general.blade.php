@@ -55,7 +55,9 @@
     </div>
     <div>
         <label class="block text-sm font-semibold text-gray-700 mb-1">Tipo Precio</label>
-        <select x-model="pedido.tipo_precio" class="input-pedido-select" @change="actualizarTodosLosDetalles($event.target.value)">
+        <select x-model="pedido.tipo_precio" class="input-pedido-select"
+        @change="actualizarTodosLosDetalles($event.target.value); productoSeleccionado = getPrecioIndividual(productoIngresado, $event.target.value); valorIngresado = productoSeleccionado"
+        >
             <option value="FERRETERO">FERRETERO</option>
             <option value="MAYORISTA">MAYORISTA</option>
             <option value="DETAL">DETAL</option>

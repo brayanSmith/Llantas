@@ -8,8 +8,7 @@
     @js($empresa),
     @js($bodegaSeleccionada),
     @js($userId)
-)" x-init="
-window.addEventListener('limpiar-catalogos', () => {
+)" x-init="window.addEventListener('limpiar-catalogos', () => {
     limpiarCacheCatalogos();
     location.reload();
 });
@@ -84,7 +83,7 @@ init();" class="space-y-4">
                 detalles: [],
                 created_at: '',
                 updated_at: '',
-                iva: 0
+                iva: 0,
             },
             init() {
                 const pedidoGuardado = localStorage.getItem('pedidoPOS');
@@ -170,13 +169,20 @@ init();" class="space-y-4">
                 // Imprimir el pedido completo
                 console.log('Pedido completo:', this.pedido);
                 // Actualizar total y guardar en memoria después de agregar
-                this.totalCantidadProductos = this.pedido.detalles.reduce((acc, d) => acc + (parseFloat(d.cantidad) || 0), 0);
+                this.totalCantidadProductos = this.pedido.detalles.reduce((acc, d) => acc + (parseFloat(d.cantidad) ||
+                    0), 0);
 
                 this.guardarPedidoEnMemoria();
             },
             removeDetalle(index) {
-                //const producto = this.pedido.detalles[index];
-                //const productoId = producto ? producto.producto_id : null;
+
+                // Actualizar el stock del producto en la lista de productos antes de eliminar el detalle
+                const producto = this.productos.find(p => p.id === this.pedido.detalles[index].producto_id);
+                if (producto) {
+                    producto.stock = changeStockDisplay(producto, this.pedido.detalles[index].cantidad, 'remover');
+                    console.log(`Stock actualizado para producto ${producto.id}: ${producto.stock}`);
+                }
+
                 removeDetalleReutilizable(
                     this.pedido,
                     index,
@@ -185,6 +191,7 @@ init();" class="space-y-4">
                         this.guardarPedidoEnMemoria();
                     }
                 );
+
             },
             actualizarCantidad(index) {
                 actualizarCantidadReutilizable(
@@ -199,6 +206,13 @@ init();" class="space-y-4">
                         this.guardarPedidoEnMemoria();
                     }
                 );
+                // Actualizar el stock del producto en la lista de productos después de cambiar la cantidad
+                const producto = this.productos.find(p => p.id === this.pedido.detalles[index].producto_id);
+                if (producto) {
+                    producto.stock = changeStockDisplay(producto, this.pedido.detalles[index].cantidad, 'actualizar');
+                    console.log(`Stock actualizado para producto ${producto.id}: ${producto.stock}`);
+                }
+
             },
 
             //Funcion para Enviar Pedido

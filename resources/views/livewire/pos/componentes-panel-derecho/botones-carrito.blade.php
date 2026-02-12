@@ -29,10 +29,9 @@
     </button>
 
     <!-- Botón para limpiar carrito -->
-    <button @click.prevent="resetPedido()"
+    <button @click.prevent="if(confirm('¿Estás seguro de que quieres limpiar el carrito? Esta acción no se puede deshacer.')) { resetPedido(); location.reload(); }"
         class="w-full py-2 bg-red-500 text-white font-medium text-sm rounded-lg
-                       transition-colors duration-200 hover:bg-red-600 shadow-md"
-        onclick="return confirm('¿Estás seguro de que quieres limpiar el carrito? Esta acción no se puede deshacer.')">
+                       transition-colors duration-200 hover:bg-red-600 shadow-md">
         Limpiar Carrito
     </button>
 </div>

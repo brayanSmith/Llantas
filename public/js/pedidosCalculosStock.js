@@ -1,15 +1,18 @@
 // Funciones de cálculo de stock reutilizables para pedidos
 
 function changeStockDisplay(producto, cantidad, accion) {
-    const stockActual = Number(producto.stock);
-    let stockTotal = stockActual;
+    if (producto._stock_base === undefined || producto._stock_base === null) {
+        producto._stock_base = Number(producto.stock);
+    }
+    const stockBase = Number(producto._stock_base);
+    let stockTotal = stockBase;
     cantidad = Number(cantidad) || 0;
     if (accion === 'agregar') {
-        stockTotal = stockActual - cantidad;
+        stockTotal = stockBase - cantidad;
     } else if (accion === 'remover') {
-        stockTotal = stockActual;
+        stockTotal = stockBase;
     } else if (accion === 'actualizar') {
-        stockTotal = stockActual - cantidad; // O la lógica que necesites
+        stockTotal = stockBase - cantidad;
     }
     return stockTotal;
 }
