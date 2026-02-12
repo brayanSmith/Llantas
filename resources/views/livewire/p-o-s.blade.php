@@ -21,16 +21,16 @@ init();" class="space-y-4">
     @include('livewire.pos.pos-panel-izquierdo')
     @include('livewire.pos.pos-panel-derecho')
     @include('livewire.pos.pos-modal-confirmacion-venta')
-</div>
-{{-- ...existing code... --}}
-<script src="{{ asset('js/pedidos.js') }}"></script>
-<script src="{{ asset('js/pedidosCalculos.js') }}"></script>
-<script src="{{ asset('js/pedidosCalculosStock.js') }}"></script>
-<script src="{{ asset('js/pedidosPaginadoSearch.js') }}"></script>
 
-@vite(['resources/js/app.js'])
+    {{-- Scripts --}}
+    <script src="{{ asset('js/pedidos.js') }}"></script>
+    <script src="{{ asset('js/pedidosCalculos.js') }}"></script>
+    <script src="{{ asset('js/pedidosCalculosStock.js') }}"></script>
+    <script src="{{ asset('js/pedidosPaginadoSearch.js') }}"></script>
 
-<script>
+    @vite(['resources/js/app.js'])
+
+    <script>
     function pedidoForm(clientes = [], alistadores = [], bodegas = [], productos = [], users = [], empresa = null,
         bodegaSeleccionada = null, stockBodegas = [], userId = null) {
 
@@ -312,4 +312,5 @@ init();" class="space-y-4">
             }
         }
     }
-</script>
+    </script>
+</div>
