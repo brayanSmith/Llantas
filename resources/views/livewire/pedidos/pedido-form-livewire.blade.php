@@ -329,6 +329,7 @@
             getTotal(pedido) {
                 return pedido.detalles.reduce((acc, detalle) => acc + this.getSubtotal(detalle), 0);
             },
+
             getTotalFinal(pedido) {
                 if (!pedido || !Array.isArray(pedido.detalles)) return 0;
                 // tu lógica aquí, por ejemplo:
