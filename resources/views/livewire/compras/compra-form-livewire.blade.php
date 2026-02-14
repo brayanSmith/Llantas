@@ -424,37 +424,39 @@
                 console.log('Llamando a método Livewire: editarCompra');
                 console.log('Enviando petición editarCompra...');
 
-                // Construir el payload con los detalles normalizados
-                const productos = [
-                    ...this.compra.detalles_compra.map(detalle => ({
-                        producto_id: detalle.producto_id,
-                        bodega_id: this.compra.bodega_id
-                    })),
-                    ...this.detallesOriginales.map(detalle => ({
-                        producto_id: detalle.producto_id,
-                        bodega_id: this.compra.bodega_id
-                    }))
-                ];
-
-                const payload = {
-                    productos,
-                    bodega_id: this.compra.bodega_id
-                };
-                console.log('Payload enviado a /api/recalcular-stock:', payload);
-
                 this.$wire.editarCompra(this.compra)
                     .then(() => {
                         this.isLoading = false;
                         // Aquí puedes agregar el fetch para recalcular el stock
-                        fetch('/api/recalcular-stock', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content
-                            },
-                            body: JSON.stringify(payload) // payload debe estar definido antes
-                        });
+                        if (this.compra.item_compra === 'PRODUCTO') {
+                            // Construir el payload con los detalles normalizados
+                            const productos = [
+                                ...this.compra.detalles_compra.map(detalle => ({
+                                    producto_id: detalle.producto_id,
+                                    bodega_id: this.compra.bodega_id
+                                })),
+                                ...this.detallesOriginales.map(detalle => ({
+                                    producto_id: detalle.producto_id,
+                                    bodega_id: this.compra.bodega_id
+                                }))
+                            ];
+
+                            const payload = {
+                                productos,
+                                bodega_id: this.compra.bodega_id
+                            };
+                            console.log('Payload enviado a /api/recalcular-stock:', payload);
+
+                            fetch('/api/recalcular-stock', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content
+                                },
+                                body: JSON.stringify(payload) // payload debe estar definido antes
+                            });
+                        }
                         console.log('Petición editarCompra terminada (éxito)');
                     })
                     .catch(() => {
