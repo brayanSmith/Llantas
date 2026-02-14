@@ -425,7 +425,7 @@
                 console.log('Enviando petición editarCompra...');
 
                 this.$wire.editarCompra(this.compra)
-                    .then(() => {
+                    /*.then(() => {
                         this.isLoading = false;
                         // Aquí puedes agregar el fetch para recalcular el stock
                         if (this.compra.item_compra === 'PRODUCTO') {
@@ -464,7 +464,7 @@
                     .catch(() => {
                         this.isLoading = false;
                         console.log('Petición editarCompra terminada (error)');
-                    });
+                    });*/
             }
         }
     }
