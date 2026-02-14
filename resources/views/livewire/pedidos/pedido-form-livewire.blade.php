@@ -104,6 +104,10 @@
             init() {
                 console.log('Datos del pedido:', this.pedido);
 
+                // Asegurar que flete y descuento sean números
+                this.pedido.flete = parseFloat(this.pedido.flete) || 0;
+                this.pedido.descuento = parseFloat(this.pedido.descuento) || 0;
+
                 // Guardar los detalles originales para recalculo de stock
                 this.detallesOriginales = detalles.map(detalle => ({
                     producto_id: String(detalle.producto_id),
