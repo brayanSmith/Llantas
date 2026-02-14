@@ -136,27 +136,34 @@
                 // Forzar actualización de selects después de inicializar datos
                 this.$nextTick(() => {
                     // Proveedor
-                    const selectProveedor = document.querySelector('select[x-model="compra.proveedor_id"]');
-                    if (selectProveedor && this.compra.proveedor_id !== undefined && this.compra
-                        .proveedor_id !==
-                        null) {
-                        selectProveedor.value = this.compra.proveedor_id;
+                    const selectProveedores = document.querySelectorAll('select[x-model="compra.proveedor_id"]');
+                    if (selectProveedores.length && this.compra.proveedor_id !== undefined && this.compra
+                        .proveedor_id !== null) {
+                        selectProveedores.forEach(select => {
+                            select.value = this.compra.proveedor_id;
+                        });
                     }
                     // Bodega
-                    const selectBodega = document.querySelector('select[x-model="compra.bodega_id"]');
-                    if (selectBodega && this.compra.bodega_id !== undefined && this.compra.bodega_id !== null) {
-                        selectBodega.value = this.compra.bodega_id;
+                    const selectBodegas = document.querySelectorAll('select[x-model="compra.bodega_id"]');
+                    if (selectBodegas.length && this.compra.bodega_id !== undefined && this.compra.bodega_id !== null) {
+                        selectBodegas.forEach(select => {
+                            select.value = this.compra.bodega_id;
+                        });
                     }
                     // Alistador
-                    const selectAlistador = document.querySelector('select[x-model="compra.alistador_id"]');
-                    if (selectAlistador && this.compra.alistador_id !== undefined && this.compra
+                    const selectAlistadores = document.querySelectorAll('select[x-model="compra.alistador_id"]');
+                    if (selectAlistadores.length && this.compra.alistador_id !== undefined && this.compra
                         .alistador_id !== null) {
-                        selectAlistador.value = this.compra.alistador_id;
+                        selectAlistadores.forEach(select => {
+                            select.value = this.compra.alistador_id;
+                        });
                     }
                     // Usuario
-                    const selectUsuario = document.querySelector('select[x-model="compra.user_id"]');
-                    if (selectUsuario && this.compra.user_id !== undefined && this.compra.user_id !== null) {
-                        selectUsuario.value = this.compra.user_id;
+                    const selectUsuarios = document.querySelectorAll('select[x-model="compra.user_id"]');
+                    if (selectUsuarios.length && this.compra.user_id !== undefined && this.compra.user_id !== null) {
+                        selectUsuarios.forEach(select => {
+                            select.value = this.compra.user_id;
+                        });
                     }
                     // Obtener los Detalles (normalizar item_id a producto_id)
                     this.compra.detalles_compra = detalles_compra.map(detalle => ({

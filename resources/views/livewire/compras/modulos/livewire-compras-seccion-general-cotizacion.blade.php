@@ -49,7 +49,7 @@
             <option value="REMISIONADA">REMISIONADA</option>
         </select>
     </div>
-    <div>
+   <div>
         <label class="block text-sm font-semibold text-gray-700 mb-1">Bodega</label>
         <select x-model="compra.bodega_id" class="input-pedido-select">
             <option value="">Seleccione una bodega</option>
