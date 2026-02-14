@@ -111,7 +111,7 @@
                     precio_unitario: detalle.precio_unitario,
                     aplicar_iva: false,
                     precio_con_iva: detalle.precio_unitario,
-                    subtotal: detalle.subtotal
+                    subtotal: detalle.cantidad * detalle.precio_unitario
                 }));
 
                 // Forzar actualización de selects después de inicializar datos
@@ -145,7 +145,7 @@
                         precio_unitario: detalle.precio_unitario,
                         aplicar_iva: false,
                         precio_con_iva: detalle.precio_unitario,
-                        subtotal: detalle.subtotal
+                        subtotal: detalle.cantidad * detalle.precio_unitario
                     }));
                 });
             },
