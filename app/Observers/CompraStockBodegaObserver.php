@@ -3,7 +3,7 @@
 namespace App\Observers;
 
 use App\Models\Compra;
-use App\Services\CompraStockService;    
+use App\Services\CompraStockService;
 
 class CompraStockBodegaObserver
 {
@@ -21,7 +21,7 @@ class CompraStockBodegaObserver
 
     public function updated(Compra $compra): void
     {
-        app(CompraStockService::class)->crearProductosBodega($compra);
+        //app(CompraStockService::class)->crearProductosBodega($compra);
         app(CompraStockService::class)->actualizado($compra);
         $compra->setEstadoPago();
     }
