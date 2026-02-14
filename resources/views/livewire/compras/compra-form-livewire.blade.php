@@ -20,7 +20,7 @@
 
     <div
         class="flex items-center justify-center gap-4 bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6 mb-6">
-        <label class="block text-sm font-semibold text-gray-700 mb-0 text-center whitespace-nowrap">Estado Venta</label>
+        <label class="block text-sm font-semibold text-gray-700 mb-0 text-center whitespace-nowrap">Estado Ventas</label>
         <div class="flex gap-4">
             <label class="inline-flex items-center cursor-pointer">
                 <input type="radio" x-model="compra.item_compra" value="PRODUCTO"
