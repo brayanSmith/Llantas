@@ -25,7 +25,10 @@ class DetalleCompraStockService
 
             $this->stockCalculoService->recalcularStockPorProductoYBodega(
                 $detalle->item_id,
-                $detalle->compra->bodega_id
+                $detalle->compra->bodega_id,
+                null,
+                        null,
+                        'GASTO'
             );
 
         });
@@ -48,13 +51,19 @@ class DetalleCompraStockService
             // ✅ Recalcular producto anterior
             $this->stockCalculoService->recalcularStockPorProductoYBodega(
                 $productoAnterior,
-                $bodegaAnterior
+                $bodegaAnterior,
+                null,
+                        null,
+                        'GASTO'
             );
 
             // ✅ Recalcular producto nuevo
             $this->stockCalculoService->recalcularStockPorProductoYBodega(
                 $productoActual,
-                $bodegaActual
+                $bodegaActual,
+                null,
+                        null,
+                        'GASTO'
             );
         });
     }
@@ -69,11 +78,14 @@ class DetalleCompraStockService
 
             $this->stockCalculoService->recalcularStockPorProductoYBodega(
                 $detalle->item_id,
-                $detalle->compra->bodega_id
+                $detalle->compra->bodega_id,
+                null,
+                        null,
+                        'GASTO'
             );
 
         });
     }
 
-    
+
 }

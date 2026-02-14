@@ -59,12 +59,12 @@ class DetalleProduccionEntradaObserver
     {
         // Obtener la bodega desde la producción
         $produccion = $detalleProduccionEntrada->produccion;
-        
+
         if ($produccion && $produccion->bodega_id) {
             $stockService = new StockCalculoService();
             $stockService->recalcularStockPorProductoYBodega(
                 $detalleProduccionEntrada->producto_id,
-                $produccion->bodega_id
+                $produccion->bodega_id,null, null, 'GASTO'
             );
         }
     }

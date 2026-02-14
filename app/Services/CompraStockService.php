@@ -52,7 +52,10 @@ class CompraStockService
                 if ($compra->estado === 'FACTURADO') {
                     $this->stockCalculoService->recalcularStockPorProductoYBodega(
                         $detalle->item_id,
-                        $compra->bodega_id
+                        $compra->bodega_id,
+                        null,
+                        null,
+                        'GASTO'
                     );
                 }
             }
@@ -82,14 +85,20 @@ class CompraStockService
                 // ✅ Recalcular bodega actual
                 $this->stockCalculoService->recalcularStockPorProductoYBodega(
                     $productoId,
-                    $bodegaActual
+                    $bodegaActual,
+                    null,
+                        null,
+                        'GASTO'
                 );
 
                 // ✅ Si cambió de bodega → recalcular anterior
                 if ($bodegaAnterior && $bodegaAnterior !== $bodegaActual) {
                     $this->stockCalculoService->recalcularStockPorProductoYBodega(
                         $productoId,
-                        $bodegaAnterior
+                        $bodegaAnterior,
+                        null,
+                        null,
+                        'GASTO'
                     );
                 }
 
@@ -97,7 +106,10 @@ class CompraStockService
                 if ($estadoAnterior !== $estadoActual) {
                     $this->stockCalculoService->recalcularStockPorProductoYBodega(
                         $productoId,
-                        $bodegaActual
+                        $bodegaActual,
+                        null,
+                        null,
+                        'GASTO'
                     );
                 }
             }
@@ -123,7 +135,9 @@ class CompraStockService
                 $this->stockCalculoService->recalcularStockPorProductoYBodega(
                     $detalle->item_id,
                     $bodegaId,
-                    $compraId
+                    $compraId,
+                        null,
+                        'GASTO'
                 );
             }
 

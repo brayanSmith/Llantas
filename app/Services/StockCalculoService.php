@@ -98,10 +98,17 @@ class StockCalculoService
      * @param int $productoId ID del producto
      * @param int $bodegaId ID de la bodega
      * @param int|null $excluirCompraId ID de compra a excluir del cálculo
+     * @param int|null $excluirVentaId ID de venta a excluir del cálculo
+     * @param string $tipoProducto Tipo de producto: 'PRODUCTO' o 'GASTO' (default: 'PRODUCTO')
      * @return void
      */
-    public function recalcularStockPorProductoYBodega(int $productoId, int $bodegaId, ?int $excluirCompraId = null, ?int $excluirVentaId = null): void
+    public function recalcularStockPorProductoYBodega(int $productoId, int $bodegaId, ?int $excluirCompraId = null, ?int $excluirVentaId = null, string $tipoProducto = 'PRODUCTO'): void
     {
+        // Si es GASTO, no hace nada ya que los gastos no tienen stock
+        if ($tipoProducto === 'GASTO') {
+            return;
+        }
+
         $totalCompras = $this->calcularEntradasFacturadas($productoId, $bodegaId, $excluirCompraId);
         $totalPedidos = $this->calcularSalidasFacturadas($productoId, $bodegaId, $excluirVentaId);
         $existencias = $totalCompras - $totalPedidos;
