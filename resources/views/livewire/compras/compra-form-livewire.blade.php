@@ -456,8 +456,10 @@
                                 },
                                 body: JSON.stringify(payload) // payload debe estar definido antes
                             });
+                            console.log('Petición editarCompra terminada (éxito)');
+                        } else if (this.compra.item_compra === 'GASTO') {
+                            console.log('Petición editarCompra terminada (éxito) - Gasto registrado');
                         }
-                        console.log('Petición editarCompra terminada (éxito)');
                     })
                     .catch(() => {
                         this.isLoading = false;
