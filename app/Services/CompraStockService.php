@@ -20,14 +20,16 @@ class CompraStockService
 
     /**
      * Crea registros en StockBodega para los productos de la compra si no existen
-     * 
+     *
      * @param Compra $compra
      * @return void
      */
     public function crearProductosBodega(Compra $compra): void
     {
         $productosIds = $compra->detallesCompra->pluck('item_id')->toArray();
-        $this->stockCalculoService->crearProductosBodega($compra->bodega_id, $productosIds);
+        if($compra->tipo_compra === 'PRODUCTO') {
+            $this->stockCalculoService->crearProductosBodega($compra->bodega_id, $productosIds);
+        }
     }
 
     /**
