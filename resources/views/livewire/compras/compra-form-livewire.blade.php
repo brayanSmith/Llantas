@@ -332,10 +332,9 @@
             },
             //Funcion para Obtener Subtotal
             getSubtotal(detalle) {
-                const prod = this.productos.find(p => p.id == detalle.producto_id);
-                if (!prod) return 0;
-                let precio = detalle.precio_unitario;
-                return Math.round(precio * detalle.cantidad * 100) / 100;
+                const precio = detalle.precio_unitario || 0;
+                const cantidad = detalle.cantidad || 0;
+                return Math.round(precio * cantidad * 100) / 100;
             },
             actualizarTodosLosDetalles(tipoPrecio) {
                 if (tipoPrecio) {
@@ -353,7 +352,7 @@
             },
             //Funcion para Obtener Total General
             getTotal(compra) {
-                return compra.detalles_compra.reduce((acc, detalle) => acc + this.getSubtotal(detalle), 0);
+                return compra.detalles_compra.reduce((acc, detalle) => acc + (detalle.subtotal || 0), 0);
             },
 
             getTotalFinal(compra) {
