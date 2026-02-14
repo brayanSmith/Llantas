@@ -1,17 +1,21 @@
-<div x-data="pedidoForm({
+<div x-data="compraForm({
 
     productoIngresado: null,
     cantidadIngresada: 1,
     valorIngresado: 0,
     subTotalIngresado: 0,
+    descripcionIngresada: '',
 
-    pedido: @js($pedidoEncontrado),
-    clientes: @js($clientes),
+    fechaIngresada: null,
+    plazoIngresado: null,
+    fechaVencimientoCalculada: null,
+
+    compra: @js($compraEncontrada),
+    proveedores: @js($proveedores),
     bodegas: @js($bodegas),
-    alistadores: @js($alistadores),
-    users: @js($users),
     productos: @js($productos),
-    detalles: @js($detalles)
+    pucs: @js($pucs),
+    detalles_compra: @js($detalles_compra)
 })" x-init="init()" class="space-y-4">
 
     <div
@@ -19,46 +23,49 @@
         <label class="block text-sm font-semibold text-gray-700 mb-0 text-center whitespace-nowrap">Estado Venta</label>
         <div class="flex gap-4">
             <label class="inline-flex items-center cursor-pointer">
-                <input type="radio" x-model="pedido.estado_venta" value="COTIZACION"
+                <input type="radio" x-model="compra.item_compra" value="PRODUCTO"
+                    @input="compra.item_compra = $event.target.value"
                     class="form-radio text-blue-600 focus:ring-blue-400" />
-                <span class="ml-2">COTIZACION</span>
+                <span class="ml-2">PRODUCTO</span>
             </label>
             <label class="inline-flex items-center cursor-pointer">
-                <input type="radio" x-model="pedido.estado_venta" value="VENTA"
+                <input type="radio" x-model="compra.item_compra" value="GASTO"
+                    @input="compra.item_compra = $event.target.value"
                     class="form-radio text-blue-600 focus:ring-blue-400" />
-                <span class="ml-2">VENTA</span>
+                <span class="ml-2">GASTO</span>
             </label>
         </div>
     </div>
 
-    <div x-show="pedido.estado_venta !== 'COTIZACION'"
+    <div x-show="compra.item_compra === 'PRODUCTO'"
         class="bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6 mb-6">
-        @include('livewire.pedidos.livewire-pedidos-seccion-general')
+        @include('livewire.compras.modulos.livewire-compras-seccion-general')
     </div>
 
-    <div x-show="pedido.estado_venta === 'COTIZACION'"
+    <div x-show="compra.item_compra === 'GASTO'"
         class="bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6 mb-6">
-        @include('livewire.pedidos.livewire-pedidos-seccion-general-cotizacion')
+        @include('livewire.compras.modulos.livewire-compras-seccion-general-cotizacion')
     </div>
 
-    <div class="sticky top-16 z-10 bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6 mb-6">
-        @include('livewire.pedidos.livewire-pedidos-seccion-detalle-agregar')
+    <div
+        class="sticky top-16 z-10 bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6 mb-6">
+        @include('livewire.compras.modulos.livewire-compras-seccion-detalle-agregar')
     </div>
 
-    <div class="bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6 mb-6">
-        @include('livewire.pedidos.livewire-pedidos-seccion-detalle')
+     <div class="bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6 mb-6">
+        @include('livewire.compras.modulos.livewire-compras-seccion-detalle')
     </div>
 
     <div
         class="sticky bottom-0 left-0 w-full z-30 bg-white/80 dark:bg-gray-900/80 backdrop-blur border-t border-gray-200 dark:border-gray-700 shadow-lg flex flex-col items-center py-4 space-y-2 transition-colors duration-300">
-        @include('livewire.pedidos.livewire-pedidos-seccion-resumen')
+        @include('livewire.compras.modulos.livewire-compras-seccion-resumen')
     </div>
-    @include('livewire.pedidos.pedido-modal-venta')
+    @include('livewire.compras.componentes.compras-modal-venta')
 </div>
 
 
-<script src="{{ asset('js/pedidos.js') }}"></script>
-<script src="{{ asset('js/pedidosCalculos.js') }}"></script>
+{{--<script src="{{ asset('js/compras.js') }}"></script>
+<script src="{{ asset('js/comprasCalculos.js') }}"></script>--}}
 
 <script>
     function formatDateForInput(fecha) {
@@ -68,90 +75,147 @@
         if (typeof fecha === 'string' && fecha.length >= 16) {
             return fecha.slice(0, 16);
         }
+        if (typeof fecha === 'string' && fecha.length === 10) {
+            return `${fecha}T00:00`;
+        }
         return fecha;
     }
 
-    function pedidoForm({
-        pedido,
-        clientes,
+    function compraForm({
+        compra,
+        proveedores,
         bodegas,
-        alistadores,
-        users,
         productos,
-        detalles,
+        pucs,
+        detalles_compra,
         cantidadIngresada = 1,
         valorIngresado = 0,
         subTotalIngresado = 0,
-        productoIngresado = null
+        productoIngresado = null,
+        descripcionIngresada = '',
+
+        fechaIngresada = null,
+        plazoIngresado = null,
+        fechaVencimientoCalculada = null,
     }) {
         return {
-            pedido,
-            clientes,
+            compra,
+            proveedores,
             bodegas,
-            alistadores,
-            users,
             productos,
-            detalles,
+            pucs,
+            detalles_compra,
             cantidadIngresada,
             valorIngresado,
             subTotalIngresado,
             productoIngresado,
+            descripcionIngresada,
             detalleEditandoIndex: null,
             formatDateForInput, // disponible en Alpine
             productoSeleccionado: null,
             cantidadSeleccionada: 1,
             isLoading: false,
             init() {
-                console.log('Datos del pedido:', this.pedido);
+                //muestra en consola los datos de la compra para verificar que se están cargando correctamente
+                console.log('Datos de la compra:', this.compra);
 
                 // Guardar los detalles originales para recalculo de stock
-                this.detallesOriginales = detalles.map(detalle => ({
-                    producto_id: String(detalle.producto_id),
+                this.detallesOriginales = detalles_compra.map(detalle => ({
+                    producto_id: String(detalle.item_id || detalle.producto_id),
                     cantidad: detalle.cantidad,
                     precio_unitario: detalle.precio_unitario,
-                    aplicar_iva: false,
-                    precio_con_iva: detalle.precio_unitario,
-                    subtotal: detalle.subtotal
+                    aplicar_iva: detalle.aplicar_iva,
+                    precio_con_iva: detalle.precio_con_iva,
+                    subtotal: detalle.subtotal,
+                    tipo_item: detalle.tipo_item,
                 }));
 
                 // Forzar actualización de selects después de inicializar datos
                 this.$nextTick(() => {
-                    // Cliente
-                    const selectCliente = document.querySelector('select[x-model="pedido.cliente_id"]');
-                    if (selectCliente && this.pedido.cliente_id !== undefined && this.pedido.cliente_id !==
+                    // Proveedor
+                    const selectProveedor = document.querySelector('select[x-model="compra.proveedor_id"]');
+                    if (selectProveedor && this.compra.proveedor_id !== undefined && this.compra
+                        .proveedor_id !==
                         null) {
-                        selectCliente.value = this.pedido.cliente_id;
+                        selectProveedor.value = this.compra.proveedor_id;
                     }
                     // Bodega
-                    const selectBodega = document.querySelector('select[x-model="pedido.bodega_id"]');
-                    if (selectBodega && this.pedido.bodega_id !== undefined && this.pedido.bodega_id !== null) {
-                        selectBodega.value = this.pedido.bodega_id;
+                    const selectBodega = document.querySelector('select[x-model="compra.bodega_id"]');
+                    if (selectBodega && this.compra.bodega_id !== undefined && this.compra.bodega_id !== null) {
+                        selectBodega.value = this.compra.bodega_id;
                     }
                     // Alistador
-                    const selectAlistador = document.querySelector('select[x-model="pedido.alistador_id"]');
-                    if (selectAlistador && this.pedido.alistador_id !== undefined && this.pedido
+                    const selectAlistador = document.querySelector('select[x-model="compra.alistador_id"]');
+                    if (selectAlistador && this.compra.alistador_id !== undefined && this.compra
                         .alistador_id !== null) {
-                        selectAlistador.value = this.pedido.alistador_id;
+                        selectAlistador.value = this.compra.alistador_id;
                     }
                     // Usuario
-                    const selectUsuario = document.querySelector('select[x-model="pedido.user_id"]');
-                    if (selectUsuario && this.pedido.user_id !== undefined && this.pedido.user_id !== null) {
-                        selectUsuario.value = this.pedido.user_id;
+                    const selectUsuario = document.querySelector('select[x-model="compra.user_id"]');
+                    if (selectUsuario && this.compra.user_id !== undefined && this.compra.user_id !== null) {
+                        selectUsuario.value = this.compra.user_id;
                     }
-                    // Obtener los Detalles (normalizar producto_id a string)
-                    this.pedido.detalles = detalles.map(detalle => ({
-                        producto_id: String(detalle.producto_id),
+                    // Obtener los Detalles (normalizar item_id a producto_id)
+                    this.compra.detalles_compra = detalles_compra.map(detalle => ({
+                        producto_id: String(detalle.item_id || detalle.producto_id),
                         cantidad: detalle.cantidad,
                         precio_unitario: detalle.precio_unitario,
-                        aplicar_iva: false,
-                        precio_con_iva: detalle.precio_unitario,
-                        subtotal: detalle.subtotal
+                        aplicar_iva: detalle.aplicar_iva,
+                        precio_con_iva: detalle.precio_con_iva,
+                        descripcion: detalle.descripcion,
+                        subtotal: detalle.subtotal,
+                        tipo_item: detalle.tipo_item,
                     }));
+
+                    // Filtrar productos según categoría al cargar
+                    this.actualizarTomSelect();
+                });
+
+                // Watch para actualizar TomSelect cuando cambie la categoría
+                this.$watch('compra.categoria_compra', (newCat) => {
+                    this.actualizarTomSelect();
                 });
             },
+
+            // Computed: productos filtrados según categoría
+            get productosFiltrados() {
+                if (!this.compra.categoria_compra) return this.productos;
+                return this.productos.filter(p => p.categoria_producto === this.compra.categoria_compra);
+            },
+
+            // Actualizar opciones de TomSelect
+            actualizarTomSelect() {
+                this.$nextTick(() => {
+                    const select = document.getElementById('select-producto');
+                    if (select && select.tomselect) {
+                        select.tomselect.clear();
+                        select.tomselect.clearOptions();
+                        this.productosFiltrados.forEach(p => {
+                            select.tomselect.addOption({
+                                value: p.id,
+                                text: p.concatenar_codigo_nombre
+                            });
+                        });
+                    }
+                });
+            },
+
+            //Funcion para calcular fecha de vencimiento
+            calcularFechaVencimiento(fecha, plazo) {
+                if (!fecha || !plazo) return '';
+                const fechaBase = new Date(fecha);
+                fechaBase.setDate(fechaBase.getDate() + parseInt(plazo));
+                const year = fechaBase.getFullYear();
+                const month = String(fechaBase.getMonth() + 1).padStart(2, '0');
+                const day = String(fechaBase.getDate()).padStart(2, '0');
+                const hours = String(fechaBase.getHours()).padStart(2, '0');
+                const minutes = String(fechaBase.getMinutes()).padStart(2, '0');
+                return `${year}-${month}-${day}T${hours}:${minutes}`;
+            },
+
             // Obtener el tipo de precio seleccionado
             get tipoPrecio() {
-                return this.pedido.tipo_precio;
+                return this.compra.tipo_precio;
             },
             // Funciones para manejar los detalles del pedido
             agregarDetalle(productoId, cantidad, valorUnitario) {
@@ -163,11 +227,11 @@
                     alert('La cantidad debe ser mayor a 0');
                     return;
                 }
-                // en caso de que el producto ya exista en el pedido, alertar y no agregar
-                const detalleExistente = this.pedido.detalles.find(detalle => detalle.producto_id === String(
+                // en caso de que el producto ya exista en la compra, alertar y no agregar
+                const detalleExistente = this.compra.detalles_compra.find(detalle => detalle.producto_id === String(
                     productoId));
                 if (detalleExistente) {
-                    alert('El producto ya está agregado al pedido');
+                    alert('El producto ya está agregado a la compra');
                     return;
                 }
                 // Calcular subtotal
@@ -175,18 +239,20 @@
                 const valorUnitarioNum = parseFloat(valorUnitario) || 0;
                 const subTotalCalculado = Math.round(cantidadNum * valorUnitarioNum * 100) / 100;
 
-                this.pedido.detalles.push({
+                this.compra.detalles_compra.push({
                     producto_id: productoId,
+                    descripcion_item: this.descripcionIngresada || '',
                     cantidad: cantidadNum,
                     precio_unitario: valorUnitarioNum,
-                    aplicar_iva: false,
-                    subtotal: subTotalCalculado
+                    subtotal: subTotalCalculado,
+                    tipo_item: this.compra.item_compra,
                 });
                 // Limpiar campos de ingreso
                 this.productoIngresado = null;
                 this.cantidadIngresada = 1;
                 this.valorIngresado = 0;
                 this.subTotalIngresado = 0;
+                this.descripcionIngresada = '';
 
                 // Limpiar Tom Select
                 setTimeout(() => {
@@ -199,11 +265,11 @@
 
             // Funcion para Remover Algun Detalle
             removeDetalle(index) {
-                this.pedido.detalles.splice(index, 1);
+                this.compra.detalles_compra.splice(index, 1);
             },
             // Funcion para Traer Detalle a los campos de entrada para editar
             traerDetalle(index) {
-                const detalle = this.pedido.detalles[index];
+                const detalle = this.compra.detalles_compra[index];
                 if (detalle) {
                     this.productoIngresado = detalle.producto_id;
                     this.cantidadIngresada = detalle.cantidad;
@@ -222,7 +288,7 @@
             },
             //Funcion para Actualizar Valores del Detalle
             actualizarValoresDetalle(index, productoId, cantidad, valorUnitario) {
-                const detalle = this.pedido.detalles[index];
+                const detalle = this.compra.detalles_compra[index];
                 if (!productoId) {
                     alert('Debe seleccionar un producto');
                     return;
@@ -231,11 +297,11 @@
                     alert('La cantidad debe ser mayor a 0');
                     return;
                 }
-                //En caso de que el producto ya exista en el pedido (y no sea el mismo detalle que se está editando), alertar y no actualizar
-                const detalleExistente = this.pedido.detalles.find((d, i) => d.producto_id === String(productoId) &&
+                //En caso de que el producto ya exista en la compra (y no sea el mismo detalle que se está editando), alertar y no actualizar
+                const detalleExistente = this.compra.detalles_compra.find((d, i) => d.producto_id === String(productoId) &&
                     i !== index);
                 if (detalleExistente) {
-                    alert('El producto ya está agregado al pedido');
+                    alert('El producto ya está agregado a la compra');
                     return;
                 }
                 // Calcular subtotal
@@ -261,85 +327,42 @@
                     }
                 }, 50);
             },
-
-            //Funcion para Obtener Precio Segun Tipo
-            getPrecio(detalle, tipoPrecio) {
-                const prod = this.productos.find(p => p.id == detalle.producto_id);
-                if (!prod) return 0;
-                switch (this.tipoPrecio) {
-                    case 'MAYORISTA':
-                        return prod.valor_mayorista_producto ?? 0;
-                    case 'FERRETERO':
-                        return prod.valor_ferretero_producto ?? 0;
-                    default:
-                        return prod.valor_detal_producto ?? 0;
-                }
-            },
-            //PRECIOS PARA EL AGREGADOR PRINCIPAL------------------------------------------
-            getPrecioIndividual(productoId, tipoPrecio) {
-                const prod = this.productos.find(p => p.id == productoId);
-                let precioUnitario = 0;
-                if (!prod) return 0;
-                switch (tipoPrecio) {
-                    case 'MAYORISTA':
-                        precioUnitario = prod.valor_mayorista_producto ?? 0;
-                        break;
-                    case 'FERRETERO':
-                        precioUnitario = prod.valor_ferretero_producto ?? 0;
-                        break;
-                    default:
-                        precioUnitario = prod.valor_detal_producto ?? 0;
-                }
-                //console.log('Precio unitario obtenido para productoId', productoId, 'tipoPrecio', tipoPrecio, ':', precioUnitario);
-                return precioUnitario;
-            },
-            //----------------------------------------------------------------------------
-
-            //Funcion para Obtener Precio con IVA
-            getPrecioConIva(detalle, tipoPrecio) {
-                const prod = this.productos.find(p => p.id == detalle.producto_id);
-                let precio = detalle.precio_unitario || this.getPrecio(detalle, tipoPrecio);
-                if (detalle.aplicar_iva && prod && prod.iva_producto) {
-                    precio = precio * (1 + prod.iva_producto / 100);
-                }
-                return Math.round(precio * 100) / 100;
-            },
             //Funcion para Obtener Subtotal
             getSubtotal(detalle) {
                 const prod = this.productos.find(p => p.id == detalle.producto_id);
                 if (!prod) return 0;
-                let precio = this.getPrecio(detalle, this.tipoPrecio);
+                let precio = detalle.precio_unitario;
                 return Math.round(precio * detalle.cantidad * 100) / 100;
             },
-
             actualizarTodosLosDetalles(tipoPrecio) {
                 if (tipoPrecio) {
-                    this.pedido.tipo_precio = tipoPrecio;
+                    this.compra.tipo_precio = tipoPrecio;
                 }
-                if (Array.isArray(this.pedido.detalles)) {
-                    this.pedido.detalles.forEach((detalle, index) => {
+                if (Array.isArray(this.compra.detalles_compra)) {
+                    this.compra.detalles_compra.forEach((detalle, index) => {
                         // Actualizar precios según el tipo de precio
-                        detalle.precio_unitario = this.getPrecio(detalle, this.tipoPrecio);
-                        detalle.precio_con_iva = this.getPrecio(detalle, this.tipoPrecio);
+                        detalle.precio_unitario = detalle.precio_unitario;
+                        detalle.precio_con_iva = detalle.precio_con_iva;
                         detalle.subtotal = this.getSubtotal(detalle);
+                        detalle.tipo_item = this.compra.item_compra;
                     });
                 }
             },
             //Funcion para Obtener Total General
-            getTotal(pedido) {
-                return pedido.detalles.reduce((acc, detalle) => acc + (detalle.subtotal || 0), 0);
+            getTotal(compra) {
+                return compra.detalles_compra.reduce((acc, detalle) => acc + this.getSubtotal(detalle), 0);
             },
 
-            getTotalFinal(pedido) {
-                if (!pedido || !Array.isArray(pedido.detalles)) return 0;
+            getTotalFinal(compra) {
+                if (!compra || !Array.isArray(compra.detalles_compra)) return 0;
                 // tu lógica aquí, por ejemplo:
-                return this.getTotal(pedido) + (pedido.flete || 0) - (pedido.descuento || 0);
+                return this.getTotal(compra) + (compra.flete || 0) - (compra.descuento || 0);
             },
 
             //Funcion para Validar Detalles
             validarDetalles() {
                 let errores = [];
-                this.pedido.detalles.forEach((detalle, idx) => {
+                this.compra.detalles_compra.forEach((detalle, idx) => {
                     if (!detalle.producto_id) {
                         errores.push(`Debe seleccionar un producto en la fila ${idx + 1}`);
                     }
@@ -352,9 +375,9 @@
 
             //funcion para calcular la fecha de vencimiento
             calcularFechaVencimiento(fecha, plazo) {
-                if (!this.pedido.fecha || !this.pedido.plazo) return '';
-                const fechaBase = new Date(this.pedido.fecha);
-                fechaBase.setDate(fechaBase.getDate() + parseInt(this.pedido.plazo));
+                if (!fecha || !plazo) return '';
+                const fechaBase = new Date(fecha);
+                fechaBase.setDate(fechaBase.getDate() + parseInt(plazo));
                 const year = fechaBase.getFullYear();
                 const month = String(fechaBase.getMonth() + 1).padStart(2, '0');
                 const day = String(fechaBase.getDate()).padStart(2, '0');
@@ -371,47 +394,46 @@
                 }
                 this.isLoading = true;
                 // Recalcular y sincronizar todos los detalles antes de enviar
-                if (Array.isArray(this.pedido.detalles)) {
-                    this.pedido.detalles.forEach((detalle, idx) => {
+                if (Array.isArray(this.compra.detalles_compra)) {
+                    this.compra.detalles_compra.forEach((detalle, idx) => {
                         // Si el usuario modificó manualmente el precio_unitario, se respeta
                         // pero siempre recalculamos precio_con_iva y subtotal
                         detalle.precio_unitario = detalle.precio_unitario ?? this.getPrecio(detalle, this
                             .tipoPrecio);
-                        detalle.precio_con_iva = detalle.precio_unitario ?? this.getPrecio(detalle, this
-                            .tipoPrecio);
+                        detalle.precio_con_iva = detalle.precio_unitario;
                         detalle.subtotal = this.getSubtotal(detalle);
                     });
                 }
-                // Actualizar subtotal y total_a_pagar del pedido
-                this.pedido.cliente_id = this.pedido.cliente_id || null;
-                this.pedido.subtotal = this.getTotal(this.pedido);
-                this.pedido.total_a_pagar = this.getTotalFinal(this.pedido);
-                this.pedido.fecha = this.formatDateForInput(this.pedido.fecha);
-                this.pedido.fecha_vencimiento = this.calcularFechaVencimiento(this.pedido.fecha, this.pedido
+                // Actualizar subtotal y total_a_pagar de la compra
+                this.compra.proveedor_id = this.compra.proveedor_id || null;
+                this.compra.subtotal = this.getTotal(this.compra);
+                this.compra.total_a_pagar = this.getTotalFinal(this.compra);
+                this.compra.fecha = this.formatDateForInput(this.compra.fecha);
+                this.compra.fecha_vencimiento = this.calcularFechaVencimiento(this.compra.fecha, this.compra
                     .dias_plazo_vencimiento);
-                console.log('JSON generado para enviar:', JSON.stringify(this.pedido, null, 2));
-                console.log('Llamando a método Livewire: editarPedido');
-                console.log('Enviando petición editarPedido...');
+                console.log('JSON generado para enviar:', JSON.stringify(this.compra, null, 2));
+                console.log('Llamando a método Livewire: editarCompra');
+                console.log('Enviando petición editarCompra...');
 
                 // Construir el payload con los detalles normalizados
                 const productos = [
-                    ...this.pedido.detalles.map(detalle => ({
+                    ...this.compra.detalles_compra.map(detalle => ({
                         producto_id: detalle.producto_id,
-                        bodega_id: this.pedido.bodega_id
+                        bodega_id: this.compra.bodega_id
                     })),
                     ...this.detallesOriginales.map(detalle => ({
                         producto_id: detalle.producto_id,
-                        bodega_id: this.pedido.bodega_id
+                        bodega_id: this.compra.bodega_id
                     }))
                 ];
 
                 const payload = {
                     productos,
-                    bodega_id: this.pedido.bodega_id
+                    bodega_id: this.compra.bodega_id
                 };
                 console.log('Payload enviado a /api/recalcular-stock:', payload);
 
-                this.$wire.editarPedido(this.pedido)
+                this.$wire.editarCompra(this.compra)
                     .then(() => {
                         this.isLoading = false;
                         // Aquí puedes agregar el fetch para recalcular el stock
@@ -424,11 +446,11 @@
                             },
                             body: JSON.stringify(payload) // payload debe estar definido antes
                         });
-                        console.log('Petición editarPedido terminada (éxito)');
+                        console.log('Petición editarCompra terminada (éxito)');
                     })
                     .catch(() => {
                         this.isLoading = false;
-                        console.log('Petición editarPedido terminada (error)');
+                        console.log('Petición editarCompra terminada (error)');
                     });
             }
         }

@@ -10,6 +10,7 @@ use Filament\Tables\Table;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Columns\CheckboxColumn;
+use Filament\Actions\Action;
 
 trait HasCompraTable
 {
@@ -61,10 +62,13 @@ trait HasCompraTable
                 //Filter::make('item_compra')
 
             ], layout: FiltersLayout::AboveContent)
-            ->recordActions([
-                EditAction::make()
-                    ->hidden(true),
-            ])
+            /*->recordActions([
+                Action::make('edit')
+                            ->label('Editar')
+                            ->icon('heroicon-o-pencil')
+                            ->url(fn($record) => route('filament.admin.resources.pedidos-pendientes.edit', ['record' => $record->getKey(), 'pedido_id' => $record->getKey()]))
+                            ->openUrlInNewTab(false),
+            ])*/
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),

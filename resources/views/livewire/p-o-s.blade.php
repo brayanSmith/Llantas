@@ -108,7 +108,9 @@
                         if (window.Echo) {
                             window.Echo.channel('stock')
                                 .listen('.StockActualizado', (e) => {
+                                        console.log("¡Evento capturado en el navegador!", e); // <--- AGREGA ESTO
                                     if (Array.isArray(e.productos)) {
+                                        console.log("Productos a actualizar:", e.productos);
                                         this.modificarStockProducto(e.productos);
                                         // Aquí puedes actualizar this.productos si lo necesitas:
                                         // this.productos = e.productos;
