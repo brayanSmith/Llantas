@@ -28,7 +28,7 @@ class DetalleCompraStockService
                 $detalle->compra->bodega_id,
                 null,
                         null,
-                        'GASTO'
+                        $detalle->compra->item_compra
             );
 
         });
@@ -54,7 +54,7 @@ class DetalleCompraStockService
                 $bodegaAnterior,
                 null,
                         null,
-                        'GASTO'
+                        $detalle->compra->item_compra
             );
 
             // ✅ Recalcular producto nuevo
@@ -63,7 +63,7 @@ class DetalleCompraStockService
                 $bodegaActual,
                 null,
                         null,
-                        'GASTO'
+                        $detalle->compra->item_compra
             );
         });
     }
@@ -81,7 +81,7 @@ class DetalleCompraStockService
                 $detalle->compra->bodega_id,
                 null,
                         null,
-                        'GASTO'
+                        $detalle->compra->item_compra
             );
 
         });

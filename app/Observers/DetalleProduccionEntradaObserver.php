@@ -64,7 +64,7 @@ class DetalleProduccionEntradaObserver
             $stockService = new StockCalculoService();
             $stockService->recalcularStockPorProductoYBodega(
                 $detalleProduccionEntrada->producto_id,
-                $produccion->bodega_id,null, null, 'GASTO'
+                $produccion->bodega_id,
             );
         }
     }
