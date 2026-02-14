@@ -119,6 +119,9 @@
                 //muestra en consola los datos de la compra para verificar que se están cargando correctamente
                 console.log('Datos de la compra:', this.compra);
 
+                // Normalizar descuento a numero para calculos iniciales
+                this.compra.descuento = parseFloat(this.compra.descuento) || 0;
+
                 // Guardar los detalles originales para recalculo de stock
                 this.detallesOriginales = detalles_compra.map(detalle => ({
                     producto_id: String(detalle.item_id || detalle.producto_id),
@@ -126,7 +129,7 @@
                     precio_unitario: detalle.precio_unitario,
                     aplicar_iva: detalle.aplicar_iva,
                     precio_con_iva: detalle.precio_con_iva,
-                    subtotal: detalle.subtotal,
+                    subtotal: (detalle.cantidad || 0) * (detalle.precio_unitario || 0),
                     tipo_item: detalle.tipo_item,
                 }));
 
@@ -163,7 +166,7 @@
                         aplicar_iva: detalle.aplicar_iva,
                         precio_con_iva: detalle.precio_con_iva,
                         descripcion: detalle.descripcion,
-                        subtotal: detalle.subtotal,
+                        subtotal: (detalle.cantidad || 0) * (detalle.precio_unitario || 0),
                         tipo_item: detalle.tipo_item,
                     }));
 
