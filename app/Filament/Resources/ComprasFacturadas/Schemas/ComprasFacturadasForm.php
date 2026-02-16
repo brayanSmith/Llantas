@@ -3,7 +3,10 @@
 namespace App\Filament\Resources\ComprasFacturadas\Schemas;
 
 use App\Filament\Resources\Compras\Schemas\Concerns\HasCompraSections;
+use App\Livewire\CompraFormLivewire;
+use Filament\Schemas\Components\Livewire;
 use Filament\Schemas\Schema;
+
 
 class ComprasFacturadasForm
 {
@@ -11,14 +14,8 @@ class ComprasFacturadasForm
     public static function configure(Schema $schema): Schema
     {
 
-            $components = array_merge(
-                self::placeholders(),
-                self::sectionDatosGenerales(),
-                self::sectionResumen(),
-                self::sectionComentarios(),
-                self::sectionDetalles(),
-                self::sectionAbonos()
-            );
-        return $schema->components($components);
+            return $schema->components([
+            Livewire::make(CompraFormLivewire::class)->columnSpanFull(),
+        ]);
     }
 }

@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Filament\Resources\ComprasFacturadas\Pages;
- 
+
 use App\Filament\Resources\ComprasFacturadas\ComprasFacturadasResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
@@ -16,11 +16,11 @@ class ListComprasFacturadas extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            //CreateAction::make(),
             ExportAction::make()
             ->exporter(CompraExporter::class),
 
-            
+
         ];
     }
 }

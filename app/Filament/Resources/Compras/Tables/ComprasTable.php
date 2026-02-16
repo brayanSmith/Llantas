@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Compras\Tables;
 
 use Filament\Tables\Table;
 use App\Filament\Resources\Compras\Tables\Concerns\HasCompraTable;
+use Filament\Actions\Action;
 
 class ComprasTable
 {
@@ -11,6 +12,14 @@ class ComprasTable
 
     public static function configure(Table $table): Table
     {
-        return self::configureComprasTable($table);
+        return self::configureComprasTable($table)
+        ->recordActions([
+            //EditAction::make(),
+            Action::make('edit')
+                ->label('Editar')
+                ->icon('heroicon-o-pencil')
+                ->url(fn($record) => route('filament.admin.resources.compras.edit', ['record' => $record->getKey(), 'compra_id' => $record->getKey()]))
+                ->openUrlInNewTab(false),
+        ]);
     }
 }
