@@ -18,6 +18,7 @@ class ComprasPendientesTable
     {
         return self::configureComprasTable($table)
         ->recordActions([
+            //EditAction::make(),
             Action::make('edit')
                 ->label('Editar')
                 ->icon('heroicon-o-pencil')

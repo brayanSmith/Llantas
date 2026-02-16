@@ -15,7 +15,9 @@
     bodegas: @js($bodegas),
     productos: @js($productos),
     pucs: @js($pucs),
-    detalles_compra: @js($detalles_compra)
+    detalles_compra: @js($detalles_compra),
+    esEdicion: @js($esEdicion),
+
 })" x-init="init()" class="space-y-4">
 
     <div
@@ -52,7 +54,7 @@
         @include('livewire.compras.modulos.livewire-compras-seccion-detalle-agregar')
     </div>
 
-     <div class="bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6 mb-6">
+    <div class="bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6 mb-6">
         @include('livewire.compras.modulos.livewire-compras-seccion-detalle')
     </div>
 
@@ -64,8 +66,8 @@
 </div>
 
 
-{{--<script src="{{ asset('js/compras.js') }}"></script>
-<script src="{{ asset('js/comprasCalculos.js') }}"></script>--}}
+{{-- <script src="{{ asset('js/compras.js') }}"></script>
+<script src="{{ asset('js/comprasCalculos.js') }}"></script> --}}
 
 <script>
     function formatDateForInput(fecha) {
@@ -88,6 +90,7 @@
         productos,
         pucs,
         detalles_compra,
+        esEdicion,
         cantidadIngresada = 1,
         valorIngresado = 0,
         subTotalIngresado = 0,
@@ -105,6 +108,7 @@
             productos,
             pucs,
             detalles_compra,
+            esEdicion,
             cantidadIngresada,
             valorIngresado,
             subTotalIngresado,
@@ -118,6 +122,7 @@
             init() {
                 //muestra en consola los datos de la compra para verificar que se están cargando correctamente
                 console.log('Datos de la compra:', this.compra);
+                console.log('esEdicion:', this.esEdicion);
 
                 // Normalizar descuento a numero para calculos iniciales
                 this.compra.descuento = parseFloat(this.compra.descuento) || 0;
@@ -136,7 +141,8 @@
                 // Forzar actualización de selects después de inicializar datos
                 this.$nextTick(() => {
                     // Proveedor
-                    const selectProveedores = document.querySelectorAll('select[x-model="compra.proveedor_id"]');
+                    const selectProveedores = document.querySelectorAll(
+                    'select[x-model="compra.proveedor_id"]');
                     if (selectProveedores.length && this.compra.proveedor_id !== undefined && this.compra
                         .proveedor_id !== null) {
                         selectProveedores.forEach(select => {
@@ -145,13 +151,15 @@
                     }
                     // Bodega
                     const selectBodegas = document.querySelectorAll('select[x-model="compra.bodega_id"]');
-                    if (selectBodegas.length && this.compra.bodega_id !== undefined && this.compra.bodega_id !== null) {
+                    if (selectBodegas.length && this.compra.bodega_id !== undefined && this.compra.bodega_id !==
+                        null) {
                         selectBodegas.forEach(select => {
                             select.value = this.compra.bodega_id;
                         });
                     }
                     // Alistador
-                    const selectAlistadores = document.querySelectorAll('select[x-model="compra.alistador_id"]');
+                    const selectAlistadores = document.querySelectorAll(
+                    'select[x-model="compra.alistador_id"]');
                     if (selectAlistadores.length && this.compra.alistador_id !== undefined && this.compra
                         .alistador_id !== null) {
                         selectAlistadores.forEach(select => {
@@ -160,7 +168,8 @@
                     }
                     // Usuario
                     const selectUsuarios = document.querySelectorAll('select[x-model="compra.user_id"]');
-                    if (selectUsuarios.length && this.compra.user_id !== undefined && this.compra.user_id !== null) {
+                    if (selectUsuarios.length && this.compra.user_id !== undefined && this.compra.user_id !==
+                        null) {
                         selectUsuarios.forEach(select => {
                             select.value = this.compra.user_id;
                         });
@@ -308,7 +317,8 @@
                     return;
                 }
                 //En caso de que el producto ya exista en la compra (y no sea el mismo detalle que se está editando), alertar y no actualizar
-                const detalleExistente = this.compra.detalles_compra.find((d, i) => d.producto_id === String(productoId) &&
+                const detalleExistente = this.compra.detalles_compra.find((d, i) => d.producto_id === String(
+                    productoId) &&
                     i !== index);
                 if (detalleExistente) {
                     alert('El producto ya está agregado a la compra');
@@ -359,6 +369,7 @@
             },
             //Funcion para Obtener Total General
             getTotal(compra) {
+                if (!compra || !Array.isArray(compra.detalles_compra)) return 0;
                 return compra.detalles_compra.reduce((acc, detalle) => acc + (detalle.subtotal || 0), 0);
             },
 
@@ -366,6 +377,46 @@
                 if (!compra || !Array.isArray(compra.detalles_compra)) return 0;
                 // tu lógica aquí, por ejemplo:
                 return this.getTotal(compra) + (compra.flete || 0) - (compra.descuento || 0);
+            },
+
+            validarFormulario() {
+                if (!this.compra.categoria_compra && this.compra.item_compra === 'PRODUCTO') {
+                    alert('Debe seleccionar una categoría de compra');
+                    return false;
+                }
+                if (!this.compra.factura) {
+                    alert('El campo Factura es obligatorio');
+                    return false;
+                }
+                if (!this.compra.proveedor_id) {
+                    alert('Debe seleccionar un proveedor');
+                    return false;
+                }
+                if (!this.compra.fecha) {
+                    alert('El campo Fecha es obligatorio');
+                    return false;
+                }
+                if (!this.compra.dias_plazo_vencimiento) {
+                    alert('El campo Plazo es obligatorio');
+                    return false;
+                }
+                if (!this.compra.metodo_pago) {
+                    alert('Debe seleccionar un método de pago');
+                    return false;
+                }
+                if (!this.compra.estado) {
+                    alert('Debe seleccionar un estado');
+                    return false;
+                }
+                if (!this.compra.tipo_compra) {
+                    alert('Debe seleccionar un tipo de compra');
+                    return false;
+                }
+                if (!this.compra.bodega_id) {
+                    alert('Debe seleccionar una bodega');
+                    return false;
+                }
+                return true;
             },
 
             //Funcion para Validar Detalles
@@ -396,6 +447,9 @@
             },
 
             enviar() {
+                if (!this.validarFormulario()) {
+                    return;
+                }
                 const errores = this.validarDetalles();
                 if (errores.length > 0) {
                     alert(errores.join('\n'));
@@ -414,18 +468,24 @@
                     });
                 }
                 // Actualizar subtotal y total_a_pagar de la compra
+                this.compra.categoria_compra = this.compra.categoria_compra || null;
                 this.compra.proveedor_id = this.compra.proveedor_id || null;
                 this.compra.subtotal = this.getTotal(this.compra);
                 this.compra.total_a_pagar = this.getTotalFinal(this.compra);
                 this.compra.fecha = this.formatDateForInput(this.compra.fecha);
-                this.compra.fecha_vencimiento = this.calcularFechaVencimiento(this.compra.fecha, this.compra
-                    .dias_plazo_vencimiento);
+                this.compra.fecha_vencimiento = this.calcularFechaVencimiento(this.compra.fecha, this.compra.dias_plazo_vencimiento);
+                this.compra.descuento = parseFloat(this.compra.descuento) || 0;
+                this.compra.abono = parseFloat(this.compra.abono) || 0;
+                this.compra.flete = parseFloat(this.compra.flete) || 0;
+                this.compra.saldo_pendiente = this.compra.total_a_pagar - this.compra.abono;
+
                 console.log('JSON generado para enviar:', JSON.stringify(this.compra, null, 2));
                 console.log('Llamando a método Livewire: editarCompra');
                 console.log('Enviando petición editarCompra...');
 
-                this.$wire.editarCompra(this.compra)
-                    .then(() => {
+                if(this.esEdicion) {
+
+                this.$wire.editarCompra(this.compra).then(() => {
                         this.isLoading = false;
                         // Aquí puedes agregar el fetch para recalcular el stock
                         if (this.compra.item_compra === 'PRODUCTO') {
@@ -461,10 +521,41 @@
                             console.log('Petición editarCompra terminada (éxito) - Gasto registrado');
                         }
                     })
+
                     .catch(() => {
                         this.isLoading = false;
                         console.log('Petición editarCompra terminada (error)');
                     });
+                } if (!this.esEdicion) {
+                    this.$wire.guardarCompra(this.compra).then(() => {
+                        this.isLoading = false;
+                        if(this.compra.item_compra === 'PRODUCTO'){
+                            const payload = {
+                                productos: this.compra.detalles_compra.map(detalle => ({
+                                    producto_id: detalle.producto_id,
+                                    bodega_id: this.compra.bodega_id
+                                })),
+                                bodega_id: this.compra.bodega_id
+                            };
+                            console.log('Payload enviado a /api/recalcular-stock:', payload);
+                            fetch('/api/recalcular-stock', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content
+                                },
+                                body: JSON.stringify(payload) // payload debe estar definido antes
+                            });
+                            console.log('Petición /api/recalcular-stock terminada (éxito)');
+                        }
+
+                        console.log('Petición guardarCompra terminada (éxito)');
+                    }).catch(() => {
+                        this.isLoading = false;
+                        console.log('Petición guardarCompra terminada (error)');
+                    });
+                }
             }
         }
     }

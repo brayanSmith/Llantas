@@ -28,17 +28,49 @@ class CompraFormLivewire extends Component implements HasActions, HasSchemas
     public $showConfirmModal = false;
     public $confirmModalTitle = '';
     public $confirmModalBody = '';
-    public ?Compra $compra = null;
+    public array $compra = [];
     public array $detallesCompra = [];
+    public bool $esEdicion = false;
+
+    protected function getCompraDefaults(): array
+    {
+        return [
+            'item_compra' => 'PRODUCTO',
+            'categoria_compra' => 'OTRO',
+            'factura' => null,
+            'proveedor_id' => null,
+            'fecha' => now()->toDateString(),
+            'dias_plazo_vencimiento' => 30,
+            'fecha_vencimiento' => now()->addDays(30)->toDateString(),
+            'metodo_pago' => 'CREDITO',
+            'estado' => 'PENDIENTE',
+            'bodega_id' => null,
+            'observaciones' => '',
+            'subtotal' => 0,
+            'abono' => 0,
+            'descuento' => 0,
+            'total_a_pagar' => 0,
+            'saldo_pendiente' => 0,
+            'estado_pago' => 'EN_CARTERA',
+            'tipo_compra' => 'ELECTRONICA',
+        ];
+    }
 
     public function mount(): void
     {
         $compraId = request()->get('compra_id');
+        $this->compra = $this->getCompraDefaults();
         if ($compraId) {
+            $this->esEdicion = true;
             // Cargar la relación bodega junto con el pedido
-            $this->compra = Compra::with('bodega', 'detallesCompra','proveedor')->find($compraId);
+            $compraEncontrada = Compra::with('bodega', 'detallesCompra', 'proveedor')->find($compraId);
+            if ($compraEncontrada) {
+                $this->compra = array_merge($this->getCompraDefaults(), $compraEncontrada->toArray());
+            }
+            $this->detallesCompra = DetalleCompra::where('compra_id', $compraId)->get()->toArray();
+        } else {
+            $this->detallesCompra = [];
         }
-        $this->detallesCompra = DetalleCompra::where('compra_id', $compraId)->get()->toArray();
         $this->proveedores = Proveedor::select('id', 'nombre_proveedor')->get()->toArray();
         $this->bodegas = Bodega::select('id', 'nombre_bodega')->get()->toArray();
         $this->productos = $this->getFilteredProductos();
@@ -57,7 +89,7 @@ class CompraFormLivewire extends Component implements HasActions, HasSchemas
             'nombre_producto',
             'codigo_producto',
         )->where('activo', 1)
-        ->get()->toArray();
+            ->get()->toArray();
     }
     protected function getFilteredPuc()
     {
@@ -70,10 +102,79 @@ class CompraFormLivewire extends Component implements HasActions, HasSchemas
             'concatenar_subcuenta_concepto',
         )->get()->toArray();
     }
+    public function guardarCompra($compra)
+    {
+        \Log::info('GUARDAR compra recibida desde Alpine', ['compra' => $compra]);
+
+        $payload = [
+            'factura' => $compra['factura'] ?? null,
+            'proveedor_id' => $compra['proveedor_id'] ?? null,
+            'fecha' => $compra['fecha'] ?? now()->toDateString(),
+            'dias_plazo_vencimiento' => $compra['dias_plazo_vencimiento'] ?? 30,
+            'fecha_vencimiento' => $compra['fecha_vencimiento'] ?? now()->addDays(30)->toDateString(),
+            'metodo_pago' => $compra['metodo_pago'] ?? 'CREDITO',
+            'estado_pago' => $compra['estado_pago'] ?? 'EN_CARTERA',
+            'tipo_compra' => $compra['tipo_compra'] ?? 'ELECTRONICA',
+            'estado' => $compra['estado'] ?? 'PENDIENTE',
+            'observaciones' => $compra['observaciones'] ?? '',
+            'subtotal' => $compra['subtotal'] ?? 0,
+            'abono' => $compra['abono'] ?? 0,
+            'descuento' => $compra['descuento'] ?? 0,
+            'total_a_pagar' => $compra['total_a_pagar'] ?? 0,
+            'saldo_pendiente' => $compra['saldo_pendiente'] ?? 0,
+            'categoria_compra' => $compra['categoria_compra'] ?? null,
+            'item_compra' => $compra['item_compra'] ?? 'PRODUCTO',
+            'bodega_id' => $compra['bodega_id'] ?? null,
+        ];
+
+        \Log::info('GUARDAR compra payload a insertar', $payload);
+        \Log::info('GUARDAR compra detalles', ['detalles' => $compra['detalles_compra'] ?? []]);
+
+        $nuevaCompra = Compra::create($payload);
+
+        \Log::info('GUARDAR compra CREADA en BD', [
+            'id' => $nuevaCompra->id,
+            'subtotal' => $nuevaCompra->subtotal,
+            'total_a_pagar' => $nuevaCompra->total_a_pagar,
+            'fresh_subtotal' => $nuevaCompra->fresh()->subtotal,
+            'fresh_total_a_pagar' => $nuevaCompra->fresh()->total_a_pagar,
+        ]);
+
+        foreach (($compra['detalles_compra'] ?? []) as $detalle) {
+            $nuevaCompra->detallesCompra()->create([
+                'item_id' => $detalle['producto_id'],
+                'descripcion_item' => $detalle['descripcion_item'] ?? '',
+                'cantidad' => $detalle['cantidad'],
+                'precio_unitario' => $detalle['precio_unitario'] ?? 0,
+                'iva' => $detalle['iva'] ?? 0,
+                'precio_con_iva' => $detalle['precio_con_iva'] ?? 0,
+                'subtotal' => $detalle['subtotal'] ?? 0,
+                'tipo_item' => $detalle['tipo_item'] ?? 'producto',
+            ]);
+        }
+
+        \Log::info('GUARDAR compra DESPUÉS de agregar detalles', [
+            'id' => $nuevaCompra->id,
+            'detalles_count' => $nuevaCompra->detallesCompra()->count(),
+            'subtotal' => $nuevaCompra->subtotal,
+            'total_a_pagar' => $nuevaCompra->total_a_pagar,
+            'saldo_pendiente' => $nuevaCompra->saldo_pendiente,
+            'fresh_subtotal' => $nuevaCompra->fresh()->subtotal,
+            'fresh_total_a_pagar' => $nuevaCompra->fresh()->total_a_pagar,
+            'fresh_saldo_pendiente' => $nuevaCompra->fresh()->saldo_pendiente,
+        ]);
+
+        // Guardar la URL del PDF en la sesión para mostrar el botón en la modal
+        session(['compras_stream_pdf_url' => route('compras-pdf.stream', $nuevaCompra->id)]);
+        session(['compras_download_pdf_url' => route('compras-pdf.download', $nuevaCompra->id)]);
+        $this->showConfirmModal = true;
+        $this->confirmModalTitle = '¡Compra exitosa!';
+        $this->confirmModalBody = 'La compra fue ingresada exitosamente.';
+    }
 
     public function editarCompra($compra)
     {
-        //$start = microtime(true);
+        \Log::info('EDITAR/CREAR compra recibida desde Alpine', ['compra' => $compra]);
 
         // Buscar la compra por el código
         $compraExistente = Compra::where('id', $compra['id'])->first();
@@ -85,8 +186,7 @@ class CompraFormLivewire extends Component implements HasActions, HasSchemas
             return;
         }
 
-        // Actualizar los campos de la compra
-        $compraExistente->update([
+        $payload = [
             'factura' => $compra['factura'],
             'proveedor_id' => $compra['proveedor_id'],
             'fecha' => empty($compra['fecha']) ? now()->toDateString() : $compra['fecha'],
@@ -106,7 +206,12 @@ class CompraFormLivewire extends Component implements HasActions, HasSchemas
             'bodega_id' => $compra['bodega_id'],
             'saldo_pendiente' => $compra['saldo_pendiente'],
             'solicitado' => $compra['solicitado'],
-        ]);
+        ];
+
+        \Log::info('EDITAR compra payload a actualizar', $payload);
+
+        // Actualizar los campos de la compra
+        $compraExistente->update($payload);
 
         $detallesActuales = $compraExistente->detallesCompra()->get()->keyBy('item_id');
         $nuevosIds = collect($compra['detalles_compra'])->pluck('producto_id')->all();
@@ -172,6 +277,7 @@ class CompraFormLivewire extends Component implements HasActions, HasSchemas
             'pucs' => $this->pucs,
             'compraEncontrada' => $this->compra,
             'detalles_compra' => $this->detallesCompra,
+            'esEdicion' => $this->esEdicion,
         ]);
     }
 }

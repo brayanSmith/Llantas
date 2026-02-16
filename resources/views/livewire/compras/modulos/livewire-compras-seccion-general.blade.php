@@ -5,7 +5,7 @@
             <label class="inline-flex items-center cursor-pointer">
                 <input type="radio" x-model="compra.categoria_compra" value="MATERIA_PRIMA"
                     class="form-radio text-blue-600 focus:ring-blue-400"
-                    @input="compra.categoria_compra = $event.target.value" />
+                    @input="compra.categoria_compra = $event.target.value" required />
                 <span class="ml-2">MATERIA PRIMA</span>
             </label>
             <label class="inline-flex items-center cursor-pointer">
@@ -24,34 +24,34 @@
     </div>
     <div>
         <label class="block text-sm font-semibold text-gray-700 mb-1">Factura</label>
-        <input type="text" x-model="compra.factura" class="input-pedido" />
+        <input type="text" x-model="compra.factura" class="input-pedido" required />
     </div>
 
     <div>
         <label class="block text-sm font-semibold text-gray-700 mb-1">Proveedor</label>
         <x-select-dinamico label="Proveedor" placeholder="Seleccione un proveedor" model="compra.proveedor_id"
-            :options="$proveedores" idKey="id" textKey="nombre_proveedor" selectId="select-proveedor" />
+            :options="$proveedores" idKey="id" textKey="nombre_proveedor" selectId="select-proveedor" required />
     </div>
 
     <div class="grid grid-cols-3 gap-4">
         <div>
             <label class="block text-sm font-semibold text-gray-700 mb-1">Fecha</label>
-            <input type="datetime-local" :value="formatDateForInput(compra.fecha)" @input="compra.fecha = $event.target.value" class="input-pedido" />
+            <input type="datetime-local" :value="formatDateForInput(compra.fecha)" @input="compra.fecha = $event.target.value" class="input-pedido" required />
         </div>
         <div>
             <label class="block text-sm font-semibold text-gray-700 mb-1">Plazo</label>
-            <input type="number" x-model="compra.dias_plazo_vencimiento" class="input-pedido" />
+            <input type="number" x-model="compra.dias_plazo_vencimiento" class="input-pedido" required />
         </div>
         <div>
             <label class="block text-sm font-semibold text-gray-700 mb-1">Fecha Vencimiento</label>
             <input type="datetime-local" :value="calcularFechaVencimiento(compra.fecha, compra.dias_plazo_vencimiento)"
-             class="input-pedido" readonly />
+             class="input-pedido" readonly required />
         </div>
     </div>
 
     <div>
         <label class="block text-sm font-semibold text-gray-700 mb-1">Método de Pago</label>
-        <select x-model="compra.metodo_pago" class="input-pedido-select">
+        <select x-model="compra.metodo_pago" class="input-pedido-select" required>
             <option value="">Seleccione un método de pago</option>
             <option value="CREDITO">CREDITO</option>
             <option value="CONTADO">CONTADO</option>
@@ -59,22 +59,22 @@
     </div>
     <div>
         <label class="block text-sm font-semibold text-gray-700 mb-1">Estado</label>
-        <select x-model="compra.estado" class="input-pedido-select">
+        <select x-model="compra.estado" class="input-pedido-select" required>
             <option value="PENDIENTE">PENDIENTE</option>
             <option value="FACTURADO">FACTURADO</option>
             <option value="ANULADO">ANULADO</option>
         </select>
     </div>
     <div>
-        <label class="block text-sm font-semibold text-gray-700 mb-1">Tipo Venta</label>
-        <select x-model="compra.tipo_venta" class="input-pedido-select">
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Tipo Compra</label>
+        <select x-model="compra.tipo_compra" class="input-pedido-select" required>
             <option value="ELECTRONICA">ELECTRONICA</option>
             <option value="REMISIONADA">REMISIONADA</option>
         </select>
     </div>
     <div>
         <label class="block text-sm font-semibold text-gray-700 mb-1">Bodega</label>
-        <select x-model="compra.bodega_id" class="input-pedido-select">
+        <select x-model="compra.bodega_id" class="input-pedido-select" required>
             <option value="">Seleccione una bodega</option>
             <template x-for="bodega in bodegas" :key="bodega.id">
                 <option :value="bodega.id" x-text="bodega.nombre_bodega"></option>

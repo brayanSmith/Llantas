@@ -12,7 +12,7 @@ class CompraStockBodegaObserver
      */
     public function created(Compra $compra): void
     {
-        $compra->recalcularTotales();
+        //$compra->recalcularTotales();
         app(CompraStockService::class)->crearProductosBodega($compra);
         app(CompraStockService::class)->creado($compra);
         $compra->setEstadoPago();
