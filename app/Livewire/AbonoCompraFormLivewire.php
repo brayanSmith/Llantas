@@ -27,6 +27,9 @@ class AbonoCompraFormLivewire extends Component implements HasActions, HasSchema
     public array $formasPago = [];
     public array $users = [];
     public array $abonos = [];
+    public $showConfirmModal = false;
+    public $confirmModalTitle = '';
+    public $confirmModalBody = '';
 
 
     public function mount(): void
@@ -73,6 +76,9 @@ class AbonoCompraFormLivewire extends Component implements HasActions, HasSchema
                 ]);
             }
         });
+        $this->showConfirmModal = true;
+        $this->confirmModalTitle = '¡Abonos Registrados!';
+        $this->confirmModalBody = 'Los abonos fueron ingresados exitosamente.';
     }
 
     public function buscarComprasEnCartera($proveedorId)

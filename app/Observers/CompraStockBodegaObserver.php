@@ -15,7 +15,7 @@ class CompraStockBodegaObserver
         //$compra->recalcularTotales();
         app(CompraStockService::class)->crearProductosBodega($compra);
         app(CompraStockService::class)->creado($compra);
-        $compra->setEstadoPago();
+        //$compra->setEstadoPago();
 
     }
 
@@ -23,7 +23,7 @@ class CompraStockBodegaObserver
     {
         //app(CompraStockService::class)->crearProductosBodega($compra);
         app(CompraStockService::class)->actualizado($compra);
-        $compra->setEstadoPago();
+        //$compra->setEstadoPago();
     }
 
     public function deleting(Compra $compra): void

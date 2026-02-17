@@ -19,15 +19,10 @@
         @include('livewire.abonosCompras.livewire-abono-compras-lista')
     </div>
     <div>
-        <button type="button" @click="generarAbonos()"
-            class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded shadow transition flex items-center justify-center" :disabled="isLoading || comprasSeleccionadas.length === 0">
-            <template x-if="isLoading">
-                <svg class="animate-spin h-5 w-5 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
-                </svg>
-            </template>
-            <span x-text="isLoading ? 'Generando...' : 'Generar Abonos'"></span>
+        @include('livewire.abonosCompras.livewire-abono-compras-boton-guardar')
+    </div>
+    <div>
+        @include('livewire.abonosCompras.componentes.compras-modal-abonos')
     </div>
 
     <script>
@@ -113,6 +108,8 @@
                     return valorAbono - this.totalAPagarSeleccionado;
                 },
 
+
+
                 generarAbonos() {
                     if (this.comprasSeleccionadas.length === 0) {
                         alert('Debe seleccionar al menos una compra');
@@ -123,6 +120,8 @@
                         alert('Debe completar todos los campos requeridos');
                         return;
                     }
+
+                    this.isLoading = true;
 
                     const payload = {
                         compras: this.comprasSeleccionadas.map(compra => ({
@@ -140,9 +139,11 @@
 
                     this.$wire.createAbonos(payload)
                         .then(() => {
-                            alert('Abonos guardados correctamente');
+                            this.isLoading = false;
+                            //alert('Abonos guardados correctamente');
                         })
                         .catch((error) => {
+                            this.isLoading = false;
                             console.error('Error al guardar abonos:', error);
                             alert('Error al guardar abonos');
                         });

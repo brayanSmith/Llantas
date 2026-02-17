@@ -14,6 +14,14 @@
         <label class="text-sm font-bold w-24 text-right">Total:</label>
         <input type="text" :value="Number(getTotalFinal(compra)).toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 2 })" class="input-table w-32 text-right font-bold bg-white dark:bg-gray-900" readonly />
     </div>
+    <div class="flex items-center gap-2">
+        <label class="text-sm font-medium w-24 text-right">Abono:</label>
+        <input type="text" :value="Number(compra.abono).toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 2 })" class="input-table w-32 text-right bg-white dark:bg-gray-900 text-green-600" readonly />
+    </div>
+    <div class="flex items-center gap-2">
+        <label class="text-sm font-medium w-24 text-right">Saldo:</label>
+        <input type="text" :value="Number(getTotalFinal(compra) - compra.abono).toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 2 })" class="input-table w-32 text-right bg-white dark:bg-gray-900" :class="Number(getTotalFinal(compra) - compra.abono) > 0 ? 'text-red-600' : 'text-green-600'" readonly />
+    </div>
     <div class="flex justify-end w-full pt-2">
         <button @click="enviar()" type="button" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow transition flex items-center justify-center" :disabled="isLoading">
             <template x-if="isLoading">

@@ -14,7 +14,7 @@ class DetalleCompraObserver
      */
     public function creating(DetalleCompra $detalle): void
     {
-        $resultado = CompraCalculoService::calcularDetalles([
+        /*$resultado = CompraCalculoService::calcularDetalles([
             'item_id' => $detalle->item_id,
             'descripcion_item' => $detalle->descripcion_item,
             'cantidad' => $detalle->cantidad,
@@ -25,7 +25,7 @@ class DetalleCompraObserver
         // Asignar tipo_item basado en la compra
         $detalle->tipo_item = CompraCalculoService::esProductoGasto($detalle);
         $detalle->subtotal = $resultado['subtotal'];
-        $detalle->precio_con_iva = $resultado['precio_con_iva'];
+        $detalle->precio_con_iva = $resultado['precio_con_iva'];*/
     }
 
     /**
@@ -33,7 +33,7 @@ class DetalleCompraObserver
      */
     public function updating(DetalleCompra $detalle): void
     {
-        $resultado = CompraCalculoService::calcularDetalles([
+        /*$resultado = CompraCalculoService::calcularDetalles([
             'item_id' => $detalle->item_id,
             'descripcion_item' => $detalle->descripcion_item,
             'cantidad' => $detalle->cantidad,
@@ -44,21 +44,21 @@ class DetalleCompraObserver
         // Asignar tipo_item basado en la compra
         $detalle->tipo_item = CompraCalculoService::esProductoGasto($detalle);
         $detalle->subtotal = $resultado['subtotal'];
-        $detalle->precio_con_iva = $resultado['precio_con_iva'];
+        $detalle->precio_con_iva = $resultado['precio_con_iva'];*/
     }
 
     public function created(DetalleCompra $detalle): void
     {
-        app(DetalleCompraStockService::class)->creado($detalle);
+        //app(DetalleCompraStockService::class)->creado($detalle);
     }
 
     public function updated(DetalleCompra $detalle): void
     {
-        app(DetalleCompraStockService::class)->actualizado($detalle);
+        //app(DetalleCompraStockService::class)->actualizado($detalle);
     }
 
     public function deleted(DetalleCompra $detalle): void
     {
-        app(DetalleCompraStockService::class)->eliminado($detalle);
+        //app(DetalleCompraStockService::class)->eliminado($detalle);
     }
 }

@@ -15,8 +15,8 @@ class CompraCalculoService
         $precio_unitario = $item['precio_unitario'] ?? 0;
         $iva = $item['iva'] ?? 0;
 
-        $subtotal = $cantidad * $precio_unitario * (1 + ($iva / 100));
-        $precioConIva = $subtotal;
+        $precioConIva = $precio_unitario * (1 + ($iva / 100));
+        $subtotal = $precioConIva * $cantidad;
         return [
             'subtotal' => $subtotal,
             'precio_con_iva' => $precioConIva

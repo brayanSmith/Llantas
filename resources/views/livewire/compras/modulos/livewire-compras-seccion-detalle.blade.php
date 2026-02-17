@@ -4,23 +4,32 @@
         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 rounded-lg overflow-hidden">
             <thead class="bg-gray-100 dark:bg-gray-800">
                 <tr>
-                    <th class="px-4 py-2 text-center text-xs font-semibold text-gray-700 dark:text-gray-200 w-[40%]">
+                    <th :class="compra.item_compra === 'GASTO' ? 'w-[18%]' : 'w-[24%]'" class="px-4 py-2 text-center text-xs font-semibold text-gray-700 dark:text-gray-200">
                         Producto
                     </th>
                     <th x-show="compra.item_compra === 'GASTO'"
-                        class="px-4 py-2 text-center text-xs font-semibold text-gray-700 dark:text-gray-200 w-[25%]">
+                        class="px-4 py-2 text-center text-xs font-semibold text-gray-700 dark:text-gray-200 w-[12%]">
                         Descripción
                     </th>
-                    <th class="px-4 py-2 text-center text-xs font-semibold text-gray-700 dark:text-gray-200 w-[10%]">
+                    <th class="px-4 py-2 text-center text-xs font-semibold text-gray-700 dark:text-gray-200 w-[8%]">
                         Cantidad
                     </th>
-                    <th class="px-4 py-2 text-center text-xs font-semibold text-gray-700 dark:text-gray-200 w-[20%]">
+                    <th class="px-4 py-2 text-center text-xs font-semibold text-gray-700 dark:text-gray-200 w-[13%]">
                         Precio
                         Unitario</th>
-                    <th class="px-4 py-2 text-center text-xs font-semibold text-gray-700 dark:text-gray-200 w-[20%]">
+
+                    <th class="px-4 py-2 text-center text-xs font-semibold text-gray-700 dark:text-gray-200 w-[8%]">
+                        Iva
+                    </th>
+                    <th class="px-4 py-2 text-center text-xs font-semibold text-gray-700 dark:text-gray-200 w-[13%]">
+                        P.Unitario + Iva
+                    </th>
+                    <th class="px-4 py-2 text-center text-xs font-semibold text-gray-700 dark:text-gray-200 w-[13%]">
                         Subtotal
                     </th>
-                    <th class="px-4 py-2"></th>
+                    <th class="px-4 py-2 text-center text-xs font-semibold text-gray-700 dark:text-gray-200 w-[11%]">
+                        Acciones
+                    </th>
                 </tr>
             </thead>
             <tbody class="bg-white dark:bg-gray-900">
@@ -29,19 +38,19 @@
                         class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 transition">
                         <td class="px-4">
                             <div x-show="compra.item_compra === 'PRODUCTO'">
-                                <input type="text" readonly class="input-table w-full"
+                                <input type="text" readonly class="input-table w-full text-left"
                                     :value="productos.find(p => p.id == detalle.producto_id)?.concatenar_codigo_nombre ||
                                         'Producto no encontrado'" />
                             </div>
                             <div x-show="compra.item_compra === 'GASTO'">
-                                <input type="text" readonly class="input-table w-full"
+                                <input type="text" readonly class="input-table w-full text-left"
                                     :value="pucs.find(p => p.id == detalle.producto_id)?.concatenar_subcuenta_concepto ||
                                         'Producto no encontrado'" />
                             </div>
                         </td>
                         <td x-show="compra.item_compra === 'GASTO'">
                             <div>
-                                <input type="text" class="input-table w-20 text-center" readonly
+                                <input type="text" class="input-table w-20 text-left" readonly
                                     x-model="detalle.descripcion_item" />
                             </div>
                         </td>
@@ -50,7 +59,7 @@
                                 class="input-table w-20 text-center" />
                         </td>
                         <td>
-                            <input type="text" readonly class="input-table w-24 text-right"
+                            <input type="text" readonly class="input-table w-24 text-center"
                                 :value="Number(detalle.precio_unitario).toLocaleString('es-CO', {
                                     style: 'currency',
                                     currency: 'COP',
@@ -58,21 +67,31 @@
                                 })" />
                         </td>
                         <td>
-                            <input type="text" readonly class="input-table w-24 text-right font-semibold"
-                                :value="Number(detalle.subtotal).toLocaleString('es-CO', {
+                            <input type="text" readonly class="input-table w-20 text-center"
+                                :value="detalle.iva + '%'" />
+                        </td>
+                        <td>
+                            <input type="text" readonly class="input-table w-24 text-center font-semibold"
+                                :value="Number(detalle.precio_con_iva).toLocaleString('es-CO', {
                                     style: 'currency',
                                     currency: 'COP',
                                     minimumFractionDigits: 2
                                 })" />
                         </td>
                         <td>
-                            <button type="button" @click="traerDetalle(index)"
-                                class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded shadow transition ml-2">Editar
-                            </button>
+                            <input type="text" readonly class="input-table w-24 text-center font-semibold"
+                                :value="Number(detalle.subtotal).toLocaleString('es-CO', {
+                                    style: 'currency',
+                                    currency: 'COP',
+                                    minimumFractionDigits: 2
+                                })" />
                         </td>
-                        <td>
+                        <td class="px-4 py-2 flex items-center justify-center gap-2">
+                            <button type="button" @click="traerDetalle(index)"
+                                class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded shadow transition text-sm">Editar
+                            </button>
                             <button type="button" @click="removeDetalle(index)"
-                                class="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded shadow transition">Eliminar
+                                class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded shadow transition text-sm">Eliminar
                             </button>
                         </td>
                     </tr>

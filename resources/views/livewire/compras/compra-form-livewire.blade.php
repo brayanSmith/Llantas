@@ -4,6 +4,7 @@
     cantidadIngresada: 1,
     valorIngresado: 0,
     subTotalIngresado: 0,
+    ivaPorcentajeIngresado: 0,
     descripcionIngresada: '',
 
     fechaIngresada: null,
@@ -94,6 +95,7 @@
         cantidadIngresada = 1,
         valorIngresado = 0,
         subTotalIngresado = 0,
+        ivaPorcentajeIngresado = 0,
         productoIngresado = null,
         descripcionIngresada = '',
 
@@ -112,6 +114,7 @@
             cantidadIngresada,
             valorIngresado,
             subTotalIngresado,
+            ivaPorcentajeIngresado,
             productoIngresado,
             descripcionIngresada,
             detalleEditandoIndex: null,
@@ -132,9 +135,9 @@
                     producto_id: String(detalle.item_id || detalle.producto_id),
                     cantidad: detalle.cantidad,
                     precio_unitario: detalle.precio_unitario,
-                    aplicar_iva: detalle.aplicar_iva,
+                    iva: detalle.iva || 0,
                     precio_con_iva: detalle.precio_con_iva,
-                    subtotal: (detalle.cantidad || 0) * (detalle.precio_unitario || 0),
+                    subtotal: (detalle.cantidad || 0) * (detalle.precio_con_iva || 0),
                     tipo_item: detalle.tipo_item,
                 }));
 
@@ -179,10 +182,10 @@
                         producto_id: String(detalle.item_id || detalle.producto_id),
                         cantidad: detalle.cantidad,
                         precio_unitario: detalle.precio_unitario,
-                        aplicar_iva: detalle.aplicar_iva,
+                        iva: detalle.iva,
                         precio_con_iva: detalle.precio_con_iva,
                         descripcion: detalle.descripcion,
-                        subtotal: (detalle.cantidad || 0) * (detalle.precio_unitario || 0),
+                        subtotal: (detalle.cantidad || 0) * (detalle.precio_con_iva || 0),
                         tipo_item: detalle.tipo_item,
                     }));
 
@@ -256,13 +259,17 @@
                 // Calcular subtotal
                 const cantidadNum = parseFloat(cantidad) || 0;
                 const valorUnitarioNum = parseFloat(valorUnitario) || 0;
-                const subTotalCalculado = Math.round(cantidadNum * valorUnitarioNum * 100) / 100;
+                const ivaPorcentaje = parseFloat(this.ivaPorcentajeIngresado) || 0;
+                const precioConIvaCalculado = Math.round(valorUnitarioNum * (1 + ivaPorcentaje / 100) * 100) / 100;
+                const subTotalCalculado = Math.round(cantidadNum * precioConIvaCalculado * 100) / 100;
 
                 this.compra.detalles_compra.push({
                     producto_id: productoId,
                     descripcion_item: this.descripcionIngresada || '',
                     cantidad: cantidadNum,
                     precio_unitario: valorUnitarioNum,
+                    iva: ivaPorcentaje,
+                    precio_con_iva: precioConIvaCalculado,
                     subtotal: subTotalCalculado,
                     tipo_item: this.compra.item_compra,
                 });
@@ -271,6 +278,7 @@
                 this.cantidadIngresada = 1;
                 this.valorIngresado = 0;
                 this.subTotalIngresado = 0;
+                this.ivaPorcentajeIngresado = 0;
                 this.descripcionIngresada = '';
 
                 // Limpiar Tom Select
@@ -293,6 +301,7 @@
                     this.productoIngresado = detalle.producto_id;
                     this.cantidadIngresada = detalle.cantidad;
                     this.valorIngresado = detalle.precio_unitario;
+                    this.ivaPorcentajeIngresado = detalle.iva || 0;
                     this.detalleEditandoIndex = index;
                     // Actualizar Tom Select manualmente
                     this.$nextTick(() => {
@@ -327,12 +336,16 @@
                 // Calcular subtotal
                 const cantidadNum = parseFloat(cantidad) || 0;
                 const valorUnitarioNum = parseFloat(valorUnitario) || 0;
-                const subTotalCalculado = Math.round(cantidadNum * valorUnitarioNum * 100) / 100;
+                const ivaPorcentaje = parseFloat(this.ivaPorcentajeIngresado) || 0;
+                const precioConIvaCalculado = Math.round(valorUnitarioNum * (1 + ivaPorcentaje / 100) * 100) / 100;
+                const subTotalCalculado = Math.round(cantidadNum * precioConIvaCalculado * 100) / 100;
 
                 detalle.producto_id = productoId;
                 detalle.cantidad = parseFloat(cantidad) || 0;
                 detalle.precio_unitario = parseFloat(valorUnitario) || 0;
                 detalle.subtotal = subTotalCalculado;
+                detalle.iva = ivaPorcentaje;
+                detalle.precio_con_iva = precioConIvaCalculado;
                 // Limpiar campos de ingreso
                 this.productoIngresado = null;
                 this.cantidadIngresada = 1;
@@ -349,9 +362,9 @@
             },
             //Funcion para Obtener Subtotal
             getSubtotal(detalle) {
-                const precio = detalle.precio_unitario || 0;
+                const precioConIva = detalle.precio_con_iva || 0;
                 const cantidad = detalle.cantidad || 0;
-                return Math.round(precio * cantidad * 100) / 100;
+                return Math.round(precioConIva * cantidad * 100) / 100;
             },
             actualizarTodosLosDetalles(tipoPrecio) {
                 if (tipoPrecio) {
@@ -362,6 +375,7 @@
                         // Actualizar precios según el tipo de precio
                         detalle.precio_unitario = detalle.precio_unitario;
                         detalle.precio_con_iva = detalle.precio_con_iva;
+                        detalle.iva = detalle.ivaPorcentaje || 0;
                         detalle.subtotal = this.getSubtotal(detalle);
                         detalle.tipo_item = this.compra.item_compra;
                     });
@@ -461,9 +475,8 @@
                     this.compra.detalles_compra.forEach((detalle, idx) => {
                         // Si el usuario modificó manualmente el precio_unitario, se respeta
                         // pero siempre recalculamos precio_con_iva y subtotal
-                        detalle.precio_unitario = detalle.precio_unitario ?? this.getPrecio(detalle, this
-                            .tipoPrecio);
-                        detalle.precio_con_iva = detalle.precio_unitario;
+                        detalle.precio_unitario = detalle.precio_unitario;
+                        detalle.precio_con_iva = detalle.precio_con_iva;
                         detalle.subtotal = this.getSubtotal(detalle);
                     });
                 }
