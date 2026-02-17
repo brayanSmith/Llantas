@@ -57,7 +57,7 @@ class Compra extends Model
         return $this->belongsTo(Bodega::class, 'bodega_id');
     }
 
-    public function recalcularTotales()
+    /*public function recalcularTotales()
     {
         $data = CompraCalculoService::calcular(
             $this->detallesCompra->toArray(),
@@ -80,5 +80,5 @@ class Compra extends Model
             return null;
         }
         return \Carbon\Carbon::parse($value)->setTimezone('America/Bogota');
-    }
+    }*/
 }

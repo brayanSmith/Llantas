@@ -11,7 +11,7 @@ class AbonoCompraObserver
      */
     public function created(AbonoCompra $abono): void
     {
-        $this->recalcularTotalesCompra($abono);
+        //$this->recalcularTotalesCompra($abono);
     }
 
     /**
@@ -19,7 +19,7 @@ class AbonoCompraObserver
      */
     public function updated(AbonoCompra $abono): void
     {
-        $this->recalcularTotalesCompra($abono);
+        //$this->recalcularTotalesCompra($abono);
     }
 
     /**
@@ -27,7 +27,7 @@ class AbonoCompraObserver
      */
     public function deleted(AbonoCompra $abono): void
     {
-        $this->recalcularTotalesCompra($abono);
+        //$this->recalcularTotalesCompra($abono);
     }
 
     /**
@@ -36,7 +36,7 @@ class AbonoCompraObserver
     private function recalcularTotalesCompra(AbonoCompra $abono): void
     {
         $compra = $abono->compra;
-        
+
         if ($compra) {
             $compra->recalcularTotales();
         }

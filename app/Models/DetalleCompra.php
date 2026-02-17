@@ -37,7 +37,7 @@ class DetalleCompra extends Model
     {
         return $this->belongsTo(Puc::class, 'item_id');
     }
-   public function recalcularSubtotal()
+   /*public function recalcularSubtotal()
     {
         $resultado = CompraCalculoService::calcularDetalles([
             'item_id' => $this->item_id,
@@ -50,5 +50,5 @@ class DetalleCompra extends Model
             'subtotal' => $resultado['subtotal'],
             'precio_con_iva' => $resultado['precio_con_iva']
         ]);
-    }
+    }*/
 }

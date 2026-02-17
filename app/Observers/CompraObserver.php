@@ -11,7 +11,7 @@ class CompraObserver
      */
     public function created(Compra $compra): void
     {
-        $this->syncEstadoPago($compra);
+        //$this->syncEstadoPago($compra);
     }
 
     /**
@@ -19,7 +19,7 @@ class CompraObserver
      */
     public function updated(Compra $compra): void
     {
-        $this->syncEstadoPago($compra);
+        //$this->syncEstadoPago($compra);
     }
 
     /**

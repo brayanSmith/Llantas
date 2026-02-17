@@ -34,13 +34,14 @@
                 </h2>
                 {{-- Productos en el carrito --}}
                 @include('livewire.pos.componentes-panel-derecho.productos-carrito')
-                {{-- Checkear carrito--}}
+                {{-- Checkear carrito --}}
                 @include('livewire.pos.componentes-panel-derecho.formulario-carrito')
-            </div>
 
-            {{-- Botones fijos en la parte inferior con transparencia --}}
-            <div class="sticky bottom-0 bg-white/80 dark:bg-neutral-800/80 backdrop-blur-sm border-t border-gray-200 dark:border-gray-700 p-6 shadow-lg">
-                @include('livewire.pos.componentes-panel-derecho.botones-carrito')
+                {{-- Botones en la parte inferior --}}
+                <div
+                    class="bg-white/80 dark:bg-neutral-800/80 backdrop-blur-sm ">
+                    @include('livewire.pos.componentes-panel-derecho.botones-carrito')
+                </div>
             </div>
         </div>
     </div>
