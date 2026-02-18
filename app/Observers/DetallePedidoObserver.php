@@ -13,7 +13,7 @@ class DetallePedidoObserver
     public function creating(DetallePedido $detallePedido): void
     {
         //
-        $resultado = PedidoCalculoService::calcularDetalles([
+        /*$resultado = PedidoCalculoService::calcularDetalles([
             'producto_id' => $detallePedido->producto_id,
             'cantidad' => $detallePedido->cantidad,
             'precio_unitario' => $detallePedido->precio_unitario,
@@ -21,13 +21,13 @@ class DetallePedidoObserver
             'iva' => $detallePedido->iva,
         ]);
         $detallePedido->subtotal = $resultado['subtotal'];
-        $detallePedido->precio_con_iva = $resultado['precio_con_iva'];
+        $detallePedido->precio_con_iva = $resultado['precio_con_iva'];*/
     }
 
     public function updating(DetallePedido $detallePedido): void
     {
         //
-        $resultado = PedidoCalculoService::calcularDetalles([
+        /*$resultado = PedidoCalculoService::calcularDetalles([
             'producto_id' => $detallePedido->producto_id,
             'cantidad' => $detallePedido->cantidad,
             'precio_unitario' => $detallePedido->precio_unitario,
@@ -35,7 +35,7 @@ class DetallePedidoObserver
             'iva' => $detallePedido->iva,
         ]);
         $detallePedido->subtotal = $resultado['subtotal'];
-        $detallePedido->precio_con_iva = $resultado['precio_con_iva'];
+        $detallePedido->precio_con_iva = $resultado['precio_con_iva'];*/
     }
     /**
      * Handle the DetallePedido "created" event.
@@ -43,7 +43,7 @@ class DetallePedidoObserver
     public function created(DetallePedido $detallePedido): void
     {
         //
-        app(DetallePedidoStockService::class)->creado($detallePedido);
+        //app(DetallePedidoStockService::class)->creado($detallePedido);
     }
 
     /**
@@ -52,7 +52,7 @@ class DetallePedidoObserver
     public function updated(DetallePedido $detallePedido): void
     {
         //
-        app(DetallePedidoStockService::class)->actualizado($detallePedido);
+        //app(DetallePedidoStockService::class)->actualizado($detallePedido);
 
     }
 

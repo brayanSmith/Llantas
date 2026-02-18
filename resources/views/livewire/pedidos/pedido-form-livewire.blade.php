@@ -31,21 +31,19 @@
         </div>
     </div>
 
-    <div x-show="pedido.estado_venta !== 'COTIZACION'"
-        class="bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6 mb-6">
+    <div x-show="pedido.estado_venta !== 'COTIZACION'">
         @include('livewire.pedidos.livewire-pedidos-seccion-general')
     </div>
 
-    <div x-show="pedido.estado_venta === 'COTIZACION'"
-        class="bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6 mb-6">
+    <div x-show="pedido.estado_venta === 'COTIZACION'">
         @include('livewire.pedidos.livewire-pedidos-seccion-general-cotizacion')
     </div>
 
-    <div class="sticky top-16 z-10 bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6 mb-6">
+    <div class="sticky top-16 z-10">
         @include('livewire.pedidos.livewire-pedidos-seccion-detalle-agregar')
     </div>
 
-    <div class="bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6 mb-6">
+    <div>
         @include('livewire.pedidos.livewire-pedidos-seccion-detalle')
     </div>
 

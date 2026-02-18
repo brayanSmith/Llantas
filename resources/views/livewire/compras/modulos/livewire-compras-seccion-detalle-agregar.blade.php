@@ -1,13 +1,13 @@
-<div>
+<div class="rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900 dark:shadow-none">
     <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 rounded-lg overflow-hidden">
             <thead class="bg-gray-100 dark:bg-gray-800">
                 <tr>
-                    <th :class="compra.item_compra === 'GASTO' ? 'w-[18%]' : 'w-[24%]'" class="px-4 py-2 text-center text-xs font-semibold text-gray-700 dark:text-gray-200">
+                    <th :class="compra.item_compra === 'GASTO' ? 'w-[18%]' : 'w-[24%]'" class="px-4 py-2 text-left text-xs font-semibold text-gray-700 dark:text-gray-200">
                         Producto
                     </th>
                     <th x-show="compra.item_compra === 'GASTO'"
-                        class="px-4 py-2 text-center text-xs font-semibold text-gray-700 dark:text-gray-200 w-[12%]">
+                        class="px-4 py-2 text-left text-xs font-semibold text-gray-700 dark:text-gray-200 w-[12%]">
                         Descripción
                     </th>
                     <th class="px-4 py-2 text-center text-xs font-semibold text-gray-700 dark:text-gray-200 w-[8%]">
@@ -82,7 +82,8 @@
                                 minimumFractionDigits: 2
                             })" />
                     </td>
-                    <td class="px-4 py-2 flex items-center justify-center gap-2">
+                    <td class="px-4 py-2">
+                        <div class="flex items-center justify-center gap-2">
                         <button type="button"
                             @click="detalleEditandoIndex !== null ? (actualizarValoresDetalle(detalleEditandoIndex, productoIngresado, cantidadIngresada, valorIngresado, ivaPorcentajeIngresado)) : agregarDetalle(productoIngresado, cantidadIngresada, valorIngresado, ivaPorcentajeIngresado)"
                             :class="detalleEditandoIndex !== null ? 'bg-blue-600 hover:bg-blue-700' :
@@ -96,6 +97,7 @@
                             class="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded shadow transition text-sm">
                             Cancelar
                         </button>
+                        </div>
                     </td>
                 </tr>
             </tbody>

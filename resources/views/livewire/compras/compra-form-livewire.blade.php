@@ -40,22 +40,19 @@
         </div>
     </div>
 
-    <div x-show="compra.item_compra === 'PRODUCTO'"
-        class="bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6 mb-6">
-        @include('livewire.compras.modulos.livewire-compras-seccion-general')
+    <div x-show="compra.item_compra === 'PRODUCTO'">
+        @include('livewire.compras.modulos.livewire-compras-seccion-general-producto')
     </div>
 
-    <div x-show="compra.item_compra === 'GASTO'"
-        class="bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6 mb-6">
-        @include('livewire.compras.modulos.livewire-compras-seccion-general-cotizacion')
+    <div x-show="compra.item_compra === 'GASTO'">
+        @include('livewire.compras.modulos.livewire-compras-seccion-general-gasto')
     </div>
 
-    <div
-        class="sticky top-16 z-10 bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6 mb-6">
+    <div class="sticky top-16 z-10">
         @include('livewire.compras.modulos.livewire-compras-seccion-detalle-agregar')
     </div>
 
-    <div class="bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6 mb-6">
+    <div>
         @include('livewire.compras.modulos.livewire-compras-seccion-detalle')
     </div>
 

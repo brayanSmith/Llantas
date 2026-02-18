@@ -55,6 +55,12 @@
 
                 init() {
                     console.log('Componente de abonos inicializado');
+                    // Watcher para seleccionar automáticamente al cambiar valorAbonoIngresado
+                    this.$watch('valorAbonoIngresado', () => {
+                        if (this.valorAbonoIngresado && parseFloat(this.valorAbonoIngresado) > 0) {
+                            this.seleccionarAutomaticamente();
+                        }
+                    });
                 },
 
                 buscarComprasEnCartera() {
@@ -108,7 +114,39 @@
                     return valorAbono - this.totalAPagarSeleccionado;
                 },
 
+                seleccionarAutomaticamente() {
+                    const valorAbono = parseFloat(this.valorAbonoIngresado) || 0;
+                    if (valorAbono <= 0 || this.comprasEnCartera.length === 0) return;
 
+                    // Ordenar compras por total_a_pagar de menor a mayor
+                    const comprasOrdenadas = [...this.comprasEnCartera].sort((a, b) =>
+                        parseFloat(a.total_a_pagar || 0) - parseFloat(b.total_a_pagar || 0)
+                    );
+
+                    // Limpiar selección anterior
+                    this.comprasSeleccionadas = [];
+                    let acumulado = 0;
+
+                    // Seleccionar compras hasta alcanzar o superar el valor del abono
+                    for (let compra of comprasOrdenadas) {
+                        const montoCompra = parseFloat(compra.total_a_pagar || 0);
+                        if (acumulado + montoCompra <= valorAbono) {
+                            this.comprasSeleccionadas.push(compra);
+                            acumulado += montoCompra;
+                        } else if (acumulado < valorAbono) {
+                            // Si falta poco, incluir esta compra también
+                            if (valorAbono - acumulado >= montoCompra * 0.5) {
+                                this.comprasSeleccionadas.push(compra);
+                                acumulado += montoCompra;
+                            }
+                            break;
+                        } else {
+                            break;
+                        }
+                    }
+
+                    console.log('Compras seleccionadas automáticamente:', this.comprasSeleccionadas, 'Total: ', acumulado);
+                },
 
                 generarAbonos() {
                     if (this.comprasSeleccionadas.length === 0) {

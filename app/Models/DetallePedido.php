@@ -32,14 +32,14 @@ class DetallePedido extends Model
     {
         return $this->belongsTo(Producto::class, 'producto_id');
     }
-    public function getProductoDatos()
+    /*public function getProductoDatos()
     {
         return PedidoCalculoService::calcularDatosProducto($this->producto);
-    }
+    }*/
 
     public function recalcularSubtotal()
     {
-        $resultado = PedidoCalculoService::calcularDetalles([
+        /*$resultado = PedidoCalculoService::calcularDetalles([
             'producto_id' => $this->producto_id,
             'cantidad' => $this->cantidad,
             'precio_unitario' => $this->precio_unitario,
@@ -49,7 +49,7 @@ class DetallePedido extends Model
         $this->update([
             'subtotal' => $resultado['subtotal'],
             'precio_con_iva' => $resultado['precio_con_iva']
-        ]);
+        ]);*/
     }
 
 }

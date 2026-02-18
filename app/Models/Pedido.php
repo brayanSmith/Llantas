@@ -96,7 +96,7 @@ class Pedido extends Model
 
     public function recalcularTotales()
     {
-        $data = PedidoCalculoService::calcularTotalesPedido(
+        /*$data = PedidoCalculoService::calcularTotalesPedido(
             $this->detalles->toArray(),
             $this->abonos->toArray(),
             $this->descuento ?? 0,
@@ -105,7 +105,7 @@ class Pedido extends Model
         $this->updateQuietly($data);
 
         $nuevoEstadoPago = PedidoCalculoService::calcularEstadoPago($this->saldo_pendiente);
-        $this->updateQuietly(['estado_pago' => $nuevoEstadoPago]);
+        $this->updateQuietly(['estado_pago' => $nuevoEstadoPago]);*/
     }
 
     public function setCodigoPedido()
