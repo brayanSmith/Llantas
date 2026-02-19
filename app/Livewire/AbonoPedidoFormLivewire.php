@@ -58,7 +58,8 @@ class AbonoPedidoFormLivewire extends Component implements HasActions, HasSchema
             $pedidosDb = Pedido::whereIn('id', $pedidoIds)->get();
 
             foreach ($pedidosDb as $pedido) {
-                $montoAbono = $pedido->saldo_pendiente ?? $pedido->total_a_pagar;
+                $montoAbono = $pedido->total_a_pagar;
+                $vendedorId = $pedido->vendedor_id ?? null;
                 Abono::create([
                     'pedido_id' => $pedido->id,
                     'fecha' => $abono['fecha'] ?? null,
@@ -67,6 +68,7 @@ class AbonoPedidoFormLivewire extends Component implements HasActions, HasSchema
                     'descripcion' => $abono['descripcion'] ?? null,
                     'imagen' => $abono['imagen'] ?? null,
                     'user_id' => $abono['user_id'] ?? null,
+                    'vendedor_id' => $vendedorId,
                 ]);
 
                 Pedido::where('id', $pedido->id)->update([

@@ -58,7 +58,7 @@ class AbonoCompraFormLivewire extends Component implements HasActions, HasSchema
             $comprasDb = Compra::whereIn('id', $compraIds)->get();
 
             foreach ($comprasDb as $compra) {
-                $montoAbono = $compra->saldo_pendiente ?? $compra->total_a_pagar;
+                $montoAbono = $compra->total_a_pagar;
                 AbonoCompra::create([
                     'compra_id' => $compra->id,
                     'fecha_abono_compra' => $abono['fecha_abono_compra'] ?? null,
