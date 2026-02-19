@@ -4,14 +4,16 @@ namespace App\Filament\Resources\Pedidos\Pages;
 
 use App\Filament\Resources\Pedidos\PedidoResource;
 
+use App\Filament\Traits\HasAbonoPedidoAction;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
-use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 
 class ListPedidos extends ListRecords
 {
+    use HasAbonoPedidoAction;
     protected static string $resource = PedidoResource::class;
 
     public function getTabs(): array
@@ -46,7 +48,8 @@ class ListPedidos extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            //CreateAction::make(),
+            $this->getAbonoPedidoAction(),
+
         ];
     }
 }

@@ -1,6 +1,6 @@
 
 
-<div class="flex flex-col items-end space-y-2 w-full pr-2">
+<div class="flex flex-col items-end space-y-2 w-full pr-2" x-data="{ showAbonoModal: false }">
     <div class="w-64 space-y-2">
         <div class="flex items-center justify-between border-b border-gray-200/70 pb-2 dark:border-gray-700">
             <span class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Subtotal</span>
@@ -20,8 +20,19 @@
             <span class="text-sm font-bold text-emerald-700 dark:text-emerald-200"
                 x-text="Number(getTotalFinal(pedido)).toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 2 })"></span>
         </div>
+        <div class="flex items-center justify-between border-b border-gray-200/70 pb-2 dark:border-gray-700">
+            <span class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Abono</span>
+            <span class="text-sm font-semibold text-green-600"
+                x-text="Number(pedido.abono).toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 2 })"></span>
+        </div>
+        <div class="flex items-center justify-between border-b border-gray-200/70 pb-2 dark:border-gray-700">
+            <span class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Saldo</span>
+            <span class="text-sm font-semibold"
+                :class="Number(getTotalFinal(pedido) - pedido.abono) > 0 ? 'text-red-600' : 'text-green-600'"
+                x-text="Number(getTotalFinal(pedido) - pedido.abono).toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 2 })"></span>
+        </div>
     </div>
-    <div class="flex justify-end w-full pt-2">
+    <div class="flex justify-end w-full pt-2 gap-2">
         <button @click="enviar()" type="button" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow transition flex items-center justify-center" :disabled="isLoading">
             <template x-if="isLoading">
                 <svg class="animate-spin h-5 w-5 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

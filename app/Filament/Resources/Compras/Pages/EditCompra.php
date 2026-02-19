@@ -2,10 +2,14 @@
 
 namespace App\Filament\Resources\Compras\Pages;
 
+use App\Livewire\AbonoCompraFormLivewire;
 use App\Filament\Resources\Compras\CompraResource;
 use Filament\Actions\DeleteAction;
+
 use Filament\Resources\Pages\EditRecord;
 use Filament\Actions\Action;
+
+use Filament\Schemas\Components\Livewire;
 
 class EditCompra extends EditRecord
 {
@@ -23,15 +27,15 @@ class EditCompra extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            //DeleteAction::make(),
-             Action::make('download_pdf')
+            Action::make('download_pdf')
                 ->label('Descargar PDF')
-                ->url(fn () => route('compras-pdf.download', ['id' => $this->record->id]))
+                ->url(fn() => route('compras-pdf.download', ['id' => $this->record->id]))
                 ->openUrlInNewTab(),
             Action::make('ver_pdf')
                 ->label('Ver PDF')
-                ->url(fn () => route('compras-pdf.stream', ['id' => $this->record->id]))
+                ->url(fn() => route('compras-pdf.stream', ['id' => $this->record->id]))
                 ->openUrlInNewTab(),
+
         ];
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Compras\Pages;
 
 use App\Filament\Resources\Compras\CompraResource;
+use App\Filament\Traits\HasAbonoAction;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Tabs\Tab;
@@ -11,6 +12,8 @@ use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 
 class ListCompras extends ListRecords
 {
+    use HasAbonoAction;
+
     protected static string $resource = CompraResource::class;
 
     public function getTabs(): array
@@ -29,6 +32,7 @@ class ListCompras extends ListRecords
     {
         return [
             CreateAction::make(),
+            $this->getAbonoAction(),
         ];
     }
 }

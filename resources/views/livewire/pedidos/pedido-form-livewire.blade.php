@@ -388,6 +388,10 @@
                 this.pedido.cliente_id = this.pedido.cliente_id || null;
                 this.pedido.subtotal = this.getTotal(this.pedido);
                 this.pedido.total_a_pagar = this.getTotalFinal(this.pedido);
+                this.pedido.descuento = parseFloat(this.pedido.descuento) || 0;
+                this.pedido.flete = parseFloat(this.pedido.flete) || 0;
+                this.pedido.abono = parseFloat(this.pedido.abono) || 0;
+                this.pedido.saldo_pendiente = this.getTotalFinal(this.pedido) - this.pedido.abono;
                 this.pedido.fecha = this.formatDateForInput(this.pedido.fecha);
                 this.pedido.fecha_vencimiento = this.calcularFechaVencimiento(this.pedido.fecha, this.pedido
                     .dias_plazo_vencimiento);
