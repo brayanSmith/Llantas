@@ -154,9 +154,9 @@
         </table>
 
 
-    <div class="section">
+    {{--<div class="section">
         <strong>TIPO </strong> <span id="tipoCliente">{{ $pedido->tipo_venta ?? 'N/A' }}</span>
-    </div>
+    </div>--}}
 
     <h3>Productos Pedido Facturado</h3>
     <!-- Tabla de productos -->
