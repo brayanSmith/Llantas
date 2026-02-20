@@ -42,7 +42,7 @@ class AbonoPedidoFormLivewire extends Component implements HasActions, HasSchema
         $this->pedidos = Pedido::select('id', 'codigo')
         ->where('estado_pago', 'EN_CARTERA')
         ->get()->toArray();
-        $this->formasPago = Puc::select('id', 'nombre_puc', 'concatenar_subcuenta_concepto')->get()->toArray();
+        $this->formasPago = Puc::select('id','concatenar_subcuenta_concepto')->get()->toArray();
         $this->users = User::select('id', 'name')->get()->toArray();
         $this->abonos = Abono::select('id', 'monto')->get()->toArray();
     }
