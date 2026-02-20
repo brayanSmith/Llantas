@@ -108,6 +108,8 @@
             isLoading: false,
             init() {
                 console.log('Datos del pedido:', this.pedido);
+                console.log('Abonos del pedido:', this.pedido.abonos);
+                console.log('Total de abonos:', this.pedido.abonos?.reduce((acc, abono) => acc + parseFloat(abono.monto || 0), 0));
 
                 // Asegurar que flete y descuento sean números
                 this.pedido.flete = parseFloat(this.pedido.flete) || 0;
