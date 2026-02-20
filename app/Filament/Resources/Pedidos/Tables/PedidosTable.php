@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Pedidos\Tables;
 
+use App\Filament\Traits\HasEditarAction;
 use Filament\Tables\Table;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
@@ -23,9 +24,21 @@ use LaravelLang\Publisher\Concerns\Has;
 
 class PedidosTable
 {
+    use HasEditarAction;
     public static function configure(Table $table): Table
     {
+        $instance = new self();
+
         return $table
+            ->modifyQueryUsing(function ($query) {
+                $query->where('estado_venta', 'VENTA');
+                // Si el usuario no es super_admin, mostrar solo sus pedidos
+                if (!auth()->user()->hasRole(['super_admin','financiero','Financiero'])) {
+                    $query->where('user_id', auth()->id());
+                }
+                return $query;
+            })
+
             ->groups([
                 Group::make('fecha')
                     ->date()
@@ -61,11 +74,8 @@ class PedidosTable
                     HasActionSections::registrarAbonoAction(),
                     ViewAction::make()
                         ->modalWidth('full'),
-                    Action::make('edit')
-                            ->label('Editar')
-                            ->icon('heroicon-o-pencil')
-                            ->url(fn($record) => route('filament.admin.resources.pedidos.edit', ['record' => $record->getKey(), 'pedido_id' => $record->getKey()]))
-                            ->openUrlInNewTab(false),
+                    //Accion Editar personalizada para redireccionar a la vista de edición del pedido
+                    $instance->getEditarAction('filament.admin.resources.pedidos.edit'),
                     Action::make('download_pdf')
                         ->label(fn ($record) => 'Descargar PDF (' . ($record->contador_impresiones ?? 0) . ')')
                         //->icon('heroicon-o-document-download')

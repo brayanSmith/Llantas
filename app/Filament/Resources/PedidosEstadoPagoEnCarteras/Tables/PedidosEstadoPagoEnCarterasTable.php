@@ -16,11 +16,14 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Enums\RecordActionsPosition;
 use App\Filament\Resources\Pedidos\Tables\HasPedidoTable;
 use App\Filament\Resources\Pedidos\Tables\Concerns\HasActionSections;
+use App\Filament\Traits\HasEditarAction;
 
 class PedidosEstadoPagoEnCarterasTable
 {
+    use HasEditarAction;
     public static function configure(Table $table): Table
     {
+        $instance = new self();
         return $table
             //voy a traer los pedidos que esten en estado_pago EN_CARTERA y estado FACTURADO
             ->modifyQueryUsing(function ($query) {
@@ -79,7 +82,7 @@ class PedidosEstadoPagoEnCarterasTable
                     HasActionSections::registrarAbonoAction(),
                     ViewAction::make()
                         ->modalWidth('full'),
-                    EditAction::make(),
+                    $instance->getEditarAction('filament.admin.resources.pedidos.edit'),
             ]),
         ],
         position: RecordActionsPosition::BeforeColumns
