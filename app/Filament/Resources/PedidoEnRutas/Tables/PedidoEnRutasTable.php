@@ -36,7 +36,7 @@ class PedidoEnRutasTable
                     ->where('estado_venta', 'VENTA');
 
                 // Si el usuario no es super_admin, mostrar solo sus pedidos
-                if (!auth()->user()->hasRole(['super_admin', 'financiero'])) {
+                if (!auth()->user()->hasRole(['super_admin', 'financiero', 'Financiero', 'Logistica', 'logistica'])) {
                     $query->where('user_id', auth()->id());
                 }
 
