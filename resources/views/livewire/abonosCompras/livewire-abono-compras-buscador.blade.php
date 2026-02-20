@@ -99,6 +99,14 @@
                 class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-black dark:text-white rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                 rows="3"></textarea>
         </div>
+
+         <!-- Componente de Carga de Imagen Reutilizable -->
+        <x-image-upload
+            :property="'imagenAbono'"
+            :path="'imagenAbonoPath'"
+            :deleteMethod="'eliminarImagen'"
+            :label="'Comprobante o Evidencia'" />
+
     </div>
 
     <!-- Sección 3: Resumen de Selección -->

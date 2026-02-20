@@ -38,15 +38,17 @@ class PedidoFormLivewire extends Component implements HasActions, HasSchemas
     public $confirmModalBody = '';
     public ?Pedido $pedido = null;
     public array $detalles = [];
+    public array $abonos = [];
 
     public function mount(): void
     {
         $pedidoId = request()->get('pedido_id');
         if ($pedidoId) {
             // Cargar la relación bodega junto con el pedido
-            $this->pedido = Pedido::with('bodega', 'detalles', 'user', 'alistador', 'cliente')->find($pedidoId);
+            $this->pedido = Pedido::with('bodega', 'detalles', 'user', 'alistador', 'cliente', 'abonos.formaPago', 'abonos.user')->find($pedidoId);
         }
         $this->detalles = DetallePedido::where('pedido_id', $pedidoId)->get()->toArray();
+        $this->abonos = $this->pedido?->abonos->toArray() ?? [];
         // Log para saber que el formulario fue cargado
         // Si no hay user_id en sesión, usar el usuario logueado
         if (!$this->userId) { $this->userId = auth()->id();}
@@ -70,6 +72,7 @@ class PedidoFormLivewire extends Component implements HasActions, HasSchemas
         //$this->alistadores = User::select('id', 'name')->get()->toArray();
         $this->productos = $this->getFilteredProductos();
         $this->bodegaSeleccionada = $this->empresa->bodega_id;
+
 
     }
     protected function getFilteredProductos()

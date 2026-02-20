@@ -16,11 +16,13 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use function Laravel\Prompts\select;
+use Livewire\WithFileUploads;
 
 class AbonoCompraFormLivewire extends Component implements HasActions, HasSchemas
 {
     use InteractsWithActions;
     use InteractsWithSchemas;
+    use WithFileUploads;
 
     public array $proveedores = [];
     public array $compras = [];
@@ -30,7 +32,8 @@ class AbonoCompraFormLivewire extends Component implements HasActions, HasSchema
     public $showConfirmModal = false;
     public $confirmModalTitle = '';
     public $confirmModalBody = '';
-
+    public $imagenAbono = null;
+    public $imagenAbonoPath = null;
 
     public function mount(): void
     {
@@ -52,20 +55,25 @@ class AbonoCompraFormLivewire extends Component implements HasActions, HasSchema
         if ($compras === [] || $abono === []) {
             return;
         }
+        // Guardar la imagen si existe
+        $rutaImagen = null;
+        if ($this->imagenAbono) {
+            $rutaImagen = $this->imagenAbono->store('abonos', 'public');
+        }
 
-        DB::transaction(function () use ($compras, $abono) {
+        DB::transaction(function () use ($compras, $abono, $rutaImagen) {
             $compraIds = array_column($compras, 'id');
             $comprasDb = Compra::whereIn('id', $compraIds)->get();
 
             foreach ($comprasDb as $compra) {
-                $montoAbono = $compra->total_a_pagar;
+                $montoAbono = $compra->saldo_pendiente ?? $compra->total_a_pagar;
                 AbonoCompra::create([
                     'compra_id' => $compra->id,
                     'fecha_abono_compra' => $abono['fecha_abono_compra'] ?? null,
                     'monto_abono_compra' => $montoAbono,
                     'forma_pago_abono_compra' => $abono['forma_pago_abono_compra'] ?? null,
                     'descripcion_abono_compra' => $abono['descripcion_abono_compra'] ?? null,
-                    'imagen_abono_compra' => $abono['imagen_abono_compra'] ?? null,
+                    'imagen_abono_compra' => $rutaImagen,
                     'user_id' => $abono['user_id'] ?? null,
                 ]);
 
@@ -76,9 +84,25 @@ class AbonoCompraFormLivewire extends Component implements HasActions, HasSchema
                 ]);
             }
         });
+        $this->imagenAbono = null;
+        $this->imagenAbonoPath = null;
+
         $this->showConfirmModal = true;
         $this->confirmModalTitle = '¡Abonos Registrados!';
         $this->confirmModalBody = 'Los abonos fueron ingresados exitosamente.';
+    }
+
+    public function actualizarImagenPrevia(): void
+    {
+        if ($this->imagenAbono) {
+            $this->imagenAbonoPath = $this->imagenAbono->temporaryUrl();
+        }
+    }
+
+    public function eliminarImagen(): void
+    {
+        $this->imagenAbono = null;
+        $this->imagenAbonoPath = null;
     }
 
     public function buscarComprasEnCartera($proveedorId)

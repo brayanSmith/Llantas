@@ -108,7 +108,17 @@ function agregarDetalleReutilizable(
         subtotal: subTotal,
     };
     detalles.push(detalle);
-    // ...resto del código...
+
+    // Recalcular todos los totales del pedido
+    if (typeof getTotal === 'function') {
+        pedido.subtotal = getTotal(pedido);
+    }
+    if (typeof getTotalAPagar === 'function') {
+        pedido.total_a_pagar = getTotalAPagar(pedido);
+    }
+    if (typeof getSaldoPendiente === 'function') {
+        pedido.saldo_pendiente = getSaldoPendiente(pedido);
+    }
 }
 
 function actualizarCantidadReutilizable(

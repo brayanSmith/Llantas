@@ -16,10 +16,12 @@ use Filament\Schemas\Schema;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
 
+
 class CompraFormLivewire extends Component implements HasActions, HasSchemas
 {
     use InteractsWithActions;
     use InteractsWithSchemas;
+
 
     public array $proveedores = [];
     public array $bodegas = [];
@@ -28,9 +30,12 @@ class CompraFormLivewire extends Component implements HasActions, HasSchemas
     public $showConfirmModal = false;
     public $confirmModalTitle = '';
     public $confirmModalBody = '';
+    public $imagenCompra = null;
+    public $imagenCompraPath = null;
     public array $compra = [];
     public array $detallesCompra = [];
     public bool $esEdicion = false;
+    public array $abonos = [];
 
     protected function getCompraDefaults(): array
     {
@@ -63,8 +68,9 @@ class CompraFormLivewire extends Component implements HasActions, HasSchemas
         if ($compraId) {
             $this->esEdicion = true;
             // Cargar la relación bodega junto con el pedido
-            $compraEncontrada = Compra::with('bodega', 'detallesCompra', 'proveedor')->find($compraId);
+            $compraEncontrada = Compra::with('bodega', 'detallesCompra', 'proveedor', 'abonoCompra.formaPagoAbonoCompra', 'abonoCompra.user')->find($compraId);
             if ($compraEncontrada) {
+                $this->abonos = $compraEncontrada->abonoCompra->toArray() ?? [];
                 $this->compra = array_merge($this->getCompraDefaults(), $compraEncontrada->toArray());
             }
             $this->detallesCompra = DetalleCompra::where('compra_id', $compraId)->get()->toArray();
@@ -75,6 +81,7 @@ class CompraFormLivewire extends Component implements HasActions, HasSchemas
         $this->bodegas = Bodega::select('id', 'nombre_bodega')->get()->toArray();
         $this->productos = $this->getFilteredProductos();
         $this->pucs = $this->getFilteredPuc();
+
     }
     protected function getFilteredProductos()
     {

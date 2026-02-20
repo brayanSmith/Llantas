@@ -6,6 +6,7 @@
     subTotalIngresado: 0,
 
     pedido: @js($pedidoEncontrado),
+    abonos: @js($abonos),
     clientes: @js($clientes),
     bodegas: @js($bodegas),
     alistadores: @js($alistadores),
@@ -37,6 +38,10 @@
 
     <div x-show="pedido.estado_venta === 'COTIZACION'">
         @include('livewire.pedidos.livewire-pedidos-seccion-general-cotizacion')
+    </div>
+
+    <div x-show="pedido.abonos && pedido.abonos.length > 0" class="space-y-4">
+        @include('livewire.pedidos.livewire-pedidos-seccion-abonos')
     </div>
 
     <div class="sticky top-16 z-10">
@@ -73,6 +78,7 @@
         pedido,
         clientes,
         bodegas,
+        abonos,
         alistadores,
         users,
         productos,
@@ -84,6 +90,7 @@
     }) {
         return {
             pedido,
+            abonos,
             clientes,
             bodegas,
             alistadores,

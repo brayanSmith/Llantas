@@ -12,6 +12,7 @@
     fechaVencimientoCalculada: null,
 
     compra: @js($compraEncontrada),
+    abonos: @js($abonos),
     proveedores: @js($proveedores),
     bodegas: @js($bodegas),
     productos: @js($productos),
@@ -46,6 +47,9 @@
 
     <div x-show="compra.item_compra === 'GASTO'">
         @include('livewire.compras.modulos.livewire-compras-seccion-general-gasto')
+    </div>
+    <div>
+        @include('livewire.compras.modulos.livewire-compras-seccion-abonos')
     </div>
 
     <div class="sticky top-16 z-10">
@@ -83,6 +87,7 @@
 
     function compraForm({
         compra,
+        abonos,
         proveedores,
         bodegas,
         productos,
@@ -102,6 +107,7 @@
     }) {
         return {
             compra,
+            abonos,
             proveedores,
             bodegas,
             productos,

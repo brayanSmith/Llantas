@@ -13,7 +13,7 @@ class AbonoObserver
     public function created(Abono $abono): void
     {
         //
-        $this->recalcularTotalesPedido($abono);
+       // $this->recalcularTotalesPedido($abono);
         //PedidoCalculoService::obtenerVendedorDelAbono($abono);
     }
 
@@ -23,7 +23,7 @@ class AbonoObserver
     public function updated(Abono $abono): void
     {
         //
-        $this->recalcularTotalesPedido($abono);
+        //$this->recalcularTotalesPedido($abono);
     }
 
     /**
@@ -32,7 +32,7 @@ class AbonoObserver
     public function deleted(Abono $abono): void
     {
         //
-        $this->recalcularTotalesPedido($abono);
+        //$this->recalcularTotalesPedido($abono);
     }
 
     /**
