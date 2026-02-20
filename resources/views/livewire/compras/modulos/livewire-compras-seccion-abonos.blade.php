@@ -10,7 +10,7 @@
     </div>
 
     <!-- Tabla de Abonos -->
-    <template x-if="abonos && abonos.length > 0">
+    <template x-if="compra.abono_compra && compra.abono_compra.length > 0">
         <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
             <table class="w-full">
                 <thead>
@@ -20,10 +20,11 @@
                         <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Observaciones</th>
                         <th class="px-6 py-4 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Monto</th>
                         <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Fecha</th>
+                        <th class="px-6 py-4 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Acciones</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white dark:bg-gray-800/50">
-                    <template x-for="(abono, index) in abonos" :key="index">
+                    <template x-for="(abono, index) in compra.abono_compra" :key="index">
                         <tr class="border-b border-gray-100 dark:border-gray-700/50 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                             <!-- Comprobante -->
                             <td class="px-6 py-4">
@@ -71,6 +72,14 @@
                             <td class="px-6 py-4">
                                 <span class="text-sm text-gray-700 dark:text-gray-300 font-medium" x-text="new Date(abono.fecha_abono_compra).toLocaleDateString('es-CO', { year: 'numeric', month: 'short', day: 'numeric' })"></span>
                             </td>
+                              <!-- Acciones -->
+                            <td class="px-6 py-4 text-center">
+                                <button type="button" @click.prevent="removeAbono(index)" class="text-red-600 hover:text-red-800">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                            </td>
                         </tr>
                     </template>
                 </tbody>
@@ -79,7 +88,7 @@
     </template>
 
     <!-- Sin abonos -->
-    <template x-if="!abonos || abonos.length === 0">
+    <template x-if="!compra.abono_compra || compra.abono_compra.length === 0">
         <div class="text-center py-12 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
             <svg class="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>

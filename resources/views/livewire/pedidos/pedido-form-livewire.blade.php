@@ -228,6 +228,19 @@
 
                 console.log('Estado del objeto pedido al remover detalle:', this.pedido);
             },
+            //Funcion para Remover Algun Abono
+            removeAbono(index) {
+                this.pedido.abonos.splice(index, 1);
+                // Recalcular el monto total de abonos
+                const montoTotalAbonos = this.pedido.abonos.reduce((acc, abono) => acc + parseFloat(abono.monto || 0), 0);
+                this.pedido.abono = montoTotalAbonos;
+
+                // Recalcular saldo pendiente y estado de pago
+                this.pedido.saldo_pendiente = this.pedido.total_a_pagar - this.pedido.abono;
+                this.pedido.estado_pago = this.pedido.saldo_pendiente <= 0 ? 'SALDADO' : 'EN_CARTERA';
+
+                console.log('Estado del objeto pedido al remover abono:', this.pedido);
+            },
             // Funcion para Traer Detalle a los campos de entrada para editar
             traerDetalle(index) {
                 const detalle = this.pedido.detalles[index];

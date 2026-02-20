@@ -242,7 +242,7 @@
             get tipoPrecio() {
                 return this.compra.tipo_precio;
             },
-            // Funciones para manejar los detalles del pedido
+            // Funciones para manejar los detalles de la compra
             agregarDetalle(productoId, cantidad, valorUnitario) {
                 if (!productoId) {
                     alert('Debe seleccionar un producto');
@@ -276,6 +276,12 @@
                     subtotal: subTotalCalculado,
                     tipo_item: this.compra.item_compra,
                 });
+                // Actualizar subtotal y total_a_pagar de la compra
+                this.compra.subtotal = this.getTotal(this.compra);
+                this.compra.total_a_pagar = this.getTotalFinal(this.compra);
+                this.compra.saldo_pendiente = this.getTotalFinal(this.compra) - (this.compra.abono || 0);
+                this.compra.estado_pago = this.compra.saldo_pendiente <= 0 ? 'SALDADO' : 'EN_CARTERA';
+
                 // Limpiar campos de ingreso
                 this.productoIngresado = null;
                 this.cantidadIngresada = 1;
@@ -291,11 +297,32 @@
                         selectProducto.tomselect.clear();
                     }
                 }, 50);
+
+                    console.log('Detalle agregado. Estado del objeto compra:', this.compra);
             },
 
             // Funcion para Remover Algun Detalle
             removeDetalle(index) {
                 this.compra.detalles_compra.splice(index, 1);
+                // Actualizar subtotal y total_a_pagar de la compra
+                this.compra.subtotal = this.getTotal(this.compra);
+                this.compra.total_a_pagar = this.getTotalFinal(this.compra);
+                this.compra.saldo_pendiente = this.getTotalFinal(this.compra) - (this.compra.abono || 0);
+                this.compra.estado_pago = this.compra.saldo_pendiente <= 0 ? 'SALDADO' : 'EN_CARTERA';
+
+                console.log('Detalle removido. Estado del objeto compra:', this.compra);
+            },
+            //Funcion para remover algun abono
+            removeAbono(index) {
+                this.compra.abono_compra.splice(index, 1);
+                // Actualizar saldo pendiente y estado de pago
+                const montoTotalAbonos = this.compra.abono_compra.reduce((acc, abono) => acc + parseFloat(abono.monto_abono_compra || 0), 0);
+                this.compra.abono = montoTotalAbonos;
+                //Recalcular saldo pendiente y estado de pago
+                this.compra.saldo_pendiente = this.compra.total_a_pagar - montoTotalAbonos;
+                this.compra.estado_pago = this.compra.saldo_pendiente <= 0 ? 'SALDADO' : 'EN_CARTERA';
+
+                console.log('Abono removido. Estado del objeto compra:', this.compra);
             },
             // Funcion para Traer Detalle a los campos de entrada para editar
             traerDetalle(index) {
@@ -349,6 +376,12 @@
                 detalle.subtotal = subTotalCalculado;
                 detalle.iva = ivaPorcentaje;
                 detalle.precio_con_iva = precioConIvaCalculado;
+
+                //Actualizar subtotal y total_a_pagar de la compra
+                this.compra.subtotal = this.getTotal(this.compra);
+                this.compra.total_a_pagar = this.getTotalFinal(this.compra);
+                this.compra.saldo_pendiente = this.getTotalFinal(this.compra) - (this.compra.abono || 0);
+                this.compra.estado_pago = this.compra.saldo_pendiente <= 0 ? 'SALDADO' : 'EN_CARTERA';
                 // Limpiar campos de ingreso
                 this.productoIngresado = null;
                 this.cantidadIngresada = 1;

@@ -99,7 +99,7 @@
 
                 // Computed: Total a pagar de todas las compras seleccionadas
                 get totalAPagarSeleccionado() {
-                    return this.comprasSeleccionadas.reduce((acc, compra) => acc + parseFloat(compra.total_a_pagar ||
+                    return this.comprasSeleccionadas.reduce((acc, compra) => acc + parseFloat(compra.saldo_pendiente ||
                         0), 0);
                 },
 
@@ -118,9 +118,9 @@
                     const valorAbono = parseFloat(this.valorAbonoIngresado) || 0;
                     if (valorAbono <= 0 || this.comprasEnCartera.length === 0) return;
 
-                    // Ordenar compras por total_a_pagar de menor a mayor
+                    // Ordenar compras por saldo_pendiente de menor a mayor
                     const comprasOrdenadas = [...this.comprasEnCartera].sort((a, b) =>
-                        parseFloat(a.total_a_pagar || 0) - parseFloat(b.total_a_pagar || 0)
+                        parseFloat(a.saldo_pendiente || 0) - parseFloat(b.saldo_pendiente || 0)
                     );
 
                     // Limpiar selección anterior
@@ -129,7 +129,7 @@
 
                     // Seleccionar compras hasta alcanzar o superar el valor del abono
                     for (let compra of comprasOrdenadas) {
-                        const montoCompra = parseFloat(compra.total_a_pagar || 0);
+                        const montoCompra = parseFloat(compra.saldo_pendiente || 0);
                         if (acumulado + montoCompra <= valorAbono) {
                             this.comprasSeleccionadas.push(compra);
                             acumulado += montoCompra;

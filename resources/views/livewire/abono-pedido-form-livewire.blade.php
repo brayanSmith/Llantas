@@ -99,7 +99,7 @@
 
                 // Computed: Total a pagar de todos los pedidos seleccionados
                 get totalAPagarSeleccionado() {
-                    return this.pedidosSeleccionados.reduce((acc, pedido) => acc + parseFloat(pedido.total_a_pagar ||
+                    return this.pedidosSeleccionados.reduce((acc, pedido) => acc + parseFloat(pedido.saldo_pendiente ||
                         0), 0);
                 },
 
@@ -118,9 +118,9 @@
                     const valorAbono = parseFloat(this.valorAbonoIngresado) || 0;
                     if (valorAbono <= 0 || this.pedidosEnCartera.length === 0) return;
 
-                    // Ordenar pedidos por total_a_pagar de menor a mayor
+                    // Ordenar pedidos por saldo_pendiente de menor a mayor
                     const pedidosOrdenados = [...this.pedidosEnCartera].sort((a, b) =>
-                        parseFloat(a.total_a_pagar || 0) - parseFloat(b.total_a_pagar || 0)
+                        parseFloat(a.saldo_pendiente || 0) - parseFloat(b.saldo_pendiente || 0)
                     );
 
                     // Limpiar selección anterior
@@ -129,7 +129,7 @@
 
                     // Seleccionar pedidos hasta alcanzar o superar el valor del abono
                     for (let pedido of pedidosOrdenados) {
-                        const montoPedido = parseFloat(pedido.total_a_pagar || 0);
+                        const montoPedido = parseFloat(pedido.saldo_pendiente || 0);
                         if (acumulado + montoPedido <= valorAbono) {
                             this.pedidosSeleccionados.push(pedido);
                             acumulado += montoPedido;

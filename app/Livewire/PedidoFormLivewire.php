@@ -191,6 +191,13 @@ class PedidoFormLivewire extends Component implements HasActions, HasSchemas
             $pedidoExistente->detalles()->whereIn('producto_id', $idsAEliminar)->delete();
         }
 
+        $abonosActuales = $pedidoExistente->abonos()->get()->keyBy('id');
+        //Eliminar los abonos que ya no están
+        $idsAbonosAEliminar = $abonosActuales->keys()->diff(collect($pedido['abonos'])->pluck('id')->all());
+        if ($idsAbonosAEliminar->isNotEmpty()) {
+            $pedidoExistente->abonos()->whereIn('id', $idsAbonosAEliminar)->delete();
+        }
+
 
         // Guardar la URL del PDF en la sesión para mostrar el botón en la modal
         session(['pedido_pdf_url' => route('pedidos.pdf.stream', $pedidoExistente->id)]);

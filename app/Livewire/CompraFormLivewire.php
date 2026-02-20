@@ -266,13 +266,19 @@ class CompraFormLivewire extends Component implements HasActions, HasSchemas
             $compraExistente->detallesCompra()->whereIn('item_id', $idsAEliminar)->delete();
         }
 
+        $abonosActuales = $compraExistente->abonoCompra()->get()->keyBy('id');
+        //Eliminar los abonos que ya no están
+        $idsAbonosAEliminar = $abonosActuales->keys()->diff(collect($compra['abono_compra'])->pluck('id')->all());
+        if ($idsAbonosAEliminar->isNotEmpty()) {
+            $compraExistente->abonoCompra()->whereIn('id', $idsAbonosAEliminar)->delete();
+        }
 
         // Guardar la URL del PDF en la sesión para mostrar el botón en la modal
         session(['compras_stream_pdf_url' => route('compras-pdf.stream', $compraExistente->id)]);
         session(['compras_download_pdf_url' => route('compras-pdf.download', $compraExistente->id)]);
         $this->showConfirmModal = true;
-        $this->confirmModalTitle = '¡Venta exitosa!';
-        $this->confirmModalBody = 'El pedido fue ingresado exitosamente.';
+        $this->confirmModalTitle = '¡Compra exitosa!';
+        $this->confirmModalBody = 'La compra fue ingresada exitosamente.';
     }
 
     public function render(): View
