@@ -164,6 +164,8 @@
             },
             // Funciones para manejar los detalles del pedido
             agregarDetalle(productoId, cantidad, valorUnitario) {
+
+
                 if (!productoId) {
                     alert('Debe seleccionar un producto');
                     return;
@@ -191,6 +193,13 @@
                     aplicar_iva: false,
                     subtotal: subTotalCalculado
                 });
+
+                // Actualizar subtotal y total_a_pagar del pedido
+                this.pedido.subtotal = this.getTotal(this.pedido);
+                this.pedido.total_a_pagar = this.getTotalFinal(this.pedido);
+                this.pedido.saldo_pendiente = this.getTotalFinal(this.pedido) - (this.pedido.abono || 0);
+                this.pedido.estado_pago = this.pedido.saldo_pendiente <= 0 ? 'SALDADO' : 'EN_CARTERA';
+
                 // Limpiar campos de ingreso
                 this.productoIngresado = null;
                 this.cantidadIngresada = 1;
@@ -204,11 +213,20 @@
                         selectProducto.tomselect.clear();
                     }
                 }, 50);
+
+                console.log('Estado del objeto pedido al agregar detalle:', this.pedido);
             },
 
             // Funcion para Remover Algun Detalle
             removeDetalle(index) {
                 this.pedido.detalles.splice(index, 1);
+                // Actualizar subtotal y total_a_pagar del pedido
+                this.pedido.subtotal = this.getTotal(this.pedido);
+                this.pedido.total_a_pagar = this.getTotalFinal(this.pedido);
+                this.pedido.saldo_pendiente = this.getTotalFinal(this.pedido) - (this.pedido.abono || 0);
+                this.pedido.estado_pago = this.pedido.saldo_pendiente <= 0 ? 'SALDADO' : 'EN_CARTERA';
+
+                console.log('Estado del objeto pedido al remover detalle:', this.pedido);
             },
             // Funcion para Traer Detalle a los campos de entrada para editar
             traerDetalle(index) {
@@ -255,7 +273,15 @@
                 detalle.producto_id = productoId;
                 detalle.cantidad = parseFloat(cantidad) || 0;
                 detalle.precio_unitario = parseFloat(valorUnitario) || 0;
+                detalle.precio_con_iva = valorUnitarioNum;
                 detalle.subtotal = subTotalCalculado;
+
+                // Actualizar subtotal y total_a_pagar del pedido
+                this.pedido.subtotal = this.getTotal(this.pedido);
+                this.pedido.total_a_pagar = this.getTotalFinal(this.pedido);
+                this.pedido.saldo_pendiente = this.getTotalFinal(this.pedido) - (this.pedido.abono || 0);
+                this.pedido.estado_pago = this.pedido.saldo_pendiente <= 0 ? 'SALDADO' : 'EN_CARTERA';
+
                 // Limpiar campos de ingreso
                 this.productoIngresado = null;
                 this.cantidadIngresada = 1;
@@ -269,6 +295,7 @@
                         selectProducto.tomselect.clear();
                     }
                 }, 50);
+                console.log('Estado del objeto pedido al actualizar detalle:', this.pedido);
             },
 
             //Funcion para Obtener Precio Segun Tipo
@@ -315,9 +342,8 @@
             },
             //Funcion para Obtener Subtotal
             getSubtotal(detalle) {
-                const prod = this.productos.find(p => p.id == detalle.producto_id);
-                if (!prod) return 0;
-                let precio = this.getPrecio(detalle, this.tipoPrecio);
+                // Usar el precio_unitario que ya está en el detalle, no buscar uno nuevo
+                const precio = detalle.precio_unitario ?? 0;
                 return Math.round(precio * detalle.cantidad * 100) / 100;
             },
 
