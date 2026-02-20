@@ -38,7 +38,7 @@ class AbonoCompraFormLivewire extends Component implements HasActions, HasSchema
     public function mount(): void
     {
         $this->proveedores = Proveedor::select('id', 'nombre_proveedor')->get()->toArray();
-        $this->compras = Compra::select('id', 'numero_compra')
+        $this->compras = Compra::select('id', 'factura')
         ->where('estado_pago', 'EN_CARTERA')
         ->get()->toArray();
         $this->formasPago = Puc::select('id', 'concatenar_subcuenta_concepto')->get()->toArray();
