@@ -111,9 +111,19 @@
                 console.log('Abonos del pedido:', this.pedido.abonos);
                 console.log('Total de abonos:', this.pedido.abonos?.reduce((acc, abono) => acc + parseFloat(abono.monto || 0), 0));
 
+                // Recalcular el abono total basándose en los abonos reales
+                if (this.pedido.abonos && Array.isArray(this.pedido.abonos)) {
+                    this.pedido.abono = this.pedido.abonos.reduce((acc, abono) => acc + parseFloat(abono.monto || 0), 0);
+                    console.log('Abono recalculado:', this.pedido.abono);
+                }
+
                 // Asegurar que flete y descuento sean números
                 this.pedido.flete = parseFloat(this.pedido.flete) || 0;
                 this.pedido.descuento = parseFloat(this.pedido.descuento) || 0;
+
+                // Recalcular saldo pendiente con el abono correcto
+                this.pedido.saldo_pendiente = this.getTotalFinal(this.pedido) - this.pedido.abono;
+                this.pedido.estado_pago = this.pedido.saldo_pendiente <= 0 ? 'SALDADO' : 'EN_CARTERA';
 
                 // Guardar los detalles originales para recalculo de stock
                 this.detallesOriginales = detalles.map(detalle => ({
