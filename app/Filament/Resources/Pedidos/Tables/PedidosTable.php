@@ -36,6 +36,12 @@ class PedidosTable
                 if (!auth()->user()->hasRole(['super_admin','Financiero','Logistica'])) {
                     $query->where('user_id', auth()->id());
                 }
+                // Ordenar por ruta del cliente (join) para agrupar correctamente
+                $query->join('clientes', 'pedidos.cliente_id', '=', 'clientes.id')
+                    ->join('rutas', 'clientes.ruta_id', '=', 'rutas.id')
+                    ->select('pedidos.*')
+                    ->orderBy('rutas.ruta', 'asc')
+                    ->orderBy('pedidos.created_at', 'desc');
                 return $query;
             })
 
@@ -45,7 +51,8 @@ class PedidosTable
                     ->collapsible(),*/
                 Group::make('cliente.ruta.ruta')
                     ->collapsible(),
-            ])->defaultGroup('cliente.ruta.ruta')
+            ])
+            ->defaultGroup('cliente.ruta.ruta')
 
             ->columns([
                 ...HasPedidoTable::tableColumns(),
