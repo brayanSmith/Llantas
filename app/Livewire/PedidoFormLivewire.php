@@ -62,7 +62,7 @@ class PedidoFormLivewire extends Component implements HasActions, HasSchemas
             'saldo_total_pedidos_en_cartera',
             'saldo_total_pedidos_vencidos')
             ->where('activo', 1);
-        if (!$user->hasRole('super_admin')) {
+        if (!$user->hasRole(['super_admin', 'Financiero', 'Logistica'])) {
             $clientesQuery->where('comercial_id', $this->userId);
         }
         $this->clientes = $clientesQuery->get()->toArray();
@@ -192,8 +192,30 @@ class PedidoFormLivewire extends Component implements HasActions, HasSchemas
         }
 
         $abonosActuales = $pedidoExistente->abonos()->get()->keyBy('id');
+        $nuevosIdsAbonos = collect($pedido['abonos'])->pluck('id')->all();
+        // Actualizar o crear abonos
+        foreach ($pedido['abonos'] as $abono) {
+            $abonoExistente = $abonosActuales->get($abono['id']);
+            if ($abonoExistente) {
+                $abonoExistente->update([
+                    'monto' => $abono['monto'],
+                    'fecha' => $abono['fecha'],
+                    'forma_pago_id' => $abono['forma_pago'],
+                    'user_id' => $abono['user_id'] ?? auth()->id(),
+                    'vendedor_id' => $abono['vendedor_id'] ?? null,
+                ]);
+            } else {
+                $pedidoExistente->abonos()->create([
+                    'monto' => $abono['monto'],
+                    'fecha' => $abono['fecha'],
+                    'forma_pago_id' => $abono['forma_pago'],
+                    'user_id' => $abono['user_id'] ?? auth()->id(),
+                    'vendedor_id' => $abono['vendedor_id'] ?? null,
+                ]);
+            }
+        }
         //Eliminar los abonos que ya no están
-        $idsAbonosAEliminar = $abonosActuales->keys()->diff(collect($pedido['abonos'])->pluck('id')->all());
+        $idsAbonosAEliminar = $abonosActuales->keys()->diff($nuevosIdsAbonos);
         if ($idsAbonosAEliminar->isNotEmpty()) {
             $pedidoExistente->abonos()->whereIn('id', $idsAbonosAEliminar)->delete();
         }

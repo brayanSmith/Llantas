@@ -322,6 +322,33 @@
                 }, 50);
                 console.log('Estado del objeto pedido al actualizar detalle:', this.pedido);
             },
+            //Funcion para Actualizar Valores del Abono
+            actualizarValoresAbono(index, formaPagoId, monto, descripcion, fecha, imagen) {
+                const abono = this.pedido.abonos[index];
+                if (!formaPagoId) {
+                    alert('Debe seleccionar una forma de pago');
+                    return;
+                }
+                if (!monto || monto <= 0) {
+                    alert('El monto debe ser mayor a 0');
+                    return;
+                }
+                abono.forma_pago_id = formaPagoId;
+                abono.monto = parseFloat(monto) || 0;
+                abono.descripcion = descripcion || '';
+                abono.fecha = fecha || new Date().toISOString();
+                abono.imagen = imagen || null;
+
+                // Recalcular el monto total de abonos
+                const montoTotalAbonos = this.pedido.abonos.reduce((acc, abono) => acc + parseFloat(abono.monto || 0), 0);
+                this.pedido.abono = montoTotalAbonos;
+
+                // Recalcular saldo pendiente y estado de pago
+                this.pedido.saldo_pendiente = this.pedido.total_a_pagar - this.pedido.abono;
+                this.pedido.estado_pago = this.pedido.saldo_pendiente <= 0 ? 'SALDADO' : 'EN_CARTERA';
+
+                console.log('Estado del objeto pedido al actualizar abono:', this.pedido);
+            },
 
             //Funcion para Obtener Precio Segun Tipo
             getPrecio(detalle, tipoPrecio) {
