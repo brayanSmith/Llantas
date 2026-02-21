@@ -44,8 +44,7 @@ class PedidosTable
                     ->date()
                     ->collapsible(),*/
                 Group::make('cliente.ruta.ruta')
-                    ->collapsible()
-                    ->defaultSort('desc'),
+                    ->collapsible(),
             ])->defaultGroup('cliente.ruta.ruta')
 
             ->columns([
