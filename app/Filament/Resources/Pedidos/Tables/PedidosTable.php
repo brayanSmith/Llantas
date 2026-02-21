@@ -40,9 +40,9 @@ class PedidosTable
             })
 
             ->groups([
-                Group::make('fecha')
+                /*Group::make('fecha')
                     ->date()
-                    ->collapsible(),
+                    ->collapsible(),*/
                 Group::make('cliente.ruta.ruta')
                     ->collapsible(),
             ])->defaultGroup('cliente.ruta.ruta')
