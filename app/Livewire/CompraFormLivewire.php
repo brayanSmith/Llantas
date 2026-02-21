@@ -8,6 +8,7 @@ use App\Models\DetalleCompra;
 use App\Models\Producto;
 use App\Models\Proveedor;
 use App\Models\Puc;
+use App\Models\AbonoCompra;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
@@ -15,6 +16,7 @@ use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Schemas\Schema;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
+use Livewire\Attributes\On;
 
 
 class CompraFormLivewire extends Component implements HasActions, HasSchemas
@@ -267,8 +269,27 @@ class CompraFormLivewire extends Component implements HasActions, HasSchemas
         }
 
         $abonosActuales = $compraExistente->abonoCompra()->get()->keyBy('id');
+        $nuevosIdsAbonos = collect($compra['abono_compra'])->pluck('id')->all();
+
+        // Actualizar o crear abonos
+        foreach ($compra['abono_compra'] as $abono) {
+            $abonoExistente = $abonosActuales->get($abono['id']);
+            if ($abonoExistente) {
+                \Log::info('ACTUALIZANDO abono existente', [
+                    'id' => $abono['id'],
+                    'monto' => $abono['monto_abono_compra'] ?? $abono['monto'],
+                    'fecha' => $abono['fecha_abono_compra'] ?? $abono['fecha']
+                ]);
+                $abonoExistente->update([
+                    'monto_abono_compra' => $abono['monto_abono_compra'] ?? $abono['monto'] ?? 0,
+                    'fecha_abono_compra' => $abono['fecha_abono_compra'] ?? $abono['fecha'] ?? now()->toDateString(),
+                    'descripcion_abono_compra' => $abono['descripcion_abono_compra'] ?? $abono['descripcion'] ?? null,
+                ]);
+            }
+        }
+
         //Eliminar los abonos que ya no están
-        $idsAbonosAEliminar = $abonosActuales->keys()->diff(collect($compra['abono_compra'])->pluck('id')->all());
+        $idsAbonosAEliminar = $abonosActuales->keys()->diff($nuevosIdsAbonos);
         if ($idsAbonosAEliminar->isNotEmpty()) {
             $compraExistente->abonoCompra()->whereIn('id', $idsAbonosAEliminar)->delete();
         }
@@ -279,6 +300,29 @@ class CompraFormLivewire extends Component implements HasActions, HasSchemas
         $this->showConfirmModal = true;
         $this->confirmModalTitle = '¡Compra exitosa!';
         $this->confirmModalBody = 'La compra fue ingresada exitosamente.';
+    }
+
+    #[On('actualizar-abono-compra')]
+    public function actualizarAbonoCompra(array $data): void
+    {
+        try {
+            $abono = AbonoCompra::find($data['abono_id']);
+
+            if (!$abono) {
+                session()->flash('error', 'Abono no encontrado');
+                return;
+            }
+
+            $abono->update([
+                'monto_abono_compra' => $data['monto'],
+                'fecha_abono_compra' => $data['fecha'],
+                'descripcion_abono_compra' => $data['descripcion'] ?? null,
+            ]);
+
+            session()->flash('success', 'Abono actualizado exitosamente');
+        } catch (\Exception $e) {
+            session()->flash('error', 'Error al actualizar el abono: ' . $e->getMessage());
+        }
     }
 
     public function render(): View

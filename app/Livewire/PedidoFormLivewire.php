@@ -7,6 +7,7 @@ use App\Models\User;
 
 use App\Models\Bodega;
 use App\Models\Pedido;
+use App\Models\Abono;
 use App\Models\Cliente;
 use App\Models\Empresa;
 use Livewire\Component;
@@ -15,6 +16,7 @@ use App\Models\StockBodega;
 use Filament\Schemas\Schema;
 use App\Models\DetallePedido;
 use Illuminate\Contracts\View\View;
+use Livewire\Attributes\On;
 use Filament\Actions\Contracts\HasActions;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Actions\Concerns\InteractsWithActions;
@@ -227,6 +229,29 @@ class PedidoFormLivewire extends Component implements HasActions, HasSchemas
         $this->showConfirmModal = true;
         $this->confirmModalTitle = '¡Venta exitosa!';
         $this->confirmModalBody = 'El pedido fue ingresado exitosamente.';
+    }
+
+    #[On('actualizar-abono')]
+    public function actualizarAbono(array $data): void
+    {
+        try {
+            $abono = Abono::find($data['abono_id']);
+
+            if (!$abono) {
+                session()->flash('error', 'Abono no encontrado');
+                return;
+            }
+
+            $abono->update([
+                'monto' => $data['monto'],
+                'fecha' => $data['fecha'],
+                'descripcion' => $data['descripcion'] ?? null,
+            ]);
+
+            session()->flash('success', 'Abono actualizado exitosamente');
+        } catch (\Exception $e) {
+            session()->flash('error', 'Error al actualizar el abono: ' . $e->getMessage());
+        }
     }
 
     public function render(): View

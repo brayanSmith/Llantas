@@ -65,6 +65,7 @@
         @include('livewire.compras.modulos.livewire-compras-seccion-resumen')
     </div>
     @include('livewire.compras.componentes.compras-modal-venta')
+    @include('livewire.compras.modulos.livewire-compras-modal-abonos')
 </div>
 
 
@@ -121,6 +122,7 @@
             productoIngresado,
             descripcionIngresada,
             detalleEditandoIndex: null,
+            abonoCompraSeleccionado: null,
             formatDateForInput, // disponible en Alpine
             productoSeleccionado: null,
             cantidadSeleccionada: 1,
@@ -323,6 +325,29 @@
                 this.compra.estado_pago = this.compra.saldo_pendiente <= 0 ? 'SALDADO' : 'EN_CARTERA';
 
                 console.log('Abono removido. Estado del objeto compra:', this.compra);
+            },
+            // Funcion para Seleccionar un Abono Compra
+            selectAbonoCompra(abono) {
+                this.abonoCompraSeleccionado = abono;
+                console.log('Abono compra seleccionado:', this.abonoCompraSeleccionado);
+            },
+            // Funcion para Guardar Cambios del Abono Compra
+            guardarAbonoCompra(abono) {
+                try {
+                    // El abono ya está actualizado en tiempo real por x-model
+                    // Solo recalcular totales
+                    const montoTotalAbonos = this.compra.abono_compra.reduce((acc, a) => acc + parseFloat(a.monto_abono_compra || 0), 0);
+                    this.compra.abono = montoTotalAbonos;
+                    this.compra.saldo_pendiente = this.compra.total_a_pagar - this.compra.abono;
+                    this.compra.estado_pago = this.compra.saldo_pendiente <= 0 ? 'SALDADO' : 'EN_CARTERA';
+
+                    // Cerrar modal
+                    this.abonoCompraSeleccionado = null;
+
+                    console.log('Abono compra actualizado localmente. Se sincronizará al guardar la compra.', abono);
+                } catch (error) {
+                    console.error('Error al guardar abono compra:', error);
+                }
             },
             // Funcion para Traer Detalle a los campos de entrada para editar
             traerDetalle(index) {

@@ -159,18 +159,34 @@
                         return;
                     }
 
+                    // Validar que el valor del abono sea suficiente para cubrir los saldos de los pedidos seleccionados
+                    const totalSaldos = this.totalAPagarSeleccionado;
+                    const valorAbono = parseFloat(this.valorAbonoIngresado) || 0;
+
+                    if (this.pedidosSeleccionados.length > 1 && valorAbono < totalSaldos) {
+                        alert(`El valor del abono (${valorAbono.toLocaleString('es-CO', { style: 'currency', currency: 'COP' })}) debe ser mayor o igual al total de saldos pendientes de los pedidos seleccionados (${totalSaldos.toLocaleString('es-CO', { style: 'currency', currency: 'COP' })})`);
+                        return;
+                    }
+
                     this.isLoading = true;
 
                     const payload = {
-                        pedidos: this.pedidosSeleccionados.map(pedido => ({
-                            id: pedido.id,
-                        })),
+                        pedidos: this.pedidosSeleccionados.map(pedido => {
+                            const abono = this.pedidosSeleccionados.length > 1 ? parseFloat(pedido.saldo_pendiente) : parseFloat(this.valorAbonoIngresado);
+                            console.log('Pedido ID:', pedido.id, '| Saldo pendiente:', pedido.saldo_pendiente, '| Abono calculado:', abono, '| Múltiples pedidos:', this.pedidosSeleccionados.length > 1);
+                            return {
+                                id: pedido.id,
+                                saldo_pendiente: parseFloat(pedido.saldo_pendiente) - abono,
+                                abono: abono,
+                            };
+                        }),
                         abono: {
                             fecha: this.fechaAbonoIngresada,
                             forma_pago: this.formaDePagoAbonoIngresada,
                             descripcion: this.descripcionAbonoIngresada,
                             imagen: null,
                             user_id: this.usuarioAbonoIngresado,
+                            monto: this.pedidosSeleccionados.length > 1 ? this.totalAPagarSeleccionado : parseFloat(this.valorAbonoIngresado),
                         },
                     };
                     console.log('Payload para generar abonos:', payload);

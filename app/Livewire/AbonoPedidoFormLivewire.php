@@ -67,13 +67,25 @@ class AbonoPedidoFormLivewire extends Component implements HasActions, HasSchema
             $pedidoIds = array_column($pedidos, 'id');
             $pedidosDb = Pedido::whereIn('id', $pedidoIds)->get();
 
+            // Crear un mapa de pedidos para acceso rápido
+            $pedidosPayload = array_column($pedidos, null, 'id');
+
             foreach ($pedidosDb as $pedido) {
-                $montoAbono = $pedido->saldo_pendiente ?? $pedido->total_a_pagar;
+                // Obtener el abono de este pedido desde el payload
+                $abonoData = $pedidosPayload[$pedido->id] ?? [];
+                $montoAbono = (float) ($abonoData['abono'] ?? 0);
+
+                // Calcular el total de abonos existentes + el nuevo abono
+                $totalAbonos = $pedido->abonos->sum('monto') + $montoAbono;
+                $nuevoSaldoPendiente = $pedido->total_a_pagar - $totalAbonos;
+
                 $vendedorId = $pedido->vendedor_id ?? null;
+
+                // Crear registro del abono
                 Abono::create([
                     'pedido_id' => $pedido->id,
                     'fecha' => $abono['fecha'] ?? null,
-                    'monto' => $montoAbono,
+                    'monto' => $abono['monto'] ?? null,
                     'forma_pago' => $abono['forma_pago'] ?? null,
                     'descripcion' => $abono['descripcion'] ?? null,
                     'imagen' => $rutaImagen,
@@ -81,10 +93,11 @@ class AbonoPedidoFormLivewire extends Component implements HasActions, HasSchema
                     'vendedor_id' => $vendedorId,
                 ]);
 
+                // Actualizar el pedido con el nuevo saldo y abono total
                 Pedido::where('id', $pedido->id)->update([
-                    'saldo_pendiente' => 0,
-                    'estado_pago' => 'SALDADO',
-                    'abono' => (float) ($pedido->abono ?? 0) + (float) $montoAbono,
+                    'saldo_pendiente' => $nuevoSaldoPendiente,
+                    'abono' => (float) ($pedido->abono ?? 0) + $montoAbono,
+                    'estado_pago' => $nuevoSaldoPendiente <= 0 ? 'SALDADO' : 'EN_CARTERA',
                 ]);
             }
         });

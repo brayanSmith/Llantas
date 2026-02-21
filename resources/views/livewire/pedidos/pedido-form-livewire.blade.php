@@ -4,6 +4,8 @@
     cantidadIngresada: 1,
     valorIngresado: 0,
     subTotalIngresado: 0,
+    nuevoMontoAbono: 0,
+    abonoSeleccionado: null,
 
     pedido: @js($pedidoEncontrado),
     abonos: @js($abonos),
@@ -57,6 +59,7 @@
         @include('livewire.pedidos.livewire-pedidos-seccion-resumen')
     </div>
     @include('livewire.pedidos.pedido-modal-venta')
+    @include('livewire.pedidos.componentes.livewire-pedidos-modal-abonos')
 </div>
 
 
@@ -86,7 +89,9 @@
         cantidadIngresada = 1,
         valorIngresado = 0,
         subTotalIngresado = 0,
-        productoIngresado = null
+        productoIngresado = null,
+        nuevoMontoAbono = 0,
+        abonoSeleccionado = null
     }) {
         return {
             pedido,
@@ -101,6 +106,8 @@
             valorIngresado,
             subTotalIngresado,
             productoIngresado,
+            abonoSeleccionado,
+            nuevoMontoAbono,
             detalleEditandoIndex: null,
             formatDateForInput, // disponible en Alpine
             productoSeleccionado: null,
@@ -252,6 +259,29 @@
                 this.pedido.estado_pago = this.pedido.saldo_pendiente <= 0 ? 'SALDADO' : 'EN_CARTERA';
 
                 console.log('Estado del objeto pedido al remover abono:', this.pedido);
+            },
+            // Funcion para Seleccionar un Abono
+            selectAbono(abono) {
+                this.abonoSeleccionado = abono;
+                console.log('Abono seleccionado:', this.abonoSeleccionado);
+            },
+            // Funcion para Guardar Cambios del Abono
+            guardarAbono(abono) {
+                try {
+                    // El abono ya está actualizado en tiempo real por x-model
+                    // Solo recalcular totales
+                    const montoTotalAbonos = this.pedido.abonos.reduce((acc, a) => acc + parseFloat(a.monto || 0), 0);
+                    this.pedido.abono = montoTotalAbonos;
+                    this.pedido.saldo_pendiente = this.pedido.total_a_pagar - this.pedido.abono;
+                    this.pedido.estado_pago = this.pedido.saldo_pendiente <= 0 ? 'SALDADO' : 'EN_CARTERA';
+
+                    // Cerrar modal
+                    this.abonoSeleccionado = null;
+
+                    console.log('Abono actualizado localmente. Se sincronizará al guardar el pedido.', abono);
+                } catch (error) {
+                    console.error('Error al guardar abono:', error);
+                }
             },
             // Funcion para Traer Detalle a los campos de entrada para editar
             traerDetalle(index) {
