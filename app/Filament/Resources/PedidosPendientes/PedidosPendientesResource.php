@@ -103,12 +103,7 @@ class PedidosPendientesResource extends Resource
         return 'warning';
     }
 
-    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
-    {
-        return parent::getEloquentQuery()->orderByDesc('created_at');
-    }
-
-    public static function getPages(): array
+   public static function getPages(): array
     {
         return [
             'index' => ListPedidosPendientes::route('/'),

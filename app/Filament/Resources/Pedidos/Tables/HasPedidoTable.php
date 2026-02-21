@@ -61,10 +61,10 @@ class HasPedidoTable
                 ->searchable()
                 ->sortable(),
 
-            TextColumn::make('fecha')
+            /*TextColumn::make('fecha')
                 ->label('Fecha de Facturación')
-                ->dateTime()
-                ->sortable(),
+                ->dateTime(),*/
+                //->sortable(),
             TextColumn::make('updated_at')
                 ->dateTime()
                 ->sortable()

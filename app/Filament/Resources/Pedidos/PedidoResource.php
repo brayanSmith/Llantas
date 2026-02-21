@@ -84,8 +84,8 @@ class PedidoResource extends Resource
         ];
     }
 
-    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    /*public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
     {
         return parent::getEloquentQuery()->orderByDesc('created_at');
-    }
+    }*/
 }

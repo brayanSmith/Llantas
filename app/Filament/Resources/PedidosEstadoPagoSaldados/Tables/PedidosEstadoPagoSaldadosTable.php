@@ -34,6 +34,7 @@ class PedidosEstadoPagoSaldadosTable
 
                 return $query;
             })
+            ->defaultSort('created_at', 'desc')  // ← AQUÍ
             ->groups([
                 Group::make('fecha')
                     ->date()

@@ -36,6 +36,7 @@ class PedidosEstadoPagoEnCarterasTable
 
                 return $query;
             })
+            ->defaultSort('created_at', 'desc')  // ← AQUÍ
             ->groups([
                 Group::make('fecha')
                     ->date()

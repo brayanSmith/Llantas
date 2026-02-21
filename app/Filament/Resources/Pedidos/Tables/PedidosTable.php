@@ -30,6 +30,7 @@ class PedidosTable
         $instance = new self();
 
         return $table
+        ->striped()
             ->modifyQueryUsing(function ($query) {
                 $query->where('estado_venta', 'VENTA');
                 // Si el usuario no es super_admin, mostrar solo sus pedidos
@@ -38,6 +39,7 @@ class PedidosTable
                 }
                 return $query;
             })
+            ->defaultSort('created_at', 'desc')  // ← AQUÍ
 
             ->groups([
                 /*Group::make('fecha')
