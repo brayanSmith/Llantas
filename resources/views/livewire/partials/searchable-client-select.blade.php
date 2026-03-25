@@ -11,40 +11,6 @@
         </select>
     </div>
 
-    <div class="mb-3">
-        <label class="form-label text-sm font-medium text-gray-700 dark:text-gray-300">
-            Ciudad
-        </label>
-        <div class="mt-2">
-            <span x-text="clienteSeleccionado.ciudad" x-model="pedido.ciudad" class="inline-flex items-center px-4 py-2 rounded-lg text-base font-medium bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100"></span>
-        </div>
-    </div>
-
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
-    <div>
-        <label class="form-label text-sm font-medium text-gray-700 dark:text-gray-300">
-            Cartera Total
-        </label>
-        <div class="mt-2">
-            <span
-                x-text="new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(clienteSeleccionado.saldo_total_pedidos_en_cartera) || 0)"
-                class="inline-flex items-center px-4 py-2 rounded-lg text-lg font-bold bg-amber-100 text-amber-900 dark:bg-amber-900/20 dark:text-amber-400">
-            </span>
-        </div>
-    </div>
-
-    <div>
-        <label class="form-label text-sm font-medium text-gray-700 dark:text-gray-300">
-            Cartera Vencida
-        </label>
-        <div class="mt-2">
-            <span
-                x-text="new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(clienteSeleccionado.saldo_total_pedidos_vencidos) || 0)"
-                class="inline-flex items-center px-4 py-2 rounded-lg text-lg font-bold bg-red-100 text-red-900 dark:bg-red-900/20 dark:text-red-400">
-            </span>
-        </div>
-    </div>
-</div>
     <!-- Tom Select se inicializa y reinicializa automáticamente con Alpine.js -->
     <script>
         // Reintenta la inicialización en eventos típicos de Livewire/Filament

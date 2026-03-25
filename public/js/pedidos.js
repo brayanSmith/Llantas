@@ -1,18 +1,13 @@
 function crearPedidoVacio(bodegaSeleccionada, empresa, userId) {
     return {
         codigo: "",
-        fe: "",
         cliente_id: null,
         fecha: "",
-        dias_plazo_vencimiento: 30,
-        fecha_vencimiento: "",
-        ciudad: "",
         estado: "PENDIENTE",
-        stock_retirado: false,
-        en_cartera: false,
-        metodo_pago: "CREDITO",
+        estado_pago: "EN_CARTERA",
+        tipo_pago: "CONTADO",
         tipo_precio: "FERRETERO",
-        tipo_venta: "REMISIONADA",
+
         estado_pago: "EN_CARTERA",
         estado_cartera: "CARTERA_AL_DIA",
         estado_venta: "VENTA",

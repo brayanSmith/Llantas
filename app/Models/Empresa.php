@@ -18,18 +18,12 @@ class Empresa extends Model
         'logo_empresa',
         'cuentas_bancarias',
         'mostrar_productos_sin_inventario',
-        'bodega_id',
     ];
 
     protected $casts = [
         'cuentas_bancarias' => 'array',
         'mostrar_productos_sin_inventario' => 'boolean',
     ];
-
-    public function bodega()
-    {
-        return $this->belongsTo(Bodega::class);
-    }
 
 
 }

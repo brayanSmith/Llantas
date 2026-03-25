@@ -9,7 +9,11 @@
         @js($users),
         @js($empresa),
         @js($bodegaSeleccionada),
-        @js($userId)
+        @js($userId),
+        @js($pucs)
+
+        //pucSeleccionado: null
+
     )" x-init="window.addEventListener('limpiar-catalogos', () => {
         limpiarCacheCatalogos();
         location.reload();
@@ -25,6 +29,8 @@
         @include('livewire.pos.pos-panel-izquierdo')
         @include('livewire.pos.pos-panel-derecho')
         @include('livewire.pos.pos-modal-confirmacion-venta')
+        {{-- Esta modal se agrega aqui para que ocupe toda la pantalla --}}
+        @include('livewire.pos.pos-modal-pago')
 
         {{-- Scripts --}}
         <script src="{{ asset('js/pedidos.js') }}"></script>
@@ -35,9 +41,22 @@
         @vite(['resources/js/app.js'])
 
         <script>
-            function pedidoForm(clientes = [], alistadores = [], bodegas = [], productos = [], users = [], empresa = null,
-                bodegaSeleccionada = null, stockBodegas = [], userId = null) {
+            function pedidoForm(
+                clientes = [],
+                alistadores = [],
+                bodegas = [],
+                productos = [],
+                users = [],
+                empresa = null,
+                bodegaSeleccionada = 1,
+                stockBodegas = [],
+                userId = null,
+                pucs = [],
+                pucSeleccionado = null,
+                mostrarModalPago = true,
+                conCuantoPaga = 0) {
 
+                console.log('bodegaSeleccionada:', bodegaSeleccionada);
                 return {
                     // --- Funciones para limpiar catálogos cacheados ---
                     // Eliminadas funciones de limpieza de cache localStorage
@@ -55,6 +74,9 @@
                     totalCantidadProductos: 0, // Nueva propiedad reactiva
                     productoSeleccionado: null,
                     cantidadSeleccionada: 1,
+                    mostrarModalPago: mostrarModalPago,
+                    conCuantoPaga: conCuantoPaga,
+
                     pedido: {
                         codigo: '',
                         fe: '',
@@ -75,6 +97,7 @@
                         estado_vencimiento: 'AL_DIA',
                         // Siempre asignar un valor válido a bodega_id
                         bodega_id: bodegaSeleccionada ?? (empresa ? empresa.bodega_id : null),
+                        puc_id: pucSeleccionado ?? null,
                         primer_comentario: '',
                         subtotal: 0,
                         abono: 0,
@@ -104,11 +127,29 @@
                                 deep: true
                             });
                         }
+
+                        this.$watch('pedido.tipo_precio', () => {
+                            // Recalcular precios de detalles al cambiar tipo de precio
+                            this.pedido.detalles.forEach(detalle => {
+                                const producto = this.productos.find(p => p.id === detalle.producto_id);
+                                if (producto) {
+                                    const nuevoPrecio = getPrecio(producto, this.pedido.tipo_precio);
+                                    detalle.precio = nuevoPrecio;
+                                    detalle.precio_con_iva = getPrecioConIva(producto, nuevoPrecio, true);
+                                    detalle.subtotal = getSubtotal(nuevoPrecio, detalle.cantidad);
+                                }
+                            });
+                            // Recalcular totales del pedido después de actualizar precios
+                            this.pedido.subtotal = getTotal(this.pedido);
+                            this.pedido.total_a_pagar = getTotalAPagar(this.pedido);
+                            this.pedido.saldo_pendiente = getSaldoPendiente(this.pedido);
+                        });
+
                         // Suscripción a eventos de Echo dentro de Alpine
                         if (window.Echo) {
                             window.Echo.channel('stock')
                                 .listen('.StockActualizado', (e) => {
-                                        console.log("¡Evento capturado en el navegador!", e); // <--- AGREGA ESTO
+                                    console.log("¡Evento capturado en el navegador!", e); // <--- AGREGA ESTO
                                     if (Array.isArray(e.productos)) {
                                         console.log("Productos a actualizar:", e.productos);
                                         this.modificarStockProducto(e.productos);
@@ -275,7 +316,13 @@
                     },
                     // --- Paginación de productos (Alpine.js) ---
                     paginaProductos: 1,
-                    productosPorPagina: 10,
+                    get productosPorPagina() {
+                        return window.productosFiltradosPaginados.getProductosPorPagina(this.pedido.cliente_id);
+                    },
+                    set productosPorPagina(valor) {
+                        window.productosFiltradosPaginados.setProductosPorPagina(this.pedido.cliente_id, valor);
+                        this.paginaProductos = 1; // Reiniciar a primera página
+                    },
                     get totalPaginasProductos() {
                         return productosFiltradosPaginados.getTotalPaginasProductos(this.productos, this
                             .productosPorPagina);
@@ -307,6 +354,10 @@
                     get totalPaginasProductos() {
                         return productosFiltradosPaginados.getTotalPaginasProductosFiltrados(this.productos, this.search,
                             this.productosPorPagina);
+                    },
+                    // Obtener array de números de páginas para paginación numérica
+                    get paginasArray() {
+                        return window.productosFiltradosPaginados.getPaginasArray(this.totalPaginasProductos);
                     },
 
                     // Puedes usar productosFiltrados en lugar de productos para mostrar la lista filtrada

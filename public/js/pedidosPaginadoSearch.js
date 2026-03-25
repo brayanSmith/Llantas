@@ -33,14 +33,36 @@ function getTotalPaginasProductosFiltrados(productos, search, productosPorPagina
     return Math.ceil(filtrados.length / productosPorPagina);
 }
 
+// Funciones para manejo de productos por página en localStorage
+function getProductosPorPagina(clienteId) {
+    const key = `productosPorPagina_${clienteId || 'default'}`;
+    const stored = localStorage.getItem(key);
+    return stored ? parseInt(stored, 10) : 12; // valor por defecto: 12
+}
+
+function setProductosPorPagina(clienteId, valor) {
+    const key = `productosPorPagina_${clienteId || 'default'}`;
+    localStorage.setItem(key, valor.toString());
+}
+
+function getPaginasArray(totalPaginas) {
+    const paginas = [];
+    for (let i = 1; i <= totalPaginas; i++) {
+        paginas.push(i);
+    }
+    return paginas;
+}
+
 function productosFiltradosPaginados() {
     return {
         getProductosFiltrados,
         getTotalPaginasProductos,
         getProductosPaginados,
-        getProductosFiltrados,
         getProductosFiltradosPaginados,
-        getTotalPaginasProductosFiltrados
+        getTotalPaginasProductosFiltrados,
+        getProductosPorPagina,
+        setProductosPorPagina,
+        getPaginasArray
     };
 }
 

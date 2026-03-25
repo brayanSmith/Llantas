@@ -12,12 +12,12 @@
         <span class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Método de Pago:</span>
         <div class="inline-flex rounded-base shadow-xs -space-x-px" role="group">
             <button type="button"
-                :class="pedido.metodo_pago === 'CREDITO' ?
+                :class="pedido.metodo_pago === 'APARTADO' ?
                     'bg-blue-600 text-white border-blue-600' :
                     'text-body bg-neutral-primary-soft border border-default hover:bg-neutral-secondary-medium hover:text-heading'"
                 class="font-medium leading-5 rounded-s-base text-sm px-3 py-2 focus:outline-none"
-                @click="pedido.metodo_pago = 'CREDITO'">
-                CRÉDITO
+                @click="pedido.metodo_pago = 'APARTADO'">
+                APARTADO
             </button>
             <button type="button"
                 :class="pedido.metodo_pago === 'CONTADO' ?
@@ -27,50 +27,44 @@
                 @click="pedido.metodo_pago = 'CONTADO'">
                 CONTADO
             </button>
-        </div>
-    </div>
-    {{-- ...Estado de Venta... --}}
-    <div class="mt-4">
-        <span class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Estado de Venta:</span>
-        <div class="inline-flex rounded-base shadow-xs -space-x-px" role="group">
             <button type="button"
-                :class="pedido.estado_venta === 'COTIZACION' ?
-                    'bg-blue-600 text-white border-blue-600' :
-                    'text-body bg-neutral-primary-soft border border-default hover:bg-neutral-secondary-medium hover:text-heading'"
-                class="font-medium leading-5 rounded-s-base text-sm px-3 py-2 focus:outline-none"
-                @click="pedido.estado_venta = 'COTIZACION'">
-                COTIZACION
-            </button>
-            <button type="button"
-                :class="pedido.estado_venta === 'VENTA' ?
+                :class="pedido.metodo_pago === 'NO_APLICA' ?
                     'bg-blue-600 text-white border-blue-600' :
                     'text-body bg-neutral-primary-soft border border-default hover:bg-neutral-secondary-medium hover:text-heading'"
                 class="font-medium leading-5 rounded-e-base text-sm px-3 py-2 focus:outline-none"
-                @click="pedido.estado_venta = 'VENTA'">
-                VENTA
+                @click="pedido.metodo_pago = 'NO_APLICA'">
+                NO APLICA
             </button>
         </div>
     </div>
 
-    {{-- ...Tipo de Venta...--}}
+    {{-- tipo_precio --}}
     <div class="mt-4">
-        <span class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tipo de Venta:</span>
+        <span class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tipo de Precio:</span>
         <div class="inline-flex rounded-base shadow-xs -space-x-px" role="group">
             <button type="button"
-                :class="pedido.tipo_venta === 'REMISIONADA' ?
-                    'bg-blue-600 text-white border-blue-600' :
-                    'text-body bg-neutral-primary-soft border border-default hover:bg-neutral-secondary-medium hover:text-heading'"
-                class="font-medium leading-5 rounded-e-base text-sm px-3 py-2 focus:outline-none"
-                @click="pedido.tipo_venta = 'REMISIONADA'">
-                REMISIONADA
-            </button>
-            <button type="button"
-                :class="pedido.tipo_venta === 'ELECTRONICA' ?
+                :class="pedido.tipo_precio === 'DETAL' ?
                     'bg-blue-600 text-white border-blue-600' :
                     'text-body bg-neutral-primary-soft border border-default hover:bg-neutral-secondary-medium hover:text-heading'"
                 class="font-medium leading-5 rounded-s-base text-sm px-3 py-2 focus:outline-none"
-                @click="pedido.tipo_venta = 'ELECTRONICA'">
-                ELECTRONICA
+                @click="pedido.tipo_precio = 'DETAL'">
+                DETAL
+            </button>
+            <button type="button"
+                :class="pedido.tipo_precio === 'MAYORISTA' ?
+                    'bg-blue-600 text-white border-blue-600' :
+                    'text-body bg-neutral-primary-soft border border-default hover:bg-neutral-secondary-medium hover:text-heading'"
+                class="font-medium leading-5 text-sm px-3 py-2 focus:outline-none"
+                @click="pedido.tipo_precio = 'MAYORISTA'">
+                MAYORISTA
+            </button>
+            <button type="button"
+                :class="pedido.tipo_precio === 'OTRO' ?
+                    'bg-blue-600 text-white border-blue-600' :
+                    'text-body bg-neutral-primary-soft border border-default hover:bg-neutral-secondary-medium hover:text-heading'"
+                class="font-medium leading-5 rounded-e-base text-sm px-3 py-2 focus:outline-none"
+                @click="pedido.tipo_precio = 'OTRO'">
+                OTRO
             </button>
         </div>
     </div>

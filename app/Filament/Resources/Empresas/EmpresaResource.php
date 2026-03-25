@@ -73,11 +73,6 @@ class EmpresaResource extends Resource
                 Toggle::make('mostrar_productos_sin_inventario')
                     ->label('Mostrar productos sin inventario')
                     ->default(false),
-                Select::make('bodega_id')
-                    ->label('Bodega Asociada')
-                    ->relationship('bodega', 'nombre_bodega')
-                    ->nullable()
-                    ->default(null),
             ]);
     }
 

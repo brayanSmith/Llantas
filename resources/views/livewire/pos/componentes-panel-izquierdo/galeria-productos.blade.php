@@ -10,7 +10,7 @@
                     <!-- Encabezado: Nombre del producto -->
                     <div class="w-full mb-2">
                         {{-- <p class="font-semibold text-gray-900 dark:text-gray-100 break-words text-sm md:text-base w-full"> --}}
-                        <p x-text="product.nombre_producto" class="text-xs md:text-sm text-gray-700 dark:text-gray-300 mt-1 font-bold">
+                        <p x-text="product.concatenar_codigo_nombre" class="text-xs md:text-sm text-gray-700 dark:text-gray-300 mt-1 font-bold">
                             {{-- $product->nombre_producto --}}
                         </p>
                     </div>
@@ -32,10 +32,14 @@
 
                         <!-- Info -->
                         <div class="flex-1 md:col-span-6 ml-2 md:ml-0">
-                            <p class="text-[10px] md:text-xs text-gray-500 dark:text-gray-400 mt-1">SKU:
-                                <strong x-text="product.codigo_producto"></strong></p>
-                            <p class="text-[10px] md:text-xs text-gray-800 dark:text-gray-100 mt-1">FERRETERO:
-                                <strong x-text="new Intl.NumberFormat().format((isNaN(product.valor_ferretero_producto) ? 0 : parseFloat(product.valor_ferretero_producto)))"></strong>
+                            <p class="text-[10px] md:text-xs text-gray-800 dark:text-gray-100 mt-1">DETAL:
+                                <strong x-text="new Intl.NumberFormat().format((isNaN(product.valor_detal) ? 0 : parseFloat(product.valor_detal)))"></strong>
+                            </p>
+                            <p class="text-[10px] md:text-xs text-gray-800 dark:text-gray-100 mt-1">MAYORISTA:
+                                <strong x-text="new Intl.NumberFormat().format((isNaN(product.valor_mayorista) ? 0 : parseFloat(product.valor_mayorista)))"></strong>
+                            </p>
+                            <p class="text-[10px] md:text-xs text-gray-800 dark:text-gray-100 mt-1">SIN INSTALACIÓN:
+                                <strong x-text="new Intl.NumberFormat().format((isNaN(product.valor_sin_instalacion) ? 0 : parseFloat(product.valor_sin_instalacion)))"></strong>
                             </p>
                             <!-- Vamos a poner el Stock -->
                         <p class="text-[10px] md:text-xs text-gray-800 dark:text-gray-100 mt-1">STOCK:

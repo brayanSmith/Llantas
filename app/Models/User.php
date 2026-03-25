@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
-use Spatie\Permission\Traits\HasRoles;  
+use Spatie\Permission\Traits\HasRoles;
 use BezhanSalleh\FilamentShield\Traits\HasPanelShields;
 
 class User extends Authenticatable implements FilamentUser
@@ -103,5 +103,9 @@ class User extends Authenticatable implements FilamentUser
     public function abonosVendedor()
     {
         return $this->hasMany(Abono::class, 'vendedor_id');
+    }
+    public function bodega()
+    {
+        return $this->belongsTo(Bodega::class);
     }
 }

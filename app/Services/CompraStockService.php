@@ -26,7 +26,7 @@ class CompraStockService
      */
     public function crearProductosBodega(Compra $compra): void
     {
-        $productosIds = $compra->detallesCompra->pluck('item_id')->toArray();
+        $productosIds = $compra->detallesCompra->pluck('producto_id')->toArray();
         if($compra->tipo_compra === 'PRODUCTO') {
             $this->stockCalculoService->crearProductosBodega($compra->bodega_id, $productosIds);
         }
@@ -42,20 +42,20 @@ class CompraStockService
             foreach ($compra->detallesCompra as $detalle) {
 
                 StockBodega::firstOrCreate([
-                    'producto_id' => $detalle->item_id,
+                    'producto_id' => $detalle->producto_id,
                     'bodega_id'   => $compra->bodega_id,
                 ], [
                     'entradas' => 0,
                 ]);
 
                 // ✅ Si ya entra facturada → recalcula
-                if ($compra->estado === 'FACTURADO') {
+                if ($compra->estado === 'RECIBIDA') {
                     $this->stockCalculoService->recalcularStockPorProductoYBodega(
-                        $detalle->item_id,
+                        $detalle->producto_id,
                         $compra->bodega_id,
                         null,
                         null,
-                        $compra->item_compra
+                        $compra->tipo_compra
                     );
                 }
             }
@@ -80,15 +80,15 @@ class CompraStockService
 
             foreach ($compra->detallesCompra as $detalle) {
 
-                $productoId = $detalle->item_id;
+                $productoId = $detalle->producto_id;
 
                 // ✅ Recalcular bodega actual
                 $this->stockCalculoService->recalcularStockPorProductoYBodega(
                     $productoId,
                     $bodegaActual,
                     null,
-                        null,
-                        $detalle->compra->item_compra
+                    null,
+                    $detalle->compra->tipo_compra
                 );
 
                 // ✅ Si cambió de bodega → recalcular anterior
@@ -98,7 +98,7 @@ class CompraStockService
                         $bodegaAnterior,
                         null,
                         null,
-                        $detalle->compra->item_compra
+                        $detalle->compra->tipo_compra
                     );
                 }
 
@@ -109,7 +109,7 @@ class CompraStockService
                         $bodegaActual,
                         null,
                         null,
-                        $detalle->compra->item_compra
+                        $detalle->compra->tipo_compra
                     );
                 }
             }
@@ -133,11 +133,11 @@ class CompraStockService
 
                 // ✅ Recalcular excluyendo esta compra
                 $this->stockCalculoService->recalcularStockPorProductoYBodega(
-                    $detalle->item_id,
+                    $detalle->producto_id,
                     $bodegaId,
                     $compraId,
-                        null,
-                        $detalle->compra->item_compra
+                    null,
+                    $detalle->compra->tipo_compra
                 );
             }
 

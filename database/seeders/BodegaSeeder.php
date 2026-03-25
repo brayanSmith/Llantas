@@ -15,20 +15,14 @@ class BodegaSeeder extends Seeder
     {
         DB::table('bodegas')->insert([
             [
-                'nombre_bodega' => 'Bodega Central',
-                'ubicacion_bodega' => 'Bogotá',
+                'nombre_bodega' => 'Outlet',
+                'ubicacion_bodega' => 'NA',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
-                'nombre_bodega' => 'Bodega Norte',
-                'ubicacion_bodega' => 'Medellín',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'nombre_bodega' => 'Bodega Sur',
-                'ubicacion_bodega' => 'Cali',
+                'nombre_bodega' => 'Economi',
+                'ubicacion_bodega' => 'NA',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],

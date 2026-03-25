@@ -10,6 +10,7 @@ use App\Models\Cliente;
 use App\Models\Empresa;
 use Livewire\Component;
 use App\Models\Producto;
+use App\Models\Puc;
 use App\Models\StockBodega;
 use Filament\Schemas\Schema;
 use Illuminate\Contracts\View\View;
@@ -36,6 +37,7 @@ class POS extends Component implements HasActions, HasSchemas
     public $showConfirmModal = false;
     public $confirmModalTitle = '';
     public $confirmModalBody = '';
+    public array $pucs = [];
 
     public function mount(): void
     {
@@ -61,8 +63,24 @@ class POS extends Component implements HasActions, HasSchemas
             $query->where('name', 'Logistica');
         })->get()->toArray();
         $this->productos = $this->getFilteredProductos();
-        $this->bodegaSeleccionada = $this->empresa->bodega_id;
+        /*$this->productos = Producto::select(
+            'id',
+            'concatenar_codigo_nombre',
+            'valor_detal',
+            'valor_mayorista',
+            'valor_sin_instalacion',
+            'imagen_producto',
+        )->get()->toArray();*/
+        $this->bodegaSeleccionada = 1;
+        //$this->bodegaSeleccionada = $this->empresa->bodega_id;
+        /*if ($user->hasRole('Comercial')) {
+            $this->bodegaSeleccionada = $user->bodega_id;
+        } else {
+            $this->bodegaSeleccionada = 1; // O puedes dejarla en null o asignar una bodega por defecto
+            // Si quieres mostrar todas las bodegas, usa $this->bodegas = Bodega::all()->toArray();
+        }*/
 
+        $this->pucs = Puc::select('id', 'concatenar_subcuenta_concepto')->get()->toArray();
     }
     protected function getFilteredProductos()
     {
@@ -71,22 +89,18 @@ class POS extends Component implements HasActions, HasSchemas
         $productosQuery = Producto::select(
             'id',
             'concatenar_codigo_nombre',
-            'valor_detal_producto',
-            'valor_mayorista_producto',
-            'valor_ferretero_producto',
-            'iva_producto',
+            'valor_detal',
+            'valor_mayorista',
+            'valor_sin_instalacion',
             'imagen_producto',
-            'nombre_producto',
-            'codigo_producto',
-            'alerta_producto',
-        )->where('categoria_producto', '!=', 'MATERIA_PRIMA')
+        )/*->where('categoria_producto', '!=', 'MATERIA_PRIMA')
             ->where('activo', 1);
         if ($empresa && !$empresa->mostrar_productos_sin_inventario) {
             $productos = $productosQuery->whereHas('stockBodegas', function ($q) use ($bodega) {
                 $q->where('bodega_id', $bodega)
                     ->where('stock', '>', 0);
             });
-        }
+        }*/;
         // Eager loading solo los stocks de la bodega seleccionada
         $productos = $productosQuery->with(['stockBodegas' => function ($q) use ($bodega) {
             $q->where('bodega_id', $bodega);
@@ -132,33 +146,26 @@ class POS extends Component implements HasActions, HasSchemas
     {
         $nuevoPedido = Pedido::create([
             'codigo' => $pedido['codigo'],
-            'fe' => $pedido['fe'],
             'cliente_id' => $pedido['cliente_id'],
             'fecha' => empty($pedido['fecha']) ? now()->toDateString() : $pedido['fecha'],
-            'dias_plazo_vencimiento' => $pedido['dias_plazo_vencimiento'],
-            'fecha_vencimiento' => empty($pedido['fecha_vencimiento']) ? now()->addDays(30)->toDateString() : $pedido['fecha_vencimiento'],
-            'ciudad' => $pedido['ciudad'],
             'estado' => $pedido['estado'],
-            'stock_retirado' => $pedido['stock_retirado'],
-            'en_cartera' => $pedido['en_cartera'],
-            'metodo_pago' => $pedido['metodo_pago'],
-            'tipo_precio' => $pedido['tipo_precio'],
-            'tipo_venta' => $pedido['tipo_venta'],
             'estado_pago' => $pedido['estado_pago'],
-            'estado_cartera' => $pedido['estado_cartera'],
-            'estado_venta' => $pedido['estado_venta'],
-            'estado_vencimiento' => $pedido['estado_vencimiento'],
-            'primer_comentario' => $pedido['primer_comentario'],
+            'tipo_pedido' => $pedido['tipo_pedido'],
+            'tipo_pago' => $pedido['tipo_pago'],
+            'tipo_precio' => $pedido['tipo_precio'],
+            'id_puc' => $pedido['id_puc'] ?? null,
+            'bodega_id' => $pedido['bodega_id'] ?? null,
+            'observacion' => $pedido['observacion'] ?? '',
+            'observacion_pago' => $pedido['observacion_pago'] ?? '',
             'subtotal' => $pedido['subtotal'],
-            'abono' => $pedido['abono'],
             'descuento' => $pedido['descuento'],
             'flete' => $pedido['flete'],
             'total_a_pagar' => $pedido['total_a_pagar'],
+            'abono' => $pedido['abono'],
             'saldo_pendiente' => $pedido['saldo_pendiente'],
             'user_id' => auth()->id(),
-            'alistador_id' => auth()->id(),
-            'bodega_id' => $pedido['bodega_id'] ?? null,
-            'iva' => $pedido['iva'] ?? 0,
+            'aplica_turno' => $pedido['aplica_turno'] ?? false,
+            'turno' => $pedido['turno'] ?? null,
         ]);
         $productosAfectados = [];
         foreach ($pedido['detalles'] as $detalle) {
@@ -195,6 +202,7 @@ class POS extends Component implements HasActions, HasSchemas
             'empresa' => $this->empresa,
             'bodegaSeleccionada' => $this->bodegaSeleccionada,
             'userId' => $this->userId,
+            'pucs' => $this->pucs,
         ]);
         return $view;
     }

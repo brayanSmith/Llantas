@@ -22,8 +22,8 @@ class CompraStockBodegaObserver
     public function updated(Compra $compra): void
     {
         //app(CompraStockService::class)->crearProductosBodega($compra);
-        app(CompraStockService::class)->actualizado($compra);
-        //$compra->setEstadoPago();
+        /*app(CompraStockService::class)->actualizado($compra);
+        $compra->setEstadoPago();*/
     }
 
     public function deleting(Compra $compra): void

@@ -14,15 +14,11 @@ return new class extends Migration
         Schema::create('detalle_compras', function (Blueprint $table) {
             $table->id();
             $table->foreignId('compra_id')->constrained('compras')->cascadeOnDelete();
-            //$table->foreignId('producto_id')->constrained('productos');
-            $table->unsignedBigInteger('item_id');
-            $table->string('descripcion_item')->nullable()  ;
+            $table->foreignId('producto_id')->constrained('productos');
+            $table->foreignId('bodega_id')->constrained('bodegas');
             $table->decimal('cantidad', 12, 2);
-            $table->decimal('precio_unitario', 12, 2); // snapshot del precio
-            $table->decimal('iva', 12, 2)->default(0);
-            $table->decimal('precio_con_iva', 12, 2)->default(0);
+            $table->decimal('precio_unitario', 12, 2); // snapshot del preci
             $table->decimal('subtotal', 12, 2)->default(0);
-            $table->string('tipo_item');
             $table->timestamps();
         });
     }

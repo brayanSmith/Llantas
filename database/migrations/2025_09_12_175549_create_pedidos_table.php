@@ -15,46 +15,28 @@ return new class extends Migration
         Schema::create('pedidos', function (Blueprint $table) {
             $table->id();
             $table->string('codigo')->unique()->nullable();
-            $table->string('fe')->nullable();
             $table->foreignId('cliente_id')->constrained('clientes');
-            $table->dateTime('fecha')->default(DB::raw('CURRENT_TIMESTAMP'));
-            $table->integer('dias_plazo_vencimiento')->default(30);
-            $table->date('fecha_vencimiento')->nullable();
-            $table->string('ciudad')->nullable();
-            $table->enum('estado', ['PENDIENTE', 'FACTURADO', 'ANULADO', 'EN_RUTA', 'ENTREGADO', 'DEVUELTO'])->default(value: 'PENDIENTE');
-            $table->boolean('stock_retirado')->default(false);
-            $table->boolean('en_cartera')->default(false);
-            $table->enum('metodo_pago', ['CREDITO', 'CONTADO'])->default('CREDITO');
-            $table->enum('tipo_precio', ['FERRETERO','MAYORISTA', 'DETAL'])->default('FERRETERO');
-            $table->enum('tipo_venta', ['ELECTRONICA','REMISIONADA'])->default('REMISIONADA');
-            $table->enum('estado_pago', allowed: ['EN_CARTERA', 'SALDADO'])->default('EN_CARTERA');
-            $table->enum('estado_cartera', ['CARTERA_AL_DIA', 'CARTERA_VENCIDA', 'CARTERA_PAGADA', 'NO_APLICA'])->nullable();
-            $table->enum('estado_venta', ['COTIZACION', 'VENTA'])->default('VENTA');
-
-            $table->enum('estado_vencimiento', ['AL_DIA', 'VENCIDO'])->default('AL_DIA');
-
+            $table->date('fecha')->default(DB::raw('CURRENT_DATE'));
+            $table->enum('estado', ['PENDIENTE', 'COMPLETADO'])->default(value: 'PENDIENTE');
+            $table->enum('estado_pago', ['EN_CARTERA', 'SALDADO', 'NO_APLICA'])->default(value: 'EN_CARTERA');
+            //$table->enum('tipo_pedido', ['VENTA', 'COTIZACION'])->default(value: 'VENTA');
+            $table->enum('tipo_pago', ['CONTADO', 'APARTADO', 'NO_APLICA'])->default(value: 'CONTADO');
+            $table->enum('tipo_precio', ['DETAL', 'MAYORISTA', 'OTRO'])->default(value: 'DETAL');
+            $table->foreignId('id_puc')->constrained('puc')->nullable();//Medio de Pago
             $table->foreignId('bodega_id')->constrained('bodegas')->nullable()->default(1);
-            $table->text('primer_comentario')->nullable();
-            $table->text('segundo_comentario')->nullable();
+            $table->text('observacion')->nullable();
+            $table->text('observacion_pago')->nullable();
             $table->decimal('subtotal', 12, 2)->default(0);
-            $table->decimal('abono', 12, 2)->default(0);
             $table->decimal('descuento', 12, 2)->default(0)->nullable();
             $table->decimal('flete', 12, 2)->default(0)->nullable();
             $table->decimal('total_a_pagar', 12, 2)->default(0);
+            $table->decimal('abono', 12, 2)->default(0);
             $table->decimal('saldo_pendiente', 12, 2)->default(0);
-            $table->integer('contador_impresiones')->default(0);
-            $table->boolean('impresa')->default(false);
             $table->foreignId('user_id')->constrained('users')->nullable();
-            $table->foreignId('alistador_id')->constrained('users')->nullable();
-            $table->integer('iva')->nullable()->default(0);
-            $table->string('imagen_recibido')->nullable();
-            $table->string('comentario_entrega')->nullable();
-            $table->string('motivo_devolucion')->nullable();
-            $table->integer('cuenta_total_pedidos_en_cartera')->default(0);
-            $table->decimal('saldo_total_pedidos_en_cartera', 12, 2)->default(0);
-            $table->datetime('fecha_ultimo_abono')->nullable();
-            $table->double('dias_plazo_cartera')->default(30);
+            $table->boolean('aplica_turno')->default(false);
+            $table->string('turno')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

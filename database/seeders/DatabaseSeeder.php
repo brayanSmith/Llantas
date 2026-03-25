@@ -23,14 +23,11 @@ class DatabaseSeeder extends Seeder
         // User::factory(10)->create();
 
         $this->call([
+        MarcaSeeder::class,
         AdminUserSeeder::class,
         RolesSeeder::class,  // Crear roles primero
-        //ComercialPermissionsSeeder::class, // Permisos para Comercial
         BodegaSeeder::class,
         CategoriaSeeder::class,
-        SubCategoriaSeeder::class,
-        MedidaSeeder::class,
-        RutaSeeder::class,
         ProveedorSeeder::class,
         EmpresaSeeder::class,
         ]);
@@ -39,23 +36,6 @@ class DatabaseSeeder extends Seeder
             'name' => 'Test User',
             'email' => 'test@example.com',
         ]);
-
-        //Producto::factory(10)->create();
-        //Cliente::factory(50)->create();
-
-        /*Pedido::factory()
-            ->count(20)
-            ->has(
-                DetallePedido::factory()->count(10),
-                'detalles'
-            )
-            ->create()
-            ->each(function ($pedido) {
-                // Recalcular subtotal del pedido según sus detalles
-                $pedido->update([
-                    'subtotal' => $pedido->detalles->sum('subtotal')
-                ]);
-            });*/
 
             $role = Role::firstOrCreate(['name' => 'super_admin']);
 

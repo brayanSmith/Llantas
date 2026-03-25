@@ -11,79 +11,70 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('medidas', function (Blueprint $table) {
+        Schema::create('marcas', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre_medida')->unique();
-            $table->enum('tipo_medida', ['LONGITUD', 'PESO', 'VOLUMEN', 'CANTIDAD'])->default('CANTIDAD');
-            $table->string('descripcion_medida')->nullable();
-            $table->timestamps();
-        });
-
-        Schema::create('bodegas', function (Blueprint $table) {
-            $table->id();
-            $table->string('nombre_bodega')->unique();
-            $table->string('ubicacion_bodega')->nullable();
+            $table->string('marca')->unique();
+            $table->string('descripcion_marca')->nullable();
             $table->timestamps();
         });
 
         Schema::create('categorias', function (Blueprint $table) {
             $table->id();
             $table->string('nombre_categoria')->unique();
-            $table->timestamps();
-        });
-
-        Schema::create('sub_categorias', function (Blueprint $table) {
-            $table->id();
-            $table->string('nombre_sub_categoria')->unique();
-            $table->foreignId('categoria_id')->constrained('categorias')->onDelete('cascade');
+            $table->boolean('aplica_inventario')->default(true);
             $table->timestamps();
         });
 
         Schema::create('productos', function (Blueprint $table) {
             $table->id();
-            $table->enum('categoria_producto', ['MATERIA_PRIMA', 'PRODUCTO_TERMINADO', 'OTRO'])->default('PRODUCTO_TERMINADO');
-            $table->string('codigo_producto')->unique();
-            $table->string('nombre_producto');
-            $table->string('descripcion_producto')->nullable();
-            $table->decimal('costo_producto', 10, 2)->default(0);
-            $table->decimal('valor_detal_producto', 10, 2)->default(0);
-            $table->decimal('valor_mayorista_producto', 10, 2)->default(0);
-            $table->decimal('valor_ferretero_producto', 10, 2)->default(0);
-            $table->string('imagen_producto')->nullable();
-            $table->foreignId('medida_id')->constrained('medidas')->onDelete('cascade');
-            $table->foreignId('bodega_id')->constrained('bodegas')->onDelete('cascade');
             $table->foreignId('categoria_id')->constrained('categorias')->onDelete('cascade');
-            $table->foreignId('sub_categoria_id')->constrained('sub_categorias')->onDelete('cascade');
-            $table->integer('stock_inicial')->default(0);
-            $table->integer('entradas')->default(0);
-            $table->integer('salidas')->default(0);
-            $table->boolean('activo')->default(true);
-            $table->string('tipo_producto')->nullable();
-            $table->decimal('peso_producto', 8, 2)->nullable();
-            $table->string('ubicacion_producto')->nullable();
-            $table->integer('alerta_producto')->default(0);
-            $table->string('empaquetado_externo')->nullable();
-            $table->string('empaquetado_interno')->nullable();
+            $table->foreignId('marca_id')->constrained('marcas')->onDelete('cascade');
             $table->string('referencia_producto')->nullable();
-            $table->string('codigo_cliente')->nullable();
-            $table->enum('volumen_producto', ['EXTRA_GRANDE', 'GRANDE', 'MEDIANO', 'PEQUEÑO', 'EXTRA_PEQUEÑO'])->nullable();
-            $table->float('iva_producto')->default(0);
-            $table->enum('tipo_compra',['NACIONAL','IMPORTADO'])->nullable();
+            $table->string('descripcion_producto')->nullable();
+
+            $table->decimal('costo_producto', 10, 2)->default(0);//Ira cambiando de acuerdo a las entradas
+            $table->decimal('valor_detal', 10, 2)->default(0);
+            $table->decimal('valor_mayorista', 10, 2)->default(0);
+            $table->decimal('valor_sin_instalacion', 10, 2)->default(0);
+
+            /*$table->decimal('porcentaje_valor_detal', 5, 2)->default(0);
+            $table->decimal('porcentaje_valor_mayorista', 5, 2)->default(0);
+            $table->decimal('porcentaje_valor_sin_instalacion', 5, 2)->default(0);
+            $table->boolean('porcentaje_dinamico')->default(false);*/
+
+            $table->string('imagen_producto')->nullable();
             $table->string('concatenar_codigo_nombre')->nullable();
             $table->timestamps();
-        });        
-        
+        });
+
+        Schema::create('atributos', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('categoria_id')->constrained('categorias')->onDelete('cascade');
+            $table->string('nombre');
+            $table->enum('tipo', ['TEXTO', 'NUMERO', 'DECIMAL', 'ENUM', 'SEPARADOR']); // Replace with actual enum values
+            $table->json('opciones')->nullable(); // Only used if tipo is ENUM
+            $table->text('valor_por_defecto')->nullable();
+            $table->timestamps();
+        });
+
+        Schema::create('atributo_productos', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('atributo_id')->constrained('atributos')->onDelete('cascade');
+            $table->foreignId('producto_id')->constrained('productos')->onDelete('cascade');
+            $table->string('valor');
+            $table->timestamps();
+        });
     }
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
-    {               
+    {
+        Schema::dropIfExists('atributo_productos');
+        Schema::dropIfExists('atributos');
         Schema::dropIfExists('productos');
-        Schema::dropIfExists('sub_categorias');
         Schema::dropIfExists('categorias');
-        Schema::dropIfExists('bodegas');
-        Schema::dropIfExists('medidas');
+        Schema::dropIfExists('marcas');
     }
 };

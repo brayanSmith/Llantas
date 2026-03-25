@@ -14,15 +14,13 @@ return new class extends Migration
         Schema::create('detalle_pedidos', function (Blueprint $table) {
             $table->id();
             $table->foreignId('pedido_id')->constrained('pedidos')->cascadeOnDelete();
-            $table->enum('tipo_item', ['PRODUCTO', 'GASTO'])->default('PRODUCTO');
             $table->foreignId('producto_id')->constrained('productos');
-
             $table->integer('cantidad');
             $table->decimal('precio_unitario', 12, 2); // snapshot del precio
-            $table->decimal('precio_con_iva', 12, 2);
-            $table->boolean('aplicar_iva')->default(true);
-            $table->decimal('iva', 12, 2)->default(0);
             $table->decimal('subtotal', 12, 2);
+            $table->decimal('costo_unitario', 12, 2)->nullable(); // Para control de inventario
+            $table->decimal('costo_total', 12, 2)->nullable(); // Para control de inventario
+            $table->decimal('ganancia_total', 12, 2)->nullable(); // Para control de inventario
             $table->timestamps();
         });
     }

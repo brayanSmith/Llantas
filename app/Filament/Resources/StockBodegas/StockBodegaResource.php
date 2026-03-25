@@ -40,7 +40,7 @@ class StockBodegaResource extends Resource
         $columns = [
             TextColumn::make('concatenar_codigo_nombre')
                 ->label('Producto')
-                ->searchable(['codigo_producto', 'nombre_producto'])
+                ->searchable()
                 ->sortable()
                 ->wrap(),
         ];

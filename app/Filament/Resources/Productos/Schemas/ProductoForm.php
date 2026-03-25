@@ -2,20 +2,21 @@
 
 namespace App\Filament\Resources\Productos\Schemas;
 
+use App\Livewire\ProductoFormLivewire;
 use App\Models\SubCategoria;
 use Filament\Forms\Components\Builder;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\ToggleButtons;
+use Filament\Schemas\Components\Livewire;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
-use Filament\Forms\Components\Radio;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
-
 
 class ProductoForm
 {
@@ -23,215 +24,7 @@ class ProductoForm
     {
         return $schema
             ->components([
-                Radio::make('categoria_producto')
-                    ->label('Categoría de Producto')
-                    ->options([
-                        'MATERIA_PRIMA' => 'Materia Prima',
-                        'PRODUCTO_TERMINADO' => 'Producto Terminado',
-                        'OTRO' => 'Otro',
-                    ])
-                    ->required()
-                    ->inline()
-                    ->default('PRODUCTO_TERMINADO')
-                    ->live(), // Hace que los cambios se reflejen inmediatamente
-                TextInput::make('codigo_producto')
-                    ->required()
-                    ->unique(ignoreRecord: true)
-                    ->maxLength(255)
-                    ->live(onBlur: true)
-                    ->afterStateUpdated(function ($set, $get) {
-                        // actualizar el campo concatenado
-                        $codigo = $get('codigo_producto');
-                        $nombre = $get('nombre_producto');
-                        $set('concatenar_codigo_nombre', "{$codigo} - {$nombre}");
-                    })
-                    ->placeholder('Ingrese el código del producto'),
-                TextInput::make('nombre_producto')
-                    ->required()
-                    ->live(onBlur: true)
-                    ->afterStateUpdated(function ($set, $get) {
-                        // actualizar el campo concatenado
-                        $codigo = $get('codigo_producto');
-                        $nombre = $get('nombre_producto');
-                        $set('concatenar_codigo_nombre', "{$codigo} - {$nombre}");
-                    })
-                    ->placeholder('Ingrese el nombre del producto'),
-
-
-                TextInput::make('concatenar_codigo_nombre')
-                    ->label('Código - Nombre')
-                    ->required()
-                    ->maxLength(510)
-                    ->placeholder('Este campo se genera automáticamente'),
-
-                Textarea::make('descripcion_producto')
-                    ->default(null),
-
-                Select::make('medida_id')
-                    ->label('Medida')
-                    ->relationship('medida', 'nombre_medida')
-                    ->searchable()
-                    ->preload()
-                    ->required(),
-
-                // Padre: categoría
-                Select::make('categoria_id')
-                    ->label('Categoría')
-                    ->relationship('categoria', 'nombre_categoria')
-                    ->searchable()
-                    ->preload()
-                    ->required()
-                    ->live() // refresca al cambiar
-                    ->afterStateUpdated(fn(Set $set) => $set('sub_categoria_id', null)),
-
-                // Hijo: subcategoría filtrada por categoría
-                Select::make('sub_categoria_id')
-                    ->label('Subcategoría')
-                    ->relationship(
-                        name: 'subCategoria',                    // relación en tu modelo Producto
-                        titleAttribute: 'nombre_sub_categoria',
-                        modifyQueryUsing: fn(EloquentBuilder $query, Get $get) =>
-                        $query->when($get('categoria_id'), fn($q, $cat) => $q->where('categoria_id', $cat)),
-                    )
-                    ->disabled(fn(Get $get) => blank($get('categoria_id')))
-                    ->searchable()
-                    ->preload()
-                    ->required(),
-
-                TextInput::make('costo_producto')
-                    ->required()
-                    ->inputMode('decimal')
-                    ->currencyMask(".", ",", 2)
-                    ->step(0.01)
-                    ->prefix('$')
-                    ->numeric()
-                    ->visible(fn(Get $get) => in_array($get('categoria_producto'), ['PRODUCTO_TERMINADO', 'MATERIA_PRIMA'])),
-                TextInput::make('valor_detal_producto')
-                    ->required()
-                    ->inputMode('decimal')
-                    ->currencyMask(".", ",", 2)
-                    ->step(0.01)
-                    ->prefix('$')
-                    ->numeric()
-                    ->visible(fn(Get $get) => $get('categoria_producto') === 'PRODUCTO_TERMINADO'),
-                TextInput::make('valor_mayorista_producto')
-                    ->required()
-                    ->inputMode('decimal')
-                    ->currencyMask(".", ",", 2)
-                    ->step(0.01)
-                    ->prefix('$')
-                    ->numeric()
-                    ->visible(fn(Get $get) => $get('categoria_producto') === 'PRODUCTO_TERMINADO'),
-                TextInput::make('valor_ferretero_producto')
-                    ->required()
-                    ->inputMode('decimal')
-                    ->step(0.01)
-                    ->currencyMask(".", ",", 2)
-                    ->prefix('$')
-                    ->numeric()
-                    ->visible(fn(Get $get) => $get('categoria_producto') === 'PRODUCTO_TERMINADO'),
-
-                FileUpload::make('imagen_producto')
-                    ->label('Seleccione una imagen')
-                    ->image()
-                    ->directory('productos')
-                    ->disk('public')
-                    ->imageEditor()
-                    ->downloadable()
-                    ->openable()
-                    ->nullable()
-                    ->maxSize(1024) // 1MB
-                    ->default(null),
-
-
-                Select::make('bodega_id')
-                    ->label('Bodega')
-                    ->relationship('bodega', 'nombre_bodega')
-                    ->searchable()
-                    ->preload()
-                    ->required(),
-
-                TextInput::make('stock_inicial')
-                    ->label('Stock Inicial')
-                    //->required()
-                    ->numeric()
-                    ->default(0),
-
-                TextInput::make('tipo_producto')
-                    ->label('Tipo de Producto')
-                    ->required()
-                    ->maxLength(100)
-                    ->placeholder('Ingrese el tipo de producto'),
-
-                TextInput::make('peso_producto')
-                    ->label('Peso (kg)')
-                    ->required()
-                    ->numeric()
-                    ->default(0),
-                TextInput::make('ubicacion_producto')
-                    ->label('Ubicación')
-                    ->required()
-                    ->maxLength(255)
-                    ->placeholder('Ingrese la ubicación del producto'),
-                TextInput::make('alerta_producto')
-                    ->label('Alerta de Stock')
-                    ->required()
-                    ->numeric()
-                    ->default(0),
-                TextInput::make('empaquetado_externo')
-                    ->label('Empaquetado Externo')
-                    ->required()
-                    ->maxLength(255)
-                    ->placeholder('Ingrese el tipo de empaquetado externo'),
-                TextInput::make('empaquetado_interno')
-                    ->label('Empaquetado Interno')
-                    ->required()
-                    ->maxLength(255)
-                    ->placeholder('Ingrese el tipo de empaquetado interno'),
-                TextInput::make('referencia_producto')
-                    ->label('Referencia')
-                    ->required()
-                    ->maxLength(255)
-                    ->placeholder('Ingrese la referencia del producto'),
-                TextInput::make('codigo_cliente')
-                    ->label('Código Cliente')
-                    ->required()
-                    ->maxLength(255)
-                    ->placeholder('Ingrese el código del cliente'),
-                ToggleButtons::make('volumen_producto')
-                    ->label('Volumen')
-                    ->options([
-                        'EXTRA_GRANDE' => 'Extra Grande',
-                        'GRANDE' => 'Grande',
-                        'MEDIANO' => 'Mediano',
-                        'PEQUEÑO' => 'Pequeño',
-                        'EXTRA_PEQUEÑO' => 'Extra Pequeño',
-                    ])
-                    ->required()
-                    ->default('MEDIANO')
-                    ->grouped(),
-
-                TextInput::make('iva_producto')
-                    ->label('IVA (%)')
-                    ->suffix('%')
-                    ->required()
-                    ->numeric()
-                    ->default(0),
-
-                Select::make('tipo_compra')
-                    ->label('Tipo de Compra')
-                    ->options([
-                        'NACIONAL' => 'Nacional',
-                        'IMPORTADO' => 'Importado',
-                    ])
-                    ->required()
-                    ->default('NACIONAL'),
-
-                Toggle::make('activo')
-                    ->required()
-                    ->default(true),
-
-
+                Livewire::make(ProductoFormLivewire::class)->columnSpanFull(),
             ]);
     }
 }

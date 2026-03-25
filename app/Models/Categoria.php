@@ -10,16 +10,15 @@ class Categoria extends Model
     //
     use HasFactory;
 
-    protected $fillable = ['nombre_categoria'];
-
-    public function subCategorias()
-    {
-        return $this->hasMany(SubCategoria::class, 'categoria_id');
-    }
+    protected $fillable = ['nombre_categoria', 'aplica_inventario'];
 
     public function productos()
     {
         return $this->hasMany(Producto::class, 'categoria_id');
+    }
+    public function atributos()
+    {
+        return $this->hasMany(Atributo::class, 'categoria_id');
     }
 
 }

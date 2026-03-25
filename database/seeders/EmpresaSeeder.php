@@ -13,5 +13,13 @@ class EmpresaSeeder extends Seeder
     public function run(): void
     {
         //
+        \App\Models\Empresa::create([
+            'nombre_empresa' => 'Servillantas S.A.S',
+            'nit_empresa' => '900123456-7',
+            'direccion_empresa' => 'Calle 123 #45-67, Bogotá',
+            'telefono_empresa' => '3101234567',
+            'email_empresa' => 'info@servillantas.com',
+            'mostrar_productos_sin_inventario' => true,
+        ]);
     }
 }

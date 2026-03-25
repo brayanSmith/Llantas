@@ -27,29 +27,12 @@
                 :options="$proveedores" idKey="id" textKey="nombre_proveedor" selectId="select-proveedor" />
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-1 gap-4">
             <div class="space-y-2">
                 <label class="text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Fecha</label>
                 <input type="datetime-local" :value="formatDateForInput(compra.fecha)" @input="compra.fecha = $event.target.value" class="input-pedido" />
             </div>
-            <div class="space-y-2">
-                <label class="text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Plazo</label>
-                <input type="number" x-model="compra.dias_plazo_vencimiento" class="input-pedido" />
-            </div>
-            <div class="space-y-2">
-                <label class="text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Fecha Vencimiento</label>
-                <input type="datetime-local" :value="calcularFechaVencimiento(compra.fecha, compra.dias_plazo_vencimiento)"
-                 class="input-pedido" readonly />
-            </div>
         </div>
-        <div class="space-y-2">
-                <label class="text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Metodo de Pago</label>
-                <select x-model="compra.metodo_pago" class="input-pedido-select">
-                    <option value="">Seleccione un metodo de pago</option>
-                    <option value="CREDITO">CREDITO</option>
-                    <option value="CONTADO">CONTADO</option>
-                </select>
-            </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 lg:col-span-2">
 

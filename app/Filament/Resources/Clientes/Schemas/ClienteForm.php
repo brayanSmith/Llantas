@@ -48,13 +48,7 @@ class ClienteForm
                                     ->label('Email address')
                                     ->email()
                                     ->required(),
-                                TextInput::make('representante_legal')
-                                    ->required(),
-                                Select::make('ruta_id')
-                                    ->relationship('ruta', 'ruta')
-                                    ->searchable()
-                                    ->preload()
-                                    ->required(),
+
                                 Select::make('novedad')
                                     ->options([
                                         'Nuevo' => 'Nuevo',
@@ -62,22 +56,6 @@ class ClienteForm
                                         'Moroso' => 'Moroso',
                                     ])
                                     ->default(null),
-                                Select::make('comercial_id')
-                                    ->label('Comercial')
-                                    ->relationship('comercial', 'name', fn ($query) => $query->whereHas('roles', fn($q) => $q->where('name', 'Comercial')))
-                                    ->searchable()
-                                    ->preload()
-                                    ->default(fn () => auth()->user()?->hasRole('Comercial') ? auth()->id() : null)
-                                    ->required(),
-                                ToggleButtons::make('tipo_cliente')
-                                    ->label('Tipo Cliente')
-                                    ->options([
-                                        'ELECTRONICO' => 'ELECTRONICO',
-                                        'REMISIONADO' => 'REMISIONADO',
-                                    ])
-                                    ->required()
-                                    ->default('ELECTRONICO')
-                                    ->grouped(),
 
                                 FileUpload::make('rut_imagen')
                                     ->label('Imagen RUT')
@@ -101,7 +79,7 @@ class ClienteForm
 
                             ]),
                         ]),
-                    
+
             ]);
 
     }

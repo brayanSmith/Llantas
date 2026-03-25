@@ -16,17 +16,6 @@
             <span class="text-sm font-bold text-emerald-700 dark:text-emerald-200"
                 x-text="Number(getTotalFinal(compra)).toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 2 })"></span>
         </div>
-        <div class="flex items-center justify-between border-b border-gray-200/70 pb-2 dark:border-gray-700">
-            <span class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Abono</span>
-            <span class="text-sm font-semibold text-green-600"
-                x-text="Number(compra.abono).toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 2 })"></span>
-        </div>
-        <div class="flex items-center justify-between border-b border-gray-200/70 pb-2 dark:border-gray-700">
-            <span class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Saldo</span>
-            <span class="text-sm font-semibold"
-                :class="Number(getTotalFinal(compra) - compra.abono) > 0 ? 'text-red-600' : 'text-green-600'"
-                x-text="Number(getTotalFinal(compra) - compra.abono).toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 2 })"></span>
-        </div>
     </div>
     <div class="flex justify-end w-full pt-2">
         <button @click="enviar()" type="button" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow transition flex items-center justify-center" :disabled="isLoading">

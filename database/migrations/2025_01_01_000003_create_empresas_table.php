@@ -21,7 +21,6 @@ return new class extends Migration
             $table->string('logo_empresa')->nullable();
             $table->json('cuentas_bancarias')->nullable();
             $table->boolean('mostrar_productos_sin_inventario')->default(true);
-            $table->foreignId('bodega_id')->nullable()->constrained('bodegas')->onDelete('set null');
             $table->timestamps();
         });
     }

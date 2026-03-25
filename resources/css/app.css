@@ -93,6 +93,11 @@ select:focus[data-flux-control] {
     z-index: 999999 !important;
 }
 
+/* Alpine.js x-cloak - Ocultar elementos hasta que Alpine esté listo */
+[x-cloak] {
+    display: none !important;
+}
+
 /* \[:where(&)\]:size-4 {
     @apply size-4;
 } */

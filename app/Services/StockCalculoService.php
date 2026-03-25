@@ -39,15 +39,10 @@ class StockCalculoService
 
 
         // Suma las cantidades de DetalleCompra
-        $totalCompras = DetalleCompra::where('item_id', $productoId)
+        $totalCompras = DetalleCompra::where('producto_id', $productoId)
             ->whereHas('compra', function ($q) use ($bodegaId, $excluirCompraId) {
                 $q->where('bodega_id', $bodegaId)
-                  ->where('estado', 'FACTURADO')
-                  ->where('item_compra', 'PRODUCTO');
-
-                if ($excluirCompraId) {
-                    $q->where('id', '!=', $excluirCompraId);
-                }
+                  ->where('estado', 'RECIBIDA');                  
             })
             ->sum('cantidad');
 
@@ -104,11 +99,6 @@ class StockCalculoService
      */
     public function recalcularStockPorProductoYBodega(int $productoId, int $bodegaId, ?int $excluirCompraId = null, ?int $excluirVentaId = null, string $tipoProducto = 'PRODUCTO'): void
     {
-        // Si es GASTO, no hace nada ya que los gastos no tienen stock
-        if ($tipoProducto === 'GASTO') {
-            return;
-        }
-
         $totalCompras = $this->calcularEntradasFacturadas($productoId, $bodegaId, $excluirCompraId);
         $totalPedidos = $this->calcularSalidasFacturadas($productoId, $bodegaId, $excluirVentaId);
         $existencias = $totalCompras - $totalPedidos;

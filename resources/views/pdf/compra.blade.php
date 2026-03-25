@@ -109,14 +109,12 @@
 
 <!-- Línea con REMISIÓN a la izquierda y FECHA DE VENCIMIENTO a la derecha -->
 <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-  <div><strong>COMPRA N°:</strong> <span class="bold">{{ $compra->codigo }}</span></div>
+  <div><strong>COMPRA N°:</strong> <span class="bold">{{ $compra->factura }}</span></div>
   <div><strong>FECHA:</strong> <span> {{ $compra->fecha }}</span> </div>
 </div>
 <div class="separator"></div>
 
 <div style="text-align: center; margin-top: 10px;">
-    {{-- -<strong>Fecha Venta:</strong> {{ $compra->fecha->format('d/m/Y H:i') }} <br> --}}
-    <strong>Forma de pago:</strong> {{ $compra->metodo_pago }}
   </div>
 
   <div class="section cliente-info">
@@ -142,29 +140,19 @@
   <table class="table">
     <thead>
       <tr>
+        <th>BODEGA</th>
         <th>ITEM</th>
-        <th>DESCRIPCIÓN</th>
         <th>CANTIDAD</th>
         <th>UNITARIO</th>
-        <th>IVA</th>
         <th>SUBTOTAL</th>
       </tr>
     </thead>
     @foreach($detallesCompra as $detalle)
                 <tr>
-                    <td>
-                        @if($detalle->tipo_item === 'PRODUCTO')
-                            {{ $detalle->producto->concatenar_codigo_nombre ?? 'N/A' }}
-                        @elseif($detalle->tipo_item === 'GASTO')
-                            {{ $detalle->puc->concatenar_subcuenta_concepto ?? 'N/A' }}
-                        @else
-                            No definido
-                        @endif
-                    </td>
-                    <td>{{ $detalle->descripcion_item ?? 'N/A' }}</td>
+                    <td>{{ $detalle->bodega->nombre_bodega ?? 'N/A' }}</td>
+                    <td>{{ $detalle->producto->concatenar_codigo_nombre ?? 'N/A' }}</td>
                     <td>{{ $detalle->cantidad }}</td>
                     <td>${{ number_format($detalle->precio_unitario, 2) }}</td>
-                    <td>${{ number_format($detalle->iva, 2) }}</td>
                     <td>${{ number_format($detalle->subtotal, 2) }}</td>
                 </tr>
             @endforeach
@@ -189,8 +177,8 @@
 
  <!-- Observaciones -->
   <div class="observacion">
-    <div><strong>OBSERVACIÓN 1:</strong><span id="comentario1">{{ $compra->primer_comentario ?? 'N/A' }}</span></div>
-    <div><strong>OBSERVACIÓN 2:</strong><span id="comentario2">{{ $compra->segundo_comentario ?? 'N/A' }}</span></div>
+    <div><strong>OBSERVACIÓN: </strong><span id="comentario1">{{ $compra->observacion ?? '' }}</span></div>
+
   </div>
 
 

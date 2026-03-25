@@ -59,6 +59,27 @@
     @apply text-gray-100 bg-transparent;
 }
 
+/* Select Searchable Styles */
+.select-form textarea {
+    @apply border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-50;
+}
+.select-form textarea:focus {
+    @apply border-blue-400;
+}
+.dark .select-form textarea {
+    @apply border-gray-600 bg-gray-800 text-gray-100;
+}
+.dark .select-form textarea:focus {
+    @apply border-blue-500 bg-gray-700;
+}
+
+.select-table textarea {
+    @apply w-full px-2 py-0 text-gray-800 bg-transparent border-none focus:ring-0 focus:outline-none;
+}
+.dark .select-table textarea {
+    @apply text-gray-100 bg-transparent;
+}
+
 /* --- Tom Select custom background fix --- */
 .ts-control {
     background-color: #fff !important;

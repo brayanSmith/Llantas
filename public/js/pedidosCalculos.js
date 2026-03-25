@@ -4,9 +4,10 @@ function getPrecio(productoSeleccionado, tipoPrecio) {
     const prod = productoSeleccionado;
     if (!prod) return 0;
     switch (tipoPrecio) {
-        case 'MAYORISTA': return prod.valor_mayorista_producto ?? 0;
-        case 'FERRETERO': return prod.valor_ferretero_producto ?? 0;
-        default: return prod.valor_detal_producto ?? 0;
+        case 'DETAL': return prod.valor_detal ?? 0;
+        case 'MAYORISTA': return prod.valor_mayorista ?? 0;
+        case 'OTRO': return prod.valor_otro ?? 0;
+        default: return prod.valor_detal ?? 0;
     }
 }
 

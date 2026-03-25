@@ -20,17 +20,10 @@ return new class extends Migration
             $table->string('telefono')->nullable();
             $table->string('ciudad')->nullable();
             $table->string('email')->nullable()->unique();
-            $table->string('representante_legal')->nullable();
             $table->boolean('activo')->default(true);
             $table->string('novedad')->nullable();
-            $table->foreignId('ruta_id')->nullable()->constrained('rutas')->cascadeOnDelete();
-            $table->foreignId('comercial_id')->nullable()->constrained('users')->cascadeOnDelete();
-            $table->enum('tipo_cliente', ['ELECTRONICO', 'REMISIONADO'])->default('ELECTRONICO');
             $table->string('rut_imagen')->nullable();
             $table->enum('retenedor_fuente', ['SI', 'NO'])->default('NO');
-            $table->integer('cuenta_total_pedidos_en_cartera')->default(0)->nullable();
-            $table->decimal('saldo_total_pedidos_en_cartera', 12, 2)->default(0)->nullable();
-            $table->decimal('saldo_total_pedidos_vencidos', 12, 2)->default(0)->nullable();
             $table->timestamps();
         });
 

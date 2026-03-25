@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Services\CompraCalculoService;
 
 class DetalleCompra extends Model
 {
@@ -12,15 +11,11 @@ class DetalleCompra extends Model
     use HasFactory;
     protected $fillable = [
         'compra_id',
-        //'producto_id',
-        'item_id',
-        'descripcion_item',
+        'producto_id',
+        'bodega_id',
         'cantidad',
         'precio_unitario',
-        'iva',
-        'precio_con_iva',
         'subtotal',
-        'tipo_item',
     ];
 
     public function compra()
@@ -30,25 +25,11 @@ class DetalleCompra extends Model
 
     public function producto()
     {
-        return $this->belongsTo(Producto::class, 'item_id');
+        return $this->belongsTo(Producto::class, 'producto_id');
     }
 
-    public function puc()
+    public function bodega()
     {
-        return $this->belongsTo(Puc::class, 'item_id');
+        return $this->belongsTo(Bodega::class, 'bodega_id');
     }
-   /*public function recalcularSubtotal()
-    {
-        $resultado = CompraCalculoService::calcularDetalles([
-            'item_id' => $this->item_id,
-            'descripcion_item' => $this->descripcion_item,
-            'cantidad' => $this->cantidad,
-            'precio_unitario' => $this->precio_unitario,
-            'iva' => $this->iva,
-        ]);
-        $this->update([
-            'subtotal' => $resultado['subtotal'],
-            'precio_con_iva' => $resultado['precio_con_iva']
-        ]);
-    }*/
 }

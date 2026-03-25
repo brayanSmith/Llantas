@@ -3,326 +3,384 @@
 namespace App\Livewire;
 
 use App\Models\Bodega;
+use App\Models\Categoria;
 use App\Models\Compra;
-use App\Models\DetalleCompra;
 use App\Models\Producto;
 use App\Models\Proveedor;
-use App\Models\Puc;
-use App\Models\AbonoCompra;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
-use Filament\Schemas\Schema;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
-use Livewire\Attributes\On;
-
 
 class CompraFormLivewire extends Component implements HasActions, HasSchemas
 {
     use InteractsWithActions;
     use InteractsWithSchemas;
 
-
     public array $proveedores = [];
     public array $bodegas = [];
     public array $productos = [];
-    public array $pucs = [];
-    public $showConfirmModal = false;
-    public $confirmModalTitle = '';
-    public $confirmModalBody = '';
-    public $imagenCompra = null;
-    public $imagenCompraPath = null;
+    public array $categorias = [];
+    public bool $showConfirmModal = false;
+    public string $confirmModalTitle = '';
+    public string $confirmModalBody = '';
+    public ?object $imagenCompra = null;
+    public ?string $imagenCompraPath = null;
     public array $compra = [];
     public array $detallesCompra = [];
     public bool $esEdicion = false;
-    public array $abonos = [];
 
     protected function getCompraDefaults(): array
     {
         return [
-            'item_compra' => 'PRODUCTO',
-            'categoria_compra' => 'OTRO',
             'factura' => null,
             'proveedor_id' => null,
             'fecha' => now()->toDateString(),
-            'dias_plazo_vencimiento' => 30,
-            'fecha_vencimiento' => now()->addDays(30)->toDateString(),
-            'metodo_pago' => 'CREDITO',
             'estado' => 'PENDIENTE',
-            'bodega_id' => null,
             'observaciones' => '',
             'subtotal' => 0,
-            'abono' => 0,
             'descuento' => 0,
             'total_a_pagar' => 0,
-            'saldo_pendiente' => 0,
-            'estado_pago' => 'EN_CARTERA',
-            'tipo_compra' => 'ELECTRONICA',
         ];
     }
 
     public function mount(): void
     {
-        $compraId = request()->get('compra_id');
-        $this->compra = $this->getCompraDefaults();
-        if ($compraId) {
-            $this->esEdicion = true;
-            // Cargar la relación bodega junto con el pedido
-            $compraEncontrada = Compra::with('bodega', 'detallesCompra', 'proveedor', 'abonoCompra.formaPagoAbonoCompra', 'abonoCompra.user')->find($compraId);
-            if ($compraEncontrada) {
-                $this->abonos = $compraEncontrada->abonoCompra->toArray() ?? [];
-                $this->compra = array_merge($this->getCompraDefaults(), $compraEncontrada->toArray());
-            }
-            $this->detallesCompra = DetalleCompra::where('compra_id', $compraId)->get()->toArray();
-        } else {
-            $this->detallesCompra = [];
-        }
+        $this->cargarDatos();
+        $this->cargarCompra(request()->get('compra_id'));
+    }
+
+    /**
+     * Carga los datos maestros del sistema
+     */
+    protected function cargarDatos(): void
+    {
         $this->proveedores = Proveedor::select('id', 'nombre_proveedor')->get()->toArray();
         $this->bodegas = Bodega::select('id', 'nombre_bodega')->get()->toArray();
+        $this->categorias = Categoria::select('id', 'nombre_categoria')->get()->toArray();
         $this->productos = $this->getFilteredProductos();
-        $this->pucs = $this->getFilteredPuc();
-
-    }
-    protected function getFilteredProductos()
-    {
-        return Producto::select(
-            'id',
-            'categoria_producto',
-            'concatenar_codigo_nombre',
-            'valor_detal_producto',
-            'valor_mayorista_producto',
-            'valor_ferretero_producto',
-            'iva_producto',
-            'nombre_producto',
-            'codigo_producto',
-        )->where('activo', 1)
-            ->get()->toArray();
-    }
-    protected function getFilteredPuc()
-    {
-        return Puc::select(
-            'id',
-            'cuenta',
-            'subcuenta',
-            'concepto',
-            'descripcion',
-            'concatenar_subcuenta_concepto',
-        )->get()->toArray();
-    }
-    public function guardarCompra($compra)
-    {
-        \Log::info('GUARDAR compra recibida desde Alpine', ['compra' => $compra]);
-
-        $payload = [
-            'factura' => $compra['factura'] ?? null,
-            'proveedor_id' => $compra['proveedor_id'] ?? null,
-            'fecha' => $compra['fecha'] ?? now()->toDateString(),
-            'dias_plazo_vencimiento' => $compra['dias_plazo_vencimiento'] ?? 30,
-            'fecha_vencimiento' => $compra['fecha_vencimiento'] ?? now()->addDays(30)->toDateString(),
-            'metodo_pago' => $compra['metodo_pago'] ?? 'CREDITO',
-            'estado_pago' => $compra['estado_pago'] ?? 'EN_CARTERA',
-            'tipo_compra' => $compra['tipo_compra'] ?? 'ELECTRONICA',
-            'estado' => $compra['estado'] ?? 'PENDIENTE',
-            'observaciones' => $compra['observaciones'] ?? '',
-            'subtotal' => $compra['subtotal'] ?? 0,
-            'abono' => $compra['abono'] ?? 0,
-            'descuento' => $compra['descuento'] ?? 0,
-            'total_a_pagar' => $compra['total_a_pagar'] ?? 0,
-            'saldo_pendiente' => $compra['saldo_pendiente'] ?? 0,
-            'categoria_compra' => $compra['categoria_compra'] ?? null,
-            'item_compra' => $compra['item_compra'] ?? 'PRODUCTO',
-            'bodega_id' => $compra['bodega_id'] ?? null,
-        ];
-
-        \Log::info('GUARDAR compra payload a insertar', $payload);
-        \Log::info('GUARDAR compra detalles', ['detalles' => $compra['detalles_compra'] ?? []]);
-
-        $nuevaCompra = Compra::create($payload);
-
-        \Log::info('GUARDAR compra CREADA en BD', [
-            'id' => $nuevaCompra->id,
-            'subtotal' => $nuevaCompra->subtotal,
-            'total_a_pagar' => $nuevaCompra->total_a_pagar,
-            'fresh_subtotal' => $nuevaCompra->fresh()->subtotal,
-            'fresh_total_a_pagar' => $nuevaCompra->fresh()->total_a_pagar,
-        ]);
-
-        foreach (($compra['detalles_compra'] ?? []) as $detalle) {
-            $nuevaCompra->detallesCompra()->create([
-                'item_id' => $detalle['producto_id'],
-                'descripcion_item' => $detalle['descripcion_item'] ?? '',
-                'cantidad' => $detalle['cantidad'],
-                'precio_unitario' => $detalle['precio_unitario'] ?? 0,
-                'iva' => $detalle['iva'] ?? 0,
-                'precio_con_iva' => $detalle['precio_con_iva'] ?? 0,
-                'subtotal' => $detalle['subtotal'] ?? 0,
-                'tipo_item' => $detalle['tipo_item'] ?? 'producto',
-            ]);
-        }
-
-        \Log::info('GUARDAR compra DESPUÉS de agregar detalles', [
-            'id' => $nuevaCompra->id,
-            'detalles_count' => $nuevaCompra->detallesCompra()->count(),
-            'subtotal' => $nuevaCompra->subtotal,
-            'total_a_pagar' => $nuevaCompra->total_a_pagar,
-            'saldo_pendiente' => $nuevaCompra->saldo_pendiente,
-            'fresh_subtotal' => $nuevaCompra->fresh()->subtotal,
-            'fresh_total_a_pagar' => $nuevaCompra->fresh()->total_a_pagar,
-            'fresh_saldo_pendiente' => $nuevaCompra->fresh()->saldo_pendiente,
-        ]);
-
-        // Guardar la URL del PDF en la sesión para mostrar el botón en la modal
-        session(['compras_stream_pdf_url' => route('compras-pdf.stream', $nuevaCompra->id)]);
-        session(['compras_download_pdf_url' => route('compras-pdf.download', $nuevaCompra->id)]);
-        $this->showConfirmModal = true;
-        $this->confirmModalTitle = '¡Compra exitosa!';
-        $this->confirmModalBody = 'La compra fue ingresada exitosamente.';
     }
 
-    public function editarCompra($compra)
+    /**
+     * Carga una compra específica o inicializa una nueva
+     */
+    protected function cargarCompra(?int $compraId): void
     {
-        \Log::info('EDITAR/CREAR compra recibida desde Alpine', ['compra' => $compra]);
+        $this->compra = $this->getCompraDefaults();
 
-        // Buscar la compra por el código
-        $compraExistente = Compra::where('id', $compra['id'])->first();
-
-        if (!$compraExistente) {
-            $this->confirmModalTitle = 'Error';
-            $this->confirmModalBody = 'No se encontró la compra a editar.';
-            $this->showConfirmModal = true;
+        if (!$compraId) {
+            $this->detallesCompra = [];
             return;
         }
 
-        $payload = [
-            'factura' => $compra['factura'],
-            'proveedor_id' => $compra['proveedor_id'],
-            'fecha' => empty($compra['fecha']) ? now()->toDateString() : $compra['fecha'],
-            'dias_plazo_vencimiento' => $compra['dias_plazo_vencimiento'],
-            'fecha_vencimiento' => empty($compra['fecha_vencimiento']) ? now()->addDays(30)->toDateString() : $compra['fecha_vencimiento'],
-            'metodo_pago' => $compra['metodo_pago'],
-            'estado_pago' => $compra['estado_pago'],
-            'tipo_compra' => $compra['tipo_compra'],
-            'estado' => $compra['estado'],
-            'observaciones' => $compra['observaciones'],
-            'subtotal' => $compra['subtotal'],
-            'abono' => $compra['abono'],
-            'descuento' => $compra['descuento'],
-            'total_a_pagar' => $compra['total_a_pagar'],
-            'categoria_compra' => $compra['categoria_compra'],
-            'item_compra' => $compra['item_compra'],
-            'bodega_id' => $compra['bodega_id'],
-            'saldo_pendiente' => $compra['saldo_pendiente'],
-            'solicitado' => $compra['solicitado'],
-        ];
+        $compraEncontrada = Compra::with('detallesCompra', 'proveedor')
+            ->find($compraId);
 
-        \Log::info('EDITAR compra payload a actualizar', $payload);
-
-        // Actualizar los campos de la compra
-        $compraExistente->update($payload);
-
-        $detallesActuales = $compraExistente->detallesCompra()->get()->keyBy('item_id');
-        $nuevosIds = collect($compra['detalles_compra'])->pluck('producto_id')->all();
-
-        // Actualizar o crear
-        foreach ($compra['detalles_compra'] as $detalle) {
-            $detalleExistente = $detallesActuales->firstWhere('item_id', $detalle['producto_id']);
-            if ($detalleExistente) {
-                \Log::info('ACTUALIZANDO detalle existente', [
-                    'producto_id' => $detalle['producto_id'],
-                    'cantidad' => $detalle['cantidad'],
-                    'subtotal' => $detalle['subtotal']
-                ]);
-                $detalleExistente->update([
-                    'descripcion_item' => $detalle['descripcion_item'] ?? '',
-                    'cantidad' => $detalle['cantidad'],
-                    'precio_unitario' => $detalle['precio_unitario'] ?? 0,
-                    'iva' => $detalle['iva'] ?? 0,
-                    'precio_con_iva' => $detalle['precio_con_iva'] ?? 0,
-                    'subtotal' => $detalle['subtotal'] ?? 0,
-                    'tipo_item' => $detalle['tipo_item'] ?? 'producto',
-                ]);
-            } else {
-                \Log::info('CREANDO nuevo detalle', [
-                    'producto_id' => $detalle['producto_id'],
-                    'cantidad' => $detalle['cantidad'],
-                    'subtotal' => $detalle['subtotal']
-                ]);
-                $compraExistente->detallesCompra()->create([
-                    'item_id' => $detalle['producto_id'],
-                    'descripcion_item' => $detalle['descripcion_item'] ?? '',
-                    'cantidad' => $detalle['cantidad'],
-                    'precio_unitario' => $detalle['precio_unitario'] ?? 0,
-                    'iva' => $detalle['iva'] ?? 0,
-                    'precio_con_iva' => $detalle['precio_con_iva'] ?? 0,
-                    'subtotal' => $detalle['subtotal'] ?? 0,
-                    'tipo_item' => $detalle['tipo_item'] ?? 'producto',
-                ]);
-            }
+        if ($compraEncontrada) {
+            $this->esEdicion = true;
+            $this->compra = array_merge($this->getCompraDefaults(), $compraEncontrada->toArray());
+            $this->detallesCompra = $compraEncontrada->detallesCompra->toArray();
         }
-
-        // Eliminar los que ya no están
-        $idsAEliminar = $detallesActuales->keys()->diff($nuevosIds);
-        if ($idsAEliminar->isNotEmpty()) {
-            $compraExistente->detallesCompra()->whereIn('item_id', $idsAEliminar)->delete();
-        }
-
-        $abonosActuales = $compraExistente->abonoCompra()->get()->keyBy('id');
-        $nuevosIdsAbonos = collect($compra['abono_compra'])->pluck('id')->all();
-
-        // Actualizar o crear abonos
-        foreach ($compra['abono_compra'] as $abono) {
-            $abonoExistente = $abonosActuales->get($abono['id']);
-            if ($abonoExistente) {
-                \Log::info('ACTUALIZANDO abono existente', [
-                    'id' => $abono['id'],
-                    'monto' => $abono['monto_abono_compra'] ?? $abono['monto'],
-                    'fecha' => $abono['fecha_abono_compra'] ?? $abono['fecha']
-                ]);
-                $abonoExistente->update([
-                    'monto_abono_compra' => $abono['monto_abono_compra'] ?? $abono['monto'] ?? 0,
-                    'fecha_abono_compra' => $abono['fecha_abono_compra'] ?? $abono['fecha'] ?? now()->toDateString(),
-                    'descripcion_abono_compra' => $abono['descripcion_abono_compra'] ?? $abono['descripcion'] ?? null,
-                ]);
-            }
-        }
-
-        //Eliminar los abonos que ya no están
-        $idsAbonosAEliminar = $abonosActuales->keys()->diff($nuevosIdsAbonos);
-        if ($idsAbonosAEliminar->isNotEmpty()) {
-            $compraExistente->abonoCompra()->whereIn('id', $idsAbonosAEliminar)->delete();
-        }
-
-        // Guardar la URL del PDF en la sesión para mostrar el botón en la modal
-        session(['compras_stream_pdf_url' => route('compras-pdf.stream', $compraExistente->id)]);
-        session(['compras_download_pdf_url' => route('compras-pdf.download', $compraExistente->id)]);
-        $this->showConfirmModal = true;
-        $this->confirmModalTitle = '¡Compra exitosa!';
-        $this->confirmModalBody = 'La compra fue ingresada exitosamente.';
     }
 
-    #[On('actualizar-abono-compra')]
-    public function actualizarAbonoCompra(array $data): void
+    protected function getFilteredProductos(): array
+    {
+        return Producto::select(
+            'id',
+            'categoria_id',
+            'concatenar_codigo_nombre',
+            'nombre_producto',
+            'codigo_producto',
+        )->with('categoria')->get()->toArray();
+    }
+
+    /**
+     * Crea una nueva compra desde JSON
+     *
+     * @param array $json Datos de la compra en formato JSON
+    * {
+    *   "compra": {
+    *     "factura": "FAC01",
+    *     "proveedor_id": 1,
+    *     "fecha": "2026-02-02",
+    *     "estado": "PENDIENTE",
+    *     "observaciones": "NA",
+    *     "subtotal": 10000,
+    *     "descuento": 500,
+    *     "total_a_pagar": 9500,
+    *     "detallesCompra": [...]
+    *   }
+    * }
+     */
+    public function crearCompra(array $json): void
     {
         try {
-            $abono = AbonoCompra::find($data['abono_id']);
+            $datos_validados = $this->validarJsonCreacion($json);
+            $this->procesarCreacionCompra($datos_validados);
+            $this->mostrarMensajeExito('¡Compra exitosa!', 'La compra fue ingresada exitosamente.');
+        } catch (\Exception $e) {
+            $this->mostrarMensajeError('Error', 'No se pudo guardar la compra: ' . $e->getMessage());
+        }
+    }
 
-            if (!$abono) {
-                session()->flash('error', 'Abono no encontrado');
-                return;
-            }
-
-            $abono->update([
-                'monto_abono_compra' => $data['monto'],
-                'fecha_abono_compra' => $data['fecha'],
-                'descripcion_abono_compra' => $data['descripcion'] ?? null,
+    /**
+     * Actualiza una compra existente desde JSON
+     *
+     * @param int $compraId ID de la compra a actualizar
+     * @param array $json Datos de la compra en formato JSON
+     * {
+     *   "compra_id": 45,
+     *   "factura": "FAC01-EDITADA",
+     *   "proveedor_id": 1,
+     *   ...
+     *   "detallesCompra": [...]
+     * }
+     */
+    public function editarCompra(int $compraId, array $json): void
+    {
+        try {
+            \Log::info('=== EDITAR COMPRA ===', [
+                'compraId' => $compraId,
+                'json_recibido' => $json,
+                'detalles' => $json['detallesCompra'] ?? $json['compra']['detallesCompra'] ?? []
             ]);
 
-            session()->flash('success', 'Abono actualizado exitosamente');
+            $datos_validados = $this->validarJsonEdicion($json, $compraId);
+
+            \Log::info('Datos validados:', [
+                'detalles_validados' => $datos_validados['detalles']
+            ]);
+
+            $this->procesarEdicionCompra($compraId, $datos_validados);
+            $this->mostrarMensajeExito('¡Compra actualizada!', 'La compra fue actualizada exitosamente.');
         } catch (\Exception $e) {
-            session()->flash('error', 'Error al actualizar el abono: ' . $e->getMessage());
+            \Log::error('Error editando compra:', ['error' => $e->getMessage()]);
+            $this->mostrarMensajeError('Error', 'No se pudo actualizar la compra: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Valida el JSON para creación de compra
+     */
+    protected function validarJsonCreacion(array $json): array
+    {
+        if (!isset($json['compra']) || !is_array($json['compra'])) {
+            throw new \InvalidArgumentException('El JSON debe contener la clave "compra"');
+        }
+
+        $compra = $json['compra'];
+
+        if (empty($compra['factura'])) {
+            throw new \InvalidArgumentException('La factura es obligatoria');
+        }
+        if (empty($compra['proveedor_id'])) {
+            throw new \InvalidArgumentException('El proveedor es obligatorio');
+        }
+
+        $detalles = $compra['detallesCompra'] ?? ($json['detallesCompra'] ?? []);
+
+        return [
+            'compra' => $compra,
+            'detalles' => $detalles,
+        ];
+    }
+
+    /**
+     * Valida el JSON para edición de compra
+     */
+    protected function validarJsonEdicion(array $json, int $compraId): array
+    {
+        $data = $json['compra'] ?? $json;
+        $jsonCompraId = $json['compra_id'] ?? $data['compra_id'] ?? null;
+
+        if ($jsonCompraId !== null && (int) $jsonCompraId !== $compraId) {
+            throw new \InvalidArgumentException('El compra_id no coincide con el id recibido');
+        }
+
+        if (empty($data['factura'])) {
+            throw new \InvalidArgumentException('La factura es obligatoria');
+        }
+        if (empty($data['proveedor_id'])) {
+            throw new \InvalidArgumentException('El proveedor es obligatorio');
+        }
+
+        return [
+            'compra_id' => $compraId,
+            'factura' => $data['factura'],
+            'proveedor_id' => $data['proveedor_id'],
+            'fecha' => $data['fecha'] ?? now()->toDateString(),
+            'estado' => $data['estado'] ?? 'PENDIENTE',
+            'observaciones' => $data['observaciones'] ?? '',
+            'subtotal' => $data['subtotal'] ?? 0,
+            'descuento' => $data['descuento'] ?? 0,
+            'total_a_pagar' => $data['total_a_pagar'] ?? 0,
+            'detalles' => $data['detallesCompra'] ?? ($json['detallesCompra'] ?? []),
+        ];
+    }
+
+    /**
+     * Procesa la creación de una compra validada
+     */
+    protected function procesarCreacionCompra(array $datos_validados): void
+    {
+        $compra_data = $datos_validados['compra'];
+
+        $compra = Compra::create([
+            'factura' => $compra_data['factura'],
+            'proveedor_id' => $compra_data['proveedor_id'],
+            'fecha' => $compra_data['fecha'] ?? now()->toDateString(),
+            'estado' => $compra_data['estado'] ?? 'PENDIENTE',
+            'observaciones' => $compra_data['observaciones'] ?? '',
+            'subtotal' => $compra_data['subtotal'] ?? 0,
+            'descuento' => $compra_data['descuento'] ?? 0,
+            'total_a_pagar' => $compra_data['total_a_pagar'] ?? 0,
+        ]);
+
+        $this->crearDetalles($compra, $datos_validados['detalles']);
+        $this->actualizarCostosProductos($datos_validados['detalles']);
+        $this->guardarPdfUrl($compra->id);
+    }
+
+    /**
+     * Procesa la edición de una compra validada
+     */
+    protected function procesarEdicionCompra(int $compraId, array $datos_validados): void
+    {
+        $compra = Compra::findOrFail($compraId);
+
+        $compra->update([
+            'factura' => $datos_validados['factura'],
+            'proveedor_id' => $datos_validados['proveedor_id'],
+            'fecha' => $datos_validados['fecha'],
+            'estado' => $datos_validados['estado'],
+            'observaciones' => $datos_validados['observaciones'],
+            'subtotal' => $datos_validados['subtotal'],
+            'descuento' => $datos_validados['descuento'],
+            'total_a_pagar' => $datos_validados['total_a_pagar'],
+        ]);
+
+        $this->sincronizarDetallesConAccion($compra, $datos_validados['detalles']);
+        $this->actualizarCostosProductos($datos_validados['detalles']);
+        $this->guardarPdfUrl($compra->id);
+    }
+
+
+    /**
+     * Crea nuevos detalles para una compra
+     */
+    protected function crearDetalles(Compra $compra, array $detalles): void
+    {
+        foreach ($detalles as $detalle) {
+            $compra->detallesCompra()->create($this->transformarDetalle($detalle));
+        }
+    }
+
+    /**
+     * Sincroniza detalles con acciones específicas (create, update)
+     */
+    protected function sincronizarDetallesConAccion(Compra $compra, array $detalles): void
+    {
+        \Log::info('=== SINCRONIZAR DETALLES ===', [
+            'compra_id' => $compra->id,
+            'cantidad_detalles' => count($detalles),
+            'detalles' => $detalles
+        ]);
+
+        foreach ($detalles as $index => $detalle) {
+            $accion = $detalle['accion'] ?? 'update';
+
+            \Log::info("Procesando detalle #{$index}", [
+                'detalle_id' => $detalle['id'] ?? 'null',
+                'producto_id' => $detalle['producto_id'] ?? 'null',
+                'bodega_id' => $detalle['bodega_id'] ?? 'null',
+                'accion' => $accion
+            ]);
+
+            if ($accion === 'create') {
+                \Log::info('CREANDO detalle nuevo');
+                $nuevoDetalle = $compra->detallesCompra()->create($this->transformarDetalle($detalle));
+                \Log::info('Detalle creado con ID: ' . $nuevoDetalle->id);
+            } elseif ($accion === 'update' && isset($detalle['id'])) {
+                \Log::info('ACTUALIZANDO detalle existente con ID: ' . $detalle['id']);
+                $detalleExistente = $compra->detallesCompra()->find($detalle['id']);
+                if ($detalleExistente) {
+                    $detalleExistente->update($this->transformarDetalle($detalle));
+                    \Log::info('Detalle actualizado correctamente');
+                } else {
+                    \Log::warning('Detalle con ID ' . $detalle['id'] . ' no encontrado');
+                }
+            } else {
+                \Log::warning('Detalle ignorado', ['detalle' => $detalle]);
+            }
+        }
+
+        // Eliminación automática deshabilitada - se controla vía accion: 'create'/'update'
+        // Los detalles que el usuario elimina ya no se envían en el payload
+    }
+
+    /**
+     * Transforma un detalle al formato esperado por la base de datos
+     */
+    protected function transformarDetalle(array $detalle): array
+    {
+        return [
+            'producto_id' => $detalle['producto_id'],
+            'bodega_id' => $detalle['bodega_id'] ?? null,
+            'cantidad' => $detalle['cantidad'] ?? 0,
+            'precio_unitario' => $detalle['precio_unitario'] ?? 0,
+            'subtotal' => $detalle['subtotal'] ?? 0,
+        ];
+    }
+
+    /**
+     * Actualiza el costo de productos basado en los precios unitarios de la compra
+     */
+    protected function actualizarCostosProductos(array $detalles): void
+    {
+        foreach ($detalles as $detalle) {
+            if (isset($detalle['producto_id']) && isset($detalle['precio_unitario'])) {
+                $producto = Producto::find($detalle['producto_id']);
+
+                if ($producto) {
+                    $producto->update([
+                        'costo_producto' => $detalle['precio_unitario']
+                    ]);
+                }
+            }
+        }
+    }
+
+    /**
+     * Guarda las URLs del PDF en la sesión
+     */
+    protected function guardarPdfUrl(int $compraId): void
+    {
+        session([
+            'compras_stream_pdf_url' => route('compras-pdf.stream', $compraId),
+            'compras_download_pdf_url' => route('compras-pdf.download', $compraId),
+        ]);
+    }
+
+    /**
+     * Muestra un mensaje de éxito
+     */
+    protected function mostrarMensajeExito(string $titulo, string $mensaje): void
+    {
+        $this->confirmModalTitle = $titulo;
+        $this->confirmModalBody = $mensaje;
+        $this->showConfirmModal = true;
+    }
+
+    /**
+     * Muestra un mensaje de error
+     */
+    protected function mostrarMensajeError(string $titulo, string $mensaje): void
+    {
+        $this->confirmModalTitle = $titulo;
+        $this->confirmModalBody = $mensaje;
+        $this->showConfirmModal = true;
     }
 
     public function render(): View
@@ -331,10 +389,10 @@ class CompraFormLivewire extends Component implements HasActions, HasSchemas
             'proveedores' => $this->proveedores,
             'bodegas' => $this->bodegas,
             'productos' => $this->productos,
-            'pucs' => $this->pucs,
             'compraEncontrada' => $this->compra,
             'detalles_compra' => $this->detallesCompra,
             'esEdicion' => $this->esEdicion,
+            'categorias' => $this->categorias,
         ]);
     }
 }

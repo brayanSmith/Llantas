@@ -15,43 +15,26 @@ class Pedido extends Model
 
     protected $fillable = [
         'codigo',
-        'fe',
         'cliente_id',
         'fecha',
-        'dias_plazo_vencimiento',
-        'fecha_vencimiento',
-        'ciudad',
         'estado',
-        'metodo_pago',
+        'estado_pago',
+        //'tipo_pedido',
+        'tipo_pago',
         'tipo_precio',
-        'tipo_venta',
-        'estado_venta',
-        'primer_comentario',
-        'segundo_comentario',
+        'id_puc',
+        'bodega_id',
+        'observacion',
+        'observacion_pago',
         'subtotal',
-        'en_cartera',
-        'abono',
         'descuento',
         'flete',
         'total_a_pagar',
+        'abono',
         'saldo_pendiente',
-        'contador_impresiones',
-        'estado_vencimiento',
-        'impresa',
-        'estado_pago',
-        'stock_retirado',
-        'bodega_id',
         'user_id',
-        'alistador_id',
-        'imagen_recibido',
-        'comentario_entrega',
-        'motivo_devolucion',
-        'cuenta_total_pedidos_en_cartera',
-        'saldo_total_pedidos_en_cartera',
-        'fecha_ultimo_abono',
-        'estado_cartera',
-        'iva',
-        'dias_plazo_cartera',
+        'aplica_turno',
+        'turno',
     ];
 
     protected $casts = [
@@ -92,20 +75,6 @@ class Pedido extends Model
     public function detallesComision()
     {
         return $this->hasMany(DetalleComisionPedido::class, 'pedido_id');
-    }
-
-    public function recalcularTotales()
-    {
-        /*$data = PedidoCalculoService::calcularTotalesPedido(
-            $this->detalles->toArray(),
-            $this->abonos->toArray(),
-            $this->descuento ?? 0,
-            $this->flete ?? 0
-        );
-        $this->updateQuietly($data);
-
-        $nuevoEstadoPago = PedidoCalculoService::calcularEstadoPago($this->saldo_pendiente);
-        $this->updateQuietly(['estado_pago' => $nuevoEstadoPago]);*/
     }
 
     public function setCodigoPedido()

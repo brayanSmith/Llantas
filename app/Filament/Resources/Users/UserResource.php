@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Users;
 use App\Filament\Resources\Users\Pages\ManageUsers;
 use App\Models\User;
 use BackedEnum;
+use Dom\Text;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -35,7 +36,7 @@ class UserResource extends Resource
         return $schema
             ->components([
                 TextInput::make('name')
-                    ->required(),              
+                    ->required(),
                 TextInput::make('email')
                     ->label('Email address')
                     ->email()
@@ -53,11 +54,17 @@ class UserResource extends Resource
                 Select::make('roles')
                     ->label('Rol')
                     ->multiple()
-                    ->relationship('roles', 'name')                    
+                    ->relationship('roles', 'name')
+                    ->preload(),
+
+                Select::make('bodega_id')
+                    ->label('Bodega (Solo Aplica para Comerciales)')
+                    //->multiple()
+                    ->relationship('bodega', 'nombre_bodega')
                     ->preload(),
             ]);
     }
-    
+
     public static function table(Table $table): Table
     {
         return $table
@@ -74,6 +81,8 @@ class UserResource extends Resource
                 TextColumn::make('email_verified_at')
                     ->dateTime()
                     ->sortable(),
+                TextColumn::make('bodega.nombre_bodega')
+                    ->label('Bodega'),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

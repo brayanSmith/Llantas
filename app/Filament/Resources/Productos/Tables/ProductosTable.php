@@ -26,42 +26,34 @@ class ProductosTable
                     ->disk('public')
                     ->size(50)
                     ->circular(),
-                TextColumn::make('ubicacion_producto')
-                    ->label('Ubicación')
+                TextColumn::make('marca.marca')
+                    ->label('Marca')
                     ->sortable()
                     ->searchable(),
-                TextColumn::make('codigo_producto')
-                    ->label('Código')
+                TextColumn::make('referencia_producto')
+                    ->label('Referencia')
                     ->sortable()
                     ->searchable(),
-                TextColumn::make('nombre_producto')
+                TextColumn::make('descripcion_producto')
+                    ->label('Descripción')
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('costo_producto')
                     ->label('Costo')
                     ->numeric(2)
                     ->sortable(),
-                TextColumn::make('valor_detal_producto')
+                TextColumn::make('valor_detal')
                     ->label('Detal')
                     ->numeric(2)
                     ->sortable(),
-                TextColumn::make('valor_mayorista_producto')
+                TextColumn::make('valor_mayorista')
                     ->label('Mayorista')
                     ->numeric(2)
                     ->sortable(),
-                TextColumn::make('valor_ferretero_producto')
-                    ->label('Ferretero')
+                TextColumn::make('valor_sin_instalacion')
+                    ->label('Sin Instalación')
                     ->numeric(2)
                     ->sortable(),
-
-                TextColumn::make('Bodega.nombre_bodega')
-                    ->label('Bodega')
-                    ->sortable(),
-
-                TextColumn::make('stock_inicial')
-                    ->numeric()
-                    ->sortable()
-                    ->label('Stock'),
 
                 TextColumn::make('created_at')
                     ->dateTime()
