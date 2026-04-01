@@ -20,7 +20,7 @@ return new class extends Migration
             $table->enum('estado', ['PENDIENTE', 'COMPLETADO'])->default(value: 'PENDIENTE');
             $table->enum('estado_pago', ['EN_CARTERA', 'SALDADO', 'NO_APLICA'])->default(value: 'EN_CARTERA');
             //$table->enum('tipo_pedido', ['VENTA', 'COTIZACION'])->default(value: 'VENTA');
-            $table->enum('tipo_pago', ['CONTADO', 'APARTADO', 'NO_APLICA'])->default(value: 'CONTADO');
+            $table->enum('tipo_pago', ['CONTADO', 'APARTADO', 'CONTRA_ENTREGA'])->default(value: 'CONTADO');
             $table->enum('tipo_precio', ['DETAL', 'MAYORISTA', 'OTRO'])->default(value: 'DETAL');
             $table->foreignId('id_puc')->constrained('pucs')->nullable();//Medio de Pago
             $table->foreignId('bodega_id')->constrained('bodegas')->nullable()->default(1);

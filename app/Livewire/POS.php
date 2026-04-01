@@ -80,6 +80,7 @@ class POS extends Component implements HasActions, HasSchemas
         $this->productos = Producto::select(
             'id',
             'concatenar_codigo_nombre',
+            'costo_producto',
             'valor_detal',
             'valor_mayorista',
             'valor_sin_instalacion',
@@ -221,6 +222,9 @@ class POS extends Component implements HasActions, HasSchemas
                 'producto_id' => $detalle['producto_id'],
                 'cantidad' => $detalle['cantidad'],
                 'precio_unitario' => $detalle['precio_unitario'] ?? 0,
+                'costo_unitario' => $detalle['costo_unitario'] ?? 0,
+                'costo_total' => $detalle['costo_total'] ?? 0,
+                'ganancia_total' => $detalle['ganancia_total'] ?? 0,
                 'subtotal' => $detalle['subtotal'] ?? 0,
             ]);
             $productosAfectados[] = $detalle['producto_id'];
@@ -231,7 +235,12 @@ class POS extends Component implements HasActions, HasSchemas
         session(['pedidoFacturado_pdf_url' => route('pedidosFacturados.pdf.stream', $nuevoPedido->id)]);
         $this->showConfirmModal = true;
         $this->confirmModalTitle = '¡Venta exitosa!';
-        $this->confirmModalBody = 'El pedido fue ingresado exitosamente con el turno ' . ($nuevoPedido->turno ?? 'N/A') . '.';
+
+        if($nuevoPedido->aplica_turno){
+            $this->confirmModalBody = 'El pedido fue ingresado exitosamente con el turno ' . ($nuevoPedido->turno ?? 'N/A') . '.';
+        } else {
+            $this->confirmModalBody = 'El pedido fue ingresado exitosamente.';
+        }
     }
     public function render(): View
     {

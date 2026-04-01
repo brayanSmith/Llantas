@@ -1,13 +1,13 @@
-function crearPedidoVacio(bodegaSeleccionada, empresa, userId) {
+function crearPedidoVacio(bodegaSeleccionada, empresa, userId, tipoPrecio) {
     return {
         codigo: "",
         cliente_id: null,
         fecha: "",
         estado: "PENDIENTE",
-        estado_pago: "EN_CARTERA",
-        tipo_pago: "CREDITO",
-        tipo_precio: "FERRETERO",
-        puc_id: pucSeleccionado ?? null,
+        estado_pago: null,
+        tipo_pago: "CONTADO",
+        tipo_precio: tipoPrecio,
+        puc_id: null,
         bodega_id: bodegaSeleccionada ?? (empresa ? empresa.bodega_id : null),
         observacion: "",
         observacion_pago: "",
@@ -18,7 +18,7 @@ function crearPedidoVacio(bodegaSeleccionada, empresa, userId) {
         total_a_pagar: 0,
         saldo_pendiente: 0,
         user_id: userId,
-        aplica_turno: false,
+        aplica_turno: true,
         turno: null,
         detalles: [],
     };
@@ -39,6 +39,10 @@ function validarRegistros(pedido){
     if (!pedido.tipo_precio) {
         errores.push("Debe seleccionar un tipo de precio.");
     }
+    if (!pedido.con_cuanto_paga && pedido.tipo_pago !== 'CONTRA_ENTREGA') {
+        errores.push("Debe ingresar con cuánto paga el cliente.");
+    }
+
     if (pedido.detalles.length === 0) {
         errores.push("Debe agregar al menos un producto al pedido.");
     } else {

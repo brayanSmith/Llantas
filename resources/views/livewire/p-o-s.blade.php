@@ -112,6 +112,7 @@
                     productoSeleccionado: null,
                     cantidadSeleccionada: 1,
                     precioSeleccionado: 0,
+                    pucSeleccionado: pucSeleccionado,
 
                     mostrarModalPago: mostrarModalPago,
                     mostrarModalAgregarProducto: mostrarModalAgregarProducto,
@@ -121,6 +122,7 @@
                     tipoPrecio: tipoPrecio,
                     esAdmin: esAdmin,
                     isLoading: false,
+
 
                     pedido: {
                         //codigo: '',
@@ -255,18 +257,29 @@
 
                         const cantidad = parseFloat(cantidadAgregar) || 0;
                         const precioUnitario = parseFloat(precioAgregar) || 0;
+                        const costoUnitario = this.getCostoUnitario(productoAgregar);
+                        const costoTotal = costoUnitario * cantidad;
+                        const gananciaTotal = (precioUnitario - costoUnitario) * cantidad;
 
                         const nuevoDetalle = {
                             producto_id: productoAgregar.id,
                             cantidad: cantidad,
                             precio_unitario: precioUnitario,
                             subtotal: getSubtotal(precioUnitario, cantidad),
+                            costo_unitario: costoUnitario,
+                            costo_total: costoTotal,
+                            ganancia_total: gananciaTotal,
                         };
                         this.pedido.detalles.push(nuevoDetalle);
                         console.log('Detalle agregado:', nuevoDetalle);
                         this.calcularTotales();
 
                     },
+
+                    getCostoUnitario(producto) {
+                            return producto.costo_producto || 0;
+                        },
+
 
                     editarDetalle(index, cantidadAModificar, valorUnitarioAModificar) {
                         if (!cantidadAModificar || cantidadAModificar < 1){
@@ -283,6 +296,9 @@
                             detalle.cantidad = cantidad;
                             detalle.precio_unitario = valorUnitario;
                             detalle.subtotal = getSubtotal(valorUnitario, cantidad);
+                            detalle.costo_unitario = this.getCostoUnitario(this.productos.find(p => p.id === detalle.producto_id));
+                            detalle.costo_total = detalle.costo_unitario * cantidad;
+                            detalle.ganancia_total = (valorUnitario - detalle.costo_unitario) * cantidad;
                         }
                         console.log('Detalle editado:', detalle);
 
@@ -306,12 +322,14 @@
                             setTimeout(() => this.mostrarToast = false, 3000);
                             return;
                         }
+                        const abono = this.pedido.con_cuanto_paga >= this.pedido.total_a_pagar ? this.pedido.total_a_pagar : Number(this.pedido.con_cuanto_paga) || 0;
+                        this.pedido.abono = abono;
 
                         const pedidoSalida = {
                             //codigo: this.pedido.codigo,
                             cliente_id: this.pedido.cliente_id,
                             fecha: this.pedido.fecha,
-                            estado: this.pedido.estado,
+                            estado: this.pedido.tipo_pago === 'CONTRA_ENTREGA' ? 'PENDIENTE' : 'COMPLETADO',
                             estado_pago: this.pedido.estado_pago,
                             tipo_pago: this.pedido.tipo_pago,
                             tipo_precio: this.pedido.tipo_precio,
@@ -321,11 +339,12 @@
                             observacion_pago: this.pedido.observacion_pago,
                             aplica_turno: this.pedido.aplica_turno,
                             subtotal: this.pedido.subtotal,
-                            abono: this.pedido.abono,
+                            abono: abono,
                             descuento: this.pedido.descuento,
                             flete: this.pedido.flete,
                             total_a_pagar: this.pedido.total_a_pagar,
                             saldo_pendiente: this.pedido.saldo_pendiente,
+
                             detalles: this.pedido.detalles,
                         }
                         console.log('Pedido a enviar:', pedidoSalida);
@@ -404,7 +423,7 @@
 
                     // Función para resetear todos los datos del pedido
                     resetPedido() {
-                        this.pedido = crearPedidoVacio(this.bodegaSeleccionada, this.empresa, userId);
+                        this.pedido = crearPedidoVacio(this.bodegaSeleccionada, this.empresa, userId, tipoPrecio);
                         localStorage.removeItem('pedidoPOS');
                         this.totalCantidadProductos = 0;
                         // Emitir evento para sincronizar Tom Select

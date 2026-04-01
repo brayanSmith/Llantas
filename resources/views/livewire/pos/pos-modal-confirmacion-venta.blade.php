@@ -18,7 +18,7 @@
                 <button
 
                     wire:click="$set('showConfirmModal', true)"
-                    @click.prevent="location.reload()"
+                    @click.prevent="resetPedido(); location.reload()"
                     class="px-6 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700">Cerrar</button>
             </div>
         </div>
