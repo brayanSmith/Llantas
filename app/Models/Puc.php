@@ -15,6 +15,11 @@ class Puc extends Model
         'subcuenta',
         'concepto',
         'descripcion',
-        'concatenar_subcuenta_concepto', 
+        'concatenar_subcuenta_concepto',
     ];
+
+    public function pedidos()
+    {
+        return $this->hasMany(Pedido::class, 'id_puc');
+    }
 }

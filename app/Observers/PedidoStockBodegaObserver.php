@@ -20,7 +20,7 @@ class PedidoStockBodegaObserver
      */
     public function created(Pedido $pedido): void
     {
-        $codigo = $pedido->setCodigoPedido();
+        /*$codigo = $pedido->setCodigoPedido();
         //$estadoPago = $pedido->setEstadoPago();
         //$totales = $pedido->recalcularTotales();
         //app(PedidoStockService::class)->creado($pedido);
@@ -30,7 +30,7 @@ class PedidoStockBodegaObserver
 
         // Actualizar totales de pedidos en cartera del cliente
         $cliente = Cliente::find($pedido->cliente_id);
-        PedidoCalculoService::setPedidosEnCarteraTotales($cliente, $pedido->cliente_id);
+        PedidoCalculoService::setPedidosEnCarteraTotales($cliente, $pedido->cliente_id);*/
     }
 
     /**
@@ -38,7 +38,7 @@ class PedidoStockBodegaObserver
      */
     public function updated(Pedido $pedido): void
     {
-        $pedido->recalcularTotales();
+        /*$pedido->recalcularTotales();
         //$estadoPago = $pedido->setEstadoPago();
         //app(PedidoStockService::class)->actualizado($pedido);
 
@@ -47,7 +47,7 @@ class PedidoStockBodegaObserver
 
         // Actualizar totales de pedidos en cartera del cliente
          $cliente = Cliente::find($pedido->cliente_id);
-        PedidoCalculoService::setPedidosEnCarteraTotales($cliente, $pedido->cliente_id);
+        PedidoCalculoService::setPedidosEnCarteraTotales($cliente, $pedido->cliente_id);*/
     }
 
     /**
@@ -56,10 +56,10 @@ class PedidoStockBodegaObserver
     public function deleting(Pedido $pedido): void
     {
         //
-        app(PedidoStockService::class)->eliminado($pedido);
+        /*app(PedidoStockService::class)->eliminado($pedido);
         // Actualizar totales de pedidos en cartera del cliente
          $cliente = Cliente::find($pedido->cliente_id);
-        PedidoCalculoService::setPedidosEnCarteraTotales($cliente, $pedido->cliente_id);
+        PedidoCalculoService::setPedidosEnCarteraTotales($cliente, $pedido->cliente_id);*/
     }
 
 }

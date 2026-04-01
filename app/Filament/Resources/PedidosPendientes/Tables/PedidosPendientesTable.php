@@ -158,7 +158,7 @@ class PedidosPendientesTable
                             ->openUrlInNewTab(false),
 
                         Action::make('download_pdf')
-                            ->label(fn($record) => 'Descargar PDF (' . ($record->contador_impresiones ?? 0) . ')')
+                            ->label(fn($record) => 'Descargar PDF')
                             //->icon('heroicon-o-document-download')
                             ->url(fn($record) => route('pedidos.pdf.download', $record->id))
                             ->openUrlInNewTab(),

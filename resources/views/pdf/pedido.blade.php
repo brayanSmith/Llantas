@@ -60,7 +60,6 @@
   <div class="section">
     <div class="bold" style="font-size:18px;">REMISIÓN N°: {{ $pedido->id }}</div>
     <div class="bold">TIPO VENTA: {{ $pedido->tipo_venta }}</span></div>
-    <div class="bold">RUTA: {{ $pedido->cliente->ruta->ruta }}</span></div>
   </div>
 
   <div class="separator"></div>

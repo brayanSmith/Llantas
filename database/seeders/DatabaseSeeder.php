@@ -24,9 +24,11 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
         MarcaSeeder::class,
-        AdminUserSeeder::class,
-        RolesSeeder::class,  // Crear roles primero
         BodegaSeeder::class,
+
+        RolesSeeder::class,  // Crear roles primero
+        AdminUserSeeder::class,
+
         CategoriaSeeder::class,
         ProveedorSeeder::class,
         EmpresaSeeder::class,
@@ -35,6 +37,8 @@ class DatabaseSeeder extends Seeder
         User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',
+            'password' => bcrypt('password123'),
+            'bodega_id' => 1,
         ]);
 
             $role = Role::firstOrCreate(['name' => 'super_admin']);

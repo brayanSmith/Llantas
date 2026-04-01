@@ -76,6 +76,10 @@ class Pedido extends Model
     {
         return $this->hasMany(DetalleComisionPedido::class, 'pedido_id');
     }
+    public function puc()
+    {
+        return $this->belongsTo(Puc::class, 'id_puc');
+    }
 
     public function setCodigoPedido()
     {

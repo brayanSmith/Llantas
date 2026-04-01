@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('pedidos', function (Blueprint $table) {
             $table->id();
-            $table->string('codigo')->unique()->nullable();
+            //$table->string('codigo')->unique()->nullable();
             $table->foreignId('cliente_id')->constrained('clientes');
             $table->date('fecha')->default(DB::raw('CURRENT_DATE'));
             $table->enum('estado', ['PENDIENTE', 'COMPLETADO'])->default(value: 'PENDIENTE');
@@ -22,7 +22,7 @@ return new class extends Migration
             //$table->enum('tipo_pedido', ['VENTA', 'COTIZACION'])->default(value: 'VENTA');
             $table->enum('tipo_pago', ['CONTADO', 'APARTADO', 'NO_APLICA'])->default(value: 'CONTADO');
             $table->enum('tipo_precio', ['DETAL', 'MAYORISTA', 'OTRO'])->default(value: 'DETAL');
-            $table->foreignId('id_puc')->constrained('puc')->nullable();//Medio de Pago
+            $table->foreignId('id_puc')->constrained('pucs')->nullable();//Medio de Pago
             $table->foreignId('bodega_id')->constrained('bodegas')->nullable()->default(1);
             $table->text('observacion')->nullable();
             $table->text('observacion_pago')->nullable();

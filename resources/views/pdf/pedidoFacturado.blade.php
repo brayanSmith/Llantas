@@ -1,232 +1,271 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
-    <title>Pedido FACTURADO #{{ $pedido->id }}</title>
+    <title>Pedido #{{ $pedido->id }}</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            font-size: 12px;
-            margin: 30px;
-            color: #000;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        .header,
-        .cliente-info {
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 11px;
+            color: #000;
+            background: #fff;
+            width: 72mm;          /* Ajustar: 58mm para rollo de 58mm */
+            margin: 0 auto;
+            padding: 4mm 2mm;
+        }
+
+        /* ── Utilidades ── */
+        .center   { text-align: center; }
+        .bold     { font-weight: bold; }
+        .right    { text-align: right; }
+        .small    { font-size: 10px; }
+
+        /* ── Separadores ── */
+        .sep-dash {
+            border: none;
+            border-top: 1px dashed #000;
+            margin: 4px 0;
+        }
+        .sep-solid {
+            border: none;
+            border-top: 1px solid #000;
+            margin: 4px 0;
+        }
+
+        /* ── Cabecera empresa ── */
+        .empresa-nombre {
+            font-size: 15px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+        .logo-wrap {
+            text-align: center;
+            margin-bottom: 4px;
+        }
+        .logo-wrap img {
+            max-width: 90px;
+            max-height: 60px;
+            object-fit: contain;
+        }
+
+        /* ── Fila clave-valor ── */
+        .row {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
+            margin: 1px 0;
         }
+        .row span:first-child { font-weight: bold; }
 
-        .centered {
-            text-align: center;
-        }
-
-        .bold {
-            font-weight: bold;
-        }
-
-        .red {
-            color: red;
-        }
-
-        .table {
+        /* ── Tabla de productos ── */
+        .tbl {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 15px;
+            font-size: 10px;
+            margin: 3px 0;
         }
-
-        .table th,
-        .table td {
-            border: 1px solid #000;
-            padding: 5px;
+        .tbl th {
+            border-bottom: 1px solid #000;
             text-align: left;
+            padding: 2px 1px;
+            font-weight: bold;
+        }
+        .tbl td {
+            padding: 2px 1px;
+            vertical-align: top;
+        }
+        .tbl td.r { text-align: right; }
+        .tbl .nombre { max-width: 90px; word-break: break-word; }
+
+        /* ── Totales ── */
+        .totales {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 2px;
+            font-size: 11px;
+        }
+        .totales td { padding: 1px 0; }
+        .totales td:last-child { text-align: right; }
+        .total-final td {
+            font-size: 13px;
+            font-weight: bold;
+            border-top: 1px solid #000;
+            padding-top: 3px;
         }
 
-        .table th {
-            background-color: #f2f2f2;
+        /* ── Saldo vencido destacado ── */
+        .saldo-vencido {
+            font-weight: bold;
+            text-decoration: underline;
         }
 
-        .totals td {
-            text-align: right;
+        /* ── Pie ── */
+        .footer {
+            text-align: center;
+            font-size: 10px;
+            margin-top: 6px;
         }
 
-        .logo {
-            width: 180px;
+        /* ── Ocultar en pantalla lo que es solo impresión ── */
+        @media screen {
+            body { border: 1px dashed #ccc; }
         }
 
-        .section {
-            margin-top: 20px;
-        }
-
-        .observacion {
-            margin-top: 30px;
-        }
-
-        .separator {
-            border-top: 2px dashed #333;
-            margin: 15px 0;
+        @media print {
+            body {
+                width: 72mm;      /* Ajustar a tu rollo */
+                margin: 0;
+                padding: 3mm 1mm;
+            }
+            /* Forzar blanco/negro */
+            * { color: #000 !important; background: #fff !important; }
         }
     </style>
 </head>
-
 <body>
 
-
-
-    <!-- Logo centrado -->
-
-    <div style="text-align: center; margin-bottom: 40px;">
-        @if ($empresa && $empresa->logo_empresa)
-            @php
-                $logoPath = storage_path('app/public/' . $empresa->logo_empresa);
-                $logoBase64 = '';
-                if (file_exists($logoPath)) {
-                    $logoData = file_get_contents($logoPath);
-                    $logoBase64 =
-                        'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64,' . base64_encode($logoData);
-                }
-            @endphp
-            @if ($logoBase64)
-                <img src="{{ $logoBase64 }}" alt="Logo Empresa"
-                    style="width: 120px; height: auto; max-height: 80px; object-fit: contain;" />
-            @endif
+    {{-- ─── LOGO ─── --}}
+    @if ($empresa && $empresa->logo_empresa)
+        @php
+            $logoPath   = storage_path('app/public/' . $empresa->logo_empresa);
+            $logoBase64 = '';
+            if (file_exists($logoPath)) {
+                $logoData   = file_get_contents($logoPath);
+                $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64,' . base64_encode($logoData);
+            }
+        @endphp
+        @if ($logoBase64)
+            <div class="logo-wrap">
+                <img src="{{ $logoBase64 }}" alt="Logo">
+            </div>
         @endif
-    </div>
+    @endif
 
-
-    <!-- Información general centrada -->
-    <div style="text-align: center; margin-bottom: 10px;">
-        <div class="bold" style="font-size: 24px;">{{ $empresa->nombre_empresa ?? 'DISTRIGUERRERO' }}</div>
+    {{-- ─── EMPRESA ─── --}}
+    <div class="center" style="margin-bottom:3px;">
+        <div class="empresa-nombre">{{ $empresa->nombre_empresa ?? 'DISTRIGUERRERO' }}</div>
         <div>Distribuidora de Ferreterías</div>
         <div>{{ $empresa->direccion_empresa ?? 'CALLE 7 NUMERO 5-63' }}</div>
-        <div>{{ $empresa->telefono_empresa ?? '3105568244' }}</div>
-        <div>{{ $empresa->nit_empresa ?? '1087644203-1' }}</div>
+        <div>Tel: {{ $empresa->telefono_empresa ?? '3105568244' }}</div>
+        <div>NIT: {{ $empresa->nit_empresa ?? '1087644203-1' }}</div>
+    </div>
+    {{-- TURNO --}}
 
+    @if ($pedido->turno)
+        <div class="center" style="margin-bottom:6px;">
+            <div style="font-size:18px; font-weight:bold; letter-spacing:2px; border-bottom:2px solid #000; display:inline-block; padding:2px 12px; margin-bottom:2px;">
+                {{ $pedido->turno }}
+            </div>
+        </div>
+    @endif
 
+    <hr class="sep-dash">
+
+    {{-- ─── REMISIÓN / VENCIMIENTO ─── --}}
+    <div class="row">
+        <span>REMISION N°:</span>
+        <span>{{ $pedido->id }}</span>
     </div>
 
-    <!-- Línea con REMISIÓN a la izquierda y FECHA DE VENCIMIENTO a la derecha -->
-    <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-        <div><strong>REMISIÓN N°:</strong> <span class="bold">{{ $pedido->codigo }}</span></div>
-        <div><strong>FECHA DE VENCIMIENTO:</strong> <span> {{ $pedido->fecha_vencimiento }}</span> </div>
+    <hr class="sep-dash">
+
+    {{-- ─── FECHA / VENDEDOR / PAGO ─── --}}
+    <div class="center">
+        <div><span class="bold">Fecha:</span> {{ $pedido->fecha->format('d/m/Y H:i') }}</div>
+        <div><span class="bold">Vendedor:</span> {{ $pedido->user->name ?? 'N/A' }}</div>
+        <div><span class="bold">Pago:</span> {{ $pedido->puc->concatenar_subcuenta_concepto ?? 'N/A' }}</div>
     </div>
-    <div class="separator"></div>
 
-    <div style="text-align: center; margin-top: 10px;">
-        <strong>Fecha Venta:</strong> {{ $pedido->fecha->format('d/m/Y H:i') }} <br>
-        <strong>Vendedor:</strong> {{ $pedido->user->name ?? 'N/A' }} <br>
-        <strong>Forma de pago:</strong> {{ $pedido->metodo_pago }}
-    </div>
-    <br>
+    <hr class="sep-dash">
 
-        <table style="width: 100%; border: none; margin-bottom: 10px;">
-            <tr>
-                <td style="vertical-align: top; width: 60%; border: none;">
-                    <div><strong>CLIENTE:</strong> <span id="nombreCliente">{{ $pedido->cliente->razon_social ?? 'N/A' }}</span></div>
-                    <div><strong>NIT:</strong> <span id="nDocCliente">{{ $pedido->cliente->numero_documento ?? 'N/A' }}</span></div>
-                    <div><strong>CIUDAD:</strong> <span id="ciudadCliente">{{ $pedido->cliente->ciudad ?? 'N/A' }}</span></div>
-                    <div><strong>DIRECCIÓN:</strong> <span id="direccionCliente">{{ $pedido->cliente->direccion ?? 'N/A' }}</span></div>
-                    <div><strong>TELEFONO:</strong> <span id="telefonoCliente">{{ $pedido->cliente->telefono ?? 'N/A' }}</span></div>
-                </td>
-                <td style="vertical-align: top; width: 40%; border: none;">
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <tr>
-                            <td style="font-weight: bold;">SALDO VENCIDO:</td>
-                            <td>
-                                <span id="saldoVencido" style="display:inline-block; background:#d32f2f; color:#fff; font-weight:bold; padding:2px 8px; border-radius:4px;">
-                                    {{ number_format($pedido->cliente->saldo_total_pedidos_vencidos ?? 0, 2) }}
-                                </span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight: bold;">TOTAL CARTERA:</td>
-                            <td>
-                                <span id="saldoEnCartera" style="display:inline-block; background:#fbc02d; color:#fff; font-weight:bold; padding:2px 8px; border-radius:4px;">
-                                    {{ number_format($pedido->cliente->saldo_total_pedidos_en_cartera ?? 0, 2) }}
-                                </span>
-                            </td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-        </table>
+    {{-- ─── CLIENTE ─── --}}
+    <div><span class="bold">CLIENTE:</span> {{ $pedido->cliente->razon_social ?? 'N/A' }}</div>
+    <div><span class="bold">NIT:</span> {{ $pedido->cliente->numero_documento ?? 'N/A' }}</div>
+    <div><span class="bold">CIUDAD:</span> {{ $pedido->cliente->ciudad ?? 'N/A' }}</div>
+    <div><span class="bold">DIR:</span> {{ $pedido->cliente->direccion ?? 'N/A' }}</div>
+    <div><span class="bold">TEL:</span> {{ $pedido->cliente->telefono ?? 'N/A' }}</div>
+
+    <hr class="sep-dash">
 
 
-    {{--<div class="section">
-        <strong>TIPO </strong> <span id="tipoCliente">{{ $pedido->tipo_venta ?? 'N/A' }}</span>
-    </div>--}}
+    {{-- ─── PRODUCTOS ─── --}}
+    <div class="bold small" style="margin-bottom:2px;">PRODUCTOS FACTURADOS</div>
 
-    <h3>Productos Pedido Facturado</h3>
-    <!-- Tabla de productos -->
-    <table class="table">
+    <table class="tbl">
         <thead>
             <tr>
-                <th>CÓDIGO</th>
-                <th>NOMBRE</th>
-                <th>CANTIDAD</th>
-                <th>UNITARIO</th>
-                <th>TOTAL</th>
+                <th style="width:40px;">ITEM</th>
+                <th class="r" style="width:44px; text-align:right;">TOTAL</th>
             </tr>
         </thead>
-        @foreach ($detalles as $detalle)
+        <tbody>
+            @foreach ($detalles as $detalle)
             <tr>
-                <td>{{ $detalle->producto->codigo_producto ?? 'N/A' }}</td>
-                <td>{{ $detalle->producto->nombre_producto ?? 'N/A' }}</td>
-                <td>{{ $detalle->cantidad }}</td>
-                <td>${{ number_format($detalle->subtotal / $detalle->cantidad, 2) }}</td>
-                <td>${{ number_format($detalle->subtotal, 2) }}</td>
+                <td>{{ $detalle->cantidad }} X {{ $detalle->producto->concatenar_codigo_nombre ?? '-' }}</td>
+                <td class="r">${{ number_format($detalle->subtotal, 0) }}</td>
             </tr>
-        @endforeach
+            @endforeach
         </tbody>
     </table>
 
-    <!-- Totales -->
-    <table class="table totals" style="width: 60%; float: right; margin-top: 10px;">
+    <hr class="sep-dash">
+
+    {{-- ─── TOTALES ─── --}}
+    <table class="totales">
         <tr>
-            <td><strong>Sub Total</strong></td>
-            <td><span>{{ number_format($pedido->subtotal, 2) }}</span></td>
+            <td>Subtotal</td>
+            <td>${{ number_format($pedido->subtotal, 2) }}</td>
         </tr>
         <tr>
-            <td><strong>Descuento</strong></td>
-            <td><span>{{ number_format($pedido->descuento, 2) }}</span></td>
+            <td>Descuento</td>
+            <td>- ${{ number_format($pedido->descuento, 2) }}</td>
         </tr>
         <tr>
-            <td><strong>Flete</strong></td>
-            <td><span>{{ number_format($pedido->flete, 2) }}</span></td>
+            <td>Flete</td>
+            <td>${{ number_format($pedido->flete, 2) }}</td>
         </tr>
-        <tr>
-            <td><strong>Total</strong></td>
-            <td><strong id="total">{{ number_format($pedido->total_a_pagar, 2) }}</strong></td>
+        <tr class="total-final">
+            <td>TOTAL</td>
+            <td>${{ number_format($pedido->total_a_pagar, 2) }}</td>
         </tr>
     </table>
 
-    <!-- Observaciones -->
-    <div class="observacion">
-        <div><strong>OBSERVACIÓN 1:</strong><span id="comentario1">{{ $pedido->primer_comentario ?? 'N/A' }}</span>
-        </div>
-        <div><strong>OBSERVACIÓN 2:</strong><span id="comentario2">{{ $pedido->segundo_comentario ?? 'N/A' }}</span>
-        </div>
-    </div>
+    <hr class="sep-dash">
 
-    <!-- Pie de página -->
-    <div style="text-align: center; margin-top: 60px; font-size: 12px; border-top: 1px solid #000; padding-top: 10px;">
-        <div>HACER ABONO A LAS SIGUIENTES CUENTAS</div>
-        <div>
-            @if (!empty($cuentas_bancarias))
-                @foreach ($cuentas_bancarias as $cuenta)
-                    <div>{{ $cuenta['cuenta'] ?? 'N/A' }}</div>
-                @endforeach
-            @else
-                <div>No hay cuentas bancarias registradas.</div>
-            @endif
-        </div>
-        <div>PARA CAMBIAR UN PRODUCTO 10 DÍAS CALENDARIO. PARA REPORTAR UN FALTANTE 5 DÍAS CALENDARIO</div>
-        <div>GRACIAS POR SU COMPRA</div>
+    {{-- ─── OBSERVACIONES ─── --}}
+    @if ($pedido->primer_comentario || $pedido->segundo_comentario)
+    <div class="small">
+        @if ($pedido->primer_comentario)
+            <div><span class="bold">OBS 1:</span> {{ $pedido->primer_comentario }}</div>
+        @endif
+        @if ($pedido->segundo_comentario)
+            <div><span class="bold">OBS 2:</span> {{ $pedido->segundo_comentario }}</div>
+        @endif
     </div>
+    <hr class="sep-dash">
+    @endif
 
+    {{-- ─── PIE DE PÁGINA ─── --}}
+    <div class="footer">
+        <div class="bold">ABONOS A:</div>
+        @if (!empty($cuentas_bancarias))
+            @foreach ($cuentas_bancarias as $cuenta)
+                <div>{{ $cuenta['cuenta'] ?? '' }}</div>
+            @endforeach
+        @else
+            <div>No hay cuentas registradas.</div>
+        @endif
+
+        <hr class="sep-dash">
+        <div>Cambios: 10 días calendario</div>
+        <div>Faltantes: 5 días calendario</div>
+        <div class="bold" style="margin-top:4px;">¡GRACIAS POR SU COMPRA!</div>
+    </div>
 
 </body>
-
 </html>

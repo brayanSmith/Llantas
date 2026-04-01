@@ -5,15 +5,12 @@ function crearPedidoVacio(bodegaSeleccionada, empresa, userId) {
         fecha: "",
         estado: "PENDIENTE",
         estado_pago: "EN_CARTERA",
-        tipo_pago: "CONTADO",
+        tipo_pago: "CREDITO",
         tipo_precio: "FERRETERO",
-
-        estado_pago: "EN_CARTERA",
-        estado_cartera: "CARTERA_AL_DIA",
-        estado_venta: "VENTA",
-        estado_vencimiento: "AL_DIA",
+        puc_id: pucSeleccionado ?? null,
         bodega_id: bodegaSeleccionada ?? (empresa ? empresa.bodega_id : null),
-        primer_comentario: "",
+        observacion: "",
+        observacion_pago: "",
         subtotal: 0,
         abono: 0,
         descuento: 0,
@@ -21,43 +18,50 @@ function crearPedidoVacio(bodegaSeleccionada, empresa, userId) {
         total_a_pagar: 0,
         saldo_pendiente: 0,
         user_id: userId,
-        alistador_id: userId,
+        aplica_turno: false,
+        turno: null,
         detalles: [],
-        created_at: "",
-        updated_at: "",
-        iva: 0,
     };
 }
 
-function enviarPedidoReutilizable(pedido, guardarPedidoWireFn) {
-    if (!pedido.detalles || pedido.detalles.length === 0) {
-        // Mostrar toast o alert según contexto
-        alert(
-            "El carrito está vacío. Agregue al menos un producto antes de enviar el pedido.",
-        );
-        return;
-    }
+function validarRegistros(pedido){
+    let errores = [];
     if (!pedido.cliente_id) {
-        alert("Debe seleccionar un cliente antes de enviar el pedido.");
-        return;
+        errores.push("Debe seleccionar un cliente.");
     }
-    const errores = validarDetalles(pedido.detalles);
-    if (errores.length > 0) {
-        alert(errores.join("\n"));
-        return;
+    if (!pedido.tipo_pago) {
+        errores.push("Debe seleccionar un tipo de pago.");
     }
-    console.log("JSON generado para enviar:", JSON.stringify(pedido, null, 2));
-    guardarPedidoWireFn(pedido);
-    localStorage.removeItem("pedidoPOS");
+    if(!pedido.id_puc){
+        errores.push("Debe seleccionar un medio de pago.");
+    }
+
+    if (!pedido.tipo_precio) {
+        errores.push("Debe seleccionar un tipo de precio.");
+    }
+    if (pedido.detalles.length === 0) {
+        errores.push("Debe agregar al menos un producto al pedido.");
+    } else {
+        pedido.detalles.forEach((detalle, idx) => {
+            if (!detalle.producto_id) {
+                errores.push(`Debe seleccionar un producto en la fila ${idx + 1}`);
+            }
+            if (!detalle.cantidad || detalle.cantidad < 1) {
+                errores.push(
+                    `La cantidad debe ser mayor a 0 en la fila ${idx + 1}`,
+                );
+            }
+        });
+    }
+    return errores;
 }
+
 
 function agregarDetalleReutilizable(
     pedido,
     productoSeleccionado,
     cantidadSeleccionada,
-    precioUnitario,
-    aplicarIva,
-    precioConIva,
+    precioUnitario,//
     subTotal,
     mostrarToastFn,
 ) {
@@ -97,21 +101,19 @@ function agregarDetalleReutilizable(
         producto_id: productoSeleccionado.id,
         cantidad: cantidadSeleccionada,
         precio_unitario: precioUnitario,
-        aplicar_iva: aplicarIva,
-        iva: productoSeleccionado.iva_producto || 0,
-        precio_con_iva: precioUnitario,
         subtotal: subTotal,
     };
     detalles.push(detalle);
+    console.log("Detalle agregado:", detalle);
 
     // Recalcular todos los totales del pedido
-    if (typeof getTotal === 'function') {
+    if (typeof getTotal === "function") {
         pedido.subtotal = getTotal(pedido);
     }
-    if (typeof getTotalAPagar === 'function') {
+    if (typeof getTotalAPagar === "function") {
         pedido.total_a_pagar = getTotalAPagar(pedido);
     }
-    if (typeof getSaldoPendiente === 'function') {
+    if (typeof getSaldoPendiente === "function") {
         pedido.saldo_pendiente = getSaldoPendiente(pedido);
     }
 }
@@ -124,17 +126,17 @@ function actualizarCantidadReutilizable(
     // Recalcular el subtotal del detalle modificado
     const detalle = pedido.detalles[index];
     if (detalle) {
-        detalle.subtotal = detalle.precio_con_iva * detalle.cantidad;
+        detalle.subtotal = detalle.precio_unitario * detalle.cantidad;
     }
 
     // Recalcular todos los totales del pedido
-    if (typeof getTotal === 'function') {
+    if (typeof getTotal === "function") {
         pedido.subtotal = getTotal(pedido);
     }
-    if (typeof getTotalAPagar === 'function') {
+    if (typeof getTotalAPagar === "function") {
         pedido.total_a_pagar = getTotalAPagar(pedido);
     }
-    if (typeof getSaldoPendiente === 'function') {
+    if (typeof getSaldoPendiente === "function") {
         pedido.saldo_pendiente = getSaldoPendiente(pedido);
     }
 
@@ -154,13 +156,13 @@ function removeDetalleReutilizable(pedido, index, setTotalCantidadProductosFn) {
     pedido.detalles.splice(index, 1);
 
     // Recalcular todos los totales del pedido
-    if (typeof getTotal === 'function') {
+    if (typeof getTotal === "function") {
         pedido.subtotal = getTotal(pedido);
     }
-    if (typeof getTotalAPagar === 'function') {
+    if (typeof getTotalAPagar === "function") {
         pedido.total_a_pagar = getTotalAPagar(pedido);
     }
-    if (typeof getSaldoPendiente === 'function') {
+    if (typeof getSaldoPendiente === "function") {
         pedido.saldo_pendiente = getSaldoPendiente(pedido);
     }
 
@@ -174,8 +176,6 @@ function removeDetalleReutilizable(pedido, index, setTotalCantidadProductosFn) {
         );
     }
 }
-
-
 
 // Función reutilizable para validar detalles de un pedido
 function validarDetalles(detalles) {
@@ -195,6 +195,6 @@ function validarDetalles(detalles) {
 window.validarDetalles = validarDetalles;
 window.actualizarCantidadReutilizable = actualizarCantidadReutilizable;
 window.crearPedidoVacio = crearPedidoVacio;
-window.enviarPedidoReutilizable = enviarPedidoReutilizable;
+window.validarRegistros = validarRegistros;
 window.agregarDetalleReutilizable = agregarDetalleReutilizable;
 window.removeDetalleReutilizable = removeDetalleReutilizable;

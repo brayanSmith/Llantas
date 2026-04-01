@@ -64,8 +64,6 @@ class PedidoCalculoService
                 'producto_id' => $detalle['producto_id'],
                 'cantidad' => $detalle['cantidad'] ?? 0,
                 'precio_unitario' => $detalle['precio_unitario'],
-                'aplicar_iva' => $detalle['aplicar_iva'] ?? true,
-                'iva' => $detalle['iva'],
             ]);
 
             $detallesActualizados[] = $detalle;
@@ -105,16 +103,14 @@ class PedidoCalculoService
 
     public static function calcularDetalles(array $data): array
     {
-        $productoId = $data['producto_id'] ?? null;
+       /* $productoId = $data['producto_id'] ?? null;
         $cantidad = (float) ($data['cantidad'] ?? 0);
         $precioUnitario = (float) ($data['precio_unitario'] ?? 0);
-        $aplicarIva = $data['aplicar_iva'] ?? true;
-        $iva = (float) ($data['iva'] ?? 0);
 
         $subtotal = $cantidad * $precioUnitario;
 
         // Si aplicar IVA es true, calcular con IVA
-        if ($aplicarIva && $iva > 0) {
+
             $totalConIva = $subtotal * (1 + ($iva / 100));
             $precioConIva = $precioUnitario * (1 + ($iva / 100));
             $subTotal = round($totalConIva, 2);
@@ -126,7 +122,7 @@ class PedidoCalculoService
         return [
             'subtotal' => $subTotal,
             'precio_con_iva' => $precioConIva
-        ];
+        ];*/
     }
 
     public static function calcularTotalesPedido(array $detalles, array $abonos, float $descuento, float $flete): array

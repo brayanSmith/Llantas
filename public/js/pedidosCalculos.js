@@ -6,7 +6,7 @@ function getPrecio(productoSeleccionado, tipoPrecio) {
     switch (tipoPrecio) {
         case 'DETAL': return prod.valor_detal ?? 0;
         case 'MAYORISTA': return prod.valor_mayorista ?? 0;
-        case 'OTRO': return prod.valor_otro ?? 0;
+        //case 'OTRO': return prod.valor_otro ?? 0;
         default: return prod.valor_detal ?? 0;
     }
 }
@@ -33,7 +33,8 @@ function getTotal(pedido) {
 function getTotalAPagar(pedido) {
     const subtotal = parseFloat(pedido.subtotal) || 0;
     const flete = parseFloat(pedido?.flete) || 0;
-    const totalAPagar = subtotal + flete;
+    const descuento = parseFloat(pedido?.descuento) || 0;
+    const totalAPagar = subtotal + flete - descuento;
     if (pedido) pedido.total_a_pagar = totalAPagar;
     return totalAPagar;
 }

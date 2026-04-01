@@ -169,9 +169,6 @@ class PedidoFormLivewire extends Component implements HasActions, HasSchemas
                 $detalleExistente->update([
                     'cantidad' => $detalle['cantidad'],
                     'precio_unitario' => $detalle['precio_unitario'] ?? 0,
-                    'aplicar_iva' => $detalle['aplicar_iva'],
-                    'iva' => $detalle['iva'] ?? 0,
-                    'precio_con_iva' => $detalle['precio_con_iva'] ?? 0,
                     'subtotal' => $detalle['subtotal'] ?? 0,
                 ]);
             } else {
@@ -179,9 +176,6 @@ class PedidoFormLivewire extends Component implements HasActions, HasSchemas
                     'producto_id' => $detalle['producto_id'],
                     'cantidad' => $detalle['cantidad'],
                     'precio_unitario' => $detalle['precio_unitario'] ?? 0,
-                    'aplicar_iva' => $detalle['aplicar_iva'],
-                    'iva' => $detalle['iva'] ?? 0,
-                    'precio_con_iva' => $detalle['precio_con_iva'] ?? 0,
                     'subtotal' => $detalle['subtotal'] ?? 0,
                 ]);
             }

@@ -42,7 +42,7 @@ class StockCalculoService
         $totalCompras = DetalleCompra::where('producto_id', $productoId)
             ->whereHas('compra', function ($q) use ($bodegaId, $excluirCompraId) {
                 $q->where('bodega_id', $bodegaId)
-                  ->where('estado', 'RECIBIDA');                  
+                  ->where('estado', 'RECIBIDA');
             })
             ->sum('cantidad');
 
@@ -72,9 +72,9 @@ class StockCalculoService
     // Suma las cantidades de DetallePedido
       $totalPedidos = DetallePedido::where('producto_id', $productoId)
             ->whereHas('pedido', function ($q) use ($bodegaId, $excluirVentaId) {
-                $q->where('bodega_id', $bodegaId)
-                  ->whereIn('estado', ['PENDIENTE','FACTURADO','EN_RUTA' ,'ENTREGADO'])
-                  ->where('estado_venta', "VENTA");
+                $q->where('bodega_id', $bodegaId);
+                  //->whereIn('estado', ['PENDIENTE','FACTURADO','EN_RUTA' ,'ENTREGADO'])
+                  //->where('estado_venta', "VENTA");
 
                 if ($excluirVentaId) {
                     $q->where('id', '!=', $excluirVentaId);

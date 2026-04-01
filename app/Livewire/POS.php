@@ -18,9 +18,10 @@ use Filament\Actions\Contracts\HasActions;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
+use Illuminate\Validation\Rules\In;
 
 class POS extends Component implements HasActions, HasSchemas
-    // Escuchar el evento emitido desde JS/Echo
+// Escuchar el evento emitido desde JS/Echo
 
 {
     use InteractsWithActions;
@@ -38,50 +39,89 @@ class POS extends Component implements HasActions, HasSchemas
     public $confirmModalTitle = '';
     public $confirmModalBody = '';
     public array $pucs = [];
+    public array $stock = [];
+    public ?string $tipoPrecio = null;
+    public ?bool $esAdmin = false;
 
     public function mount(): void
     {
         // Si no hay user_id en sesión, usar el usuario logueado
-        if (!$this->userId) { $this->userId = auth()->id();}
+        if (!$this->userId) {
+            $this->userId = auth()->id();
+        }
         $this->empresa = Empresa::first();
         $user = auth()->user();
+        $this->tipoPrecio = $this->tipoDePrecioDeAcuerdoAlRol();
+        $this->esAdmin = $user->hasRole('super_admin');
+        \Log::info('[Livewire] POS mount', [
+            'userId' => $this->userId,
+            'tipoPrecio' => $this->tipoPrecio,
+            'esAdmin' => $this->esAdmin,
+        ]);
         $clientesQuery = Cliente::select(
             'id',
             'razon_social',
             'numero_documento',
             'ciudad',
             'saldo_total_pedidos_en_cartera',
-            'saldo_total_pedidos_vencidos')
+            'saldo_total_pedidos_vencidos'
+        )
             ->where('activo', 1);
-        if (!$user->hasRole('super_admin')) {
+        /*if (!$user->hasRole('super_admin')) {
             $clientesQuery->where('comercial_id', $this->userId);
-        }
+        }*/
         $this->clientes = $clientesQuery->get()->toArray();
-        $this->users = User::select('id', 'name')->get()->toArray();
+        $this->users = User::select('id', 'name')->with('roles')->get()->toArray();
         $this->bodegas = Bodega::select('id', 'nombre_bodega')->get()->toArray();
         $this->alistadores = User::select('id', 'name')->whereHas('roles', function ($query) {
             $query->where('name', 'Logistica');
         })->get()->toArray();
-        $this->productos = $this->getFilteredProductos();
-        /*$this->productos = Producto::select(
+        //$this->productos = $this->getFilteredProductos();
+        $this->productos = Producto::select(
             'id',
             'concatenar_codigo_nombre',
             'valor_detal',
             'valor_mayorista',
             'valor_sin_instalacion',
             'imagen_producto',
-        )->get()->toArray();*/
-        $this->bodegaSeleccionada = 1;
-        //$this->bodegaSeleccionada = $this->empresa->bodega_id;
-        /*if ($user->hasRole('Comercial')) {
-            $this->bodegaSeleccionada = $user->bodega_id;
-        } else {
-            $this->bodegaSeleccionada = 1; // O puedes dejarla en null o asignar una bodega por defecto
-            // Si quieres mostrar todas las bodegas, usa $this->bodegas = Bodega::all()->toArray();
-        }*/
-
+        )->get()->toArray();
+        $this->bodegaSeleccionada = User::select('bodega_id')->where('id', $this->userId)->first()->bodega_id ?? null;
+        $this->stock = $this->obtenerStockPorBodega($this->bodegaSeleccionada);
         $this->pucs = Puc::select('id', 'concatenar_subcuenta_concepto')->get()->toArray();
     }
+
+    public function tipoDePrecioDeAcuerdoAlRol()
+    {
+        $role = User::find($this->userId)->roles()->pluck('name')->first();
+        if (in_array($role, ['super_admin', 'comercial'])) {
+            return 'DETAL';
+        } elseif ($role === 'Comercial x Mayor') {
+            return 'MAYORISTA';
+        }
+        return 'DETAL'; // Valor por defecto
+
+    }
+
+    public function obtenerStockPorBodega($bodegaId)
+    {
+        $this->bodegaSeleccionada = $bodegaId;
+        $productos = Producto::with(['stockBodegas' => function ($query) use ($bodegaId) {
+            $query->where('bodega_id', $bodegaId);
+        }])->get();
+
+        $stockPorProducto = [];
+        foreach ($productos as $producto) {
+            $stockPorProducto[$producto->id] = $producto->stockBodegas->first()->stock ?? 0;
+        }
+
+        \Log::info('[Livewire] obtenerStockPorBodega llamada', [
+            'bodegaId' => $bodegaId,
+            'stockPorProducto' => $stockPorProducto
+        ]);
+
+        return $stockPorProducto;
+    }
+
     protected function getFilteredProductos()
     {
         $empresa = $this->empresa;
@@ -93,14 +133,7 @@ class POS extends Component implements HasActions, HasSchemas
             'valor_mayorista',
             'valor_sin_instalacion',
             'imagen_producto',
-        )/*->where('categoria_producto', '!=', 'MATERIA_PRIMA')
-            ->where('activo', 1);
-        if ($empresa && !$empresa->mostrar_productos_sin_inventario) {
-            $productos = $productosQuery->whereHas('stockBodegas', function ($q) use ($bodega) {
-                $q->where('bodega_id', $bodega)
-                    ->where('stock', '>', 0);
-            });
-        }*/;
+        );
         // Eager loading solo los stocks de la bodega seleccionada
         $productos = $productosQuery->with(['stockBodegas' => function ($q) use ($bodega) {
             $q->where('bodega_id', $bodega);
@@ -141,16 +174,31 @@ class POS extends Component implements HasActions, HasSchemas
         unset($producto);
     }
 
+    //Metodo para generar Turno
+    public function generarTurno(){
+        // Buscar el último turno generado
+        $ultimoPedido = Pedido::whereNotNull('turno')
+            ->orderByDesc('id')
+            ->first();
+        $ultimoTurno = 0;
+        if ($ultimoPedido && preg_match('/TURNO-(\d{4})/', $ultimoPedido->turno, $matches)) {
+            $ultimoTurno = intval($matches[1]);
+        }
+        $nuevoTurno = $ultimoTurno + 1;
+        $turno = 'TURNO-' . str_pad($nuevoTurno, 4, '0', STR_PAD_LEFT);
+        return $turno;
+    }
+
     // Método para guardar pedido y detalles desde Alpine.js
     public function guardarPedido($pedido)
     {
         $nuevoPedido = Pedido::create([
-            'codigo' => $pedido['codigo'],
+            //'codigo' => $pedido['codigo'],
             'cliente_id' => $pedido['cliente_id'],
             'fecha' => empty($pedido['fecha']) ? now()->toDateString() : $pedido['fecha'],
             'estado' => $pedido['estado'],
             'estado_pago' => $pedido['estado_pago'],
-            'tipo_pedido' => $pedido['tipo_pedido'],
+            //'tipo_pedido' => $pedido['tipo_pedido'],
             'tipo_pago' => $pedido['tipo_pago'],
             'tipo_precio' => $pedido['tipo_precio'],
             'id_puc' => $pedido['id_puc'] ?? null,
@@ -165,7 +213,7 @@ class POS extends Component implements HasActions, HasSchemas
             'saldo_pendiente' => $pedido['saldo_pendiente'],
             'user_id' => auth()->id(),
             'aplica_turno' => $pedido['aplica_turno'] ?? false,
-            'turno' => $pedido['turno'] ?? null,
+            'turno' => $pedido['aplica_turno'] ? $this->generarTurno() : null,
         ]);
         $productosAfectados = [];
         foreach ($pedido['detalles'] as $detalle) {
@@ -173,9 +221,6 @@ class POS extends Component implements HasActions, HasSchemas
                 'producto_id' => $detalle['producto_id'],
                 'cantidad' => $detalle['cantidad'],
                 'precio_unitario' => $detalle['precio_unitario'] ?? 0,
-                'aplicar_iva' => $detalle['aplicar_iva'],
-                'iva' => $detalle['iva'] ?? 0,
-                'precio_con_iva' => $detalle['precio_con_iva'] ?? 0,
                 'subtotal' => $detalle['subtotal'] ?? 0,
             ]);
             $productosAfectados[] = $detalle['producto_id'];
@@ -183,10 +228,10 @@ class POS extends Component implements HasActions, HasSchemas
         // Ya no se emite el evento StockActualizado aquí, se maneja desde Alpine.js
 
         // Guardar la URL del PDF en la sesión para mostrar el botón en la modal
-        session(['pedido_pdf_url' => route('pedidos.pdf.download', $nuevoPedido->id)]);
+        session(['pedidoFacturado_pdf_url' => route('pedidosFacturados.pdf.stream', $nuevoPedido->id)]);
         $this->showConfirmModal = true;
         $this->confirmModalTitle = '¡Venta exitosa!';
-        $this->confirmModalBody = 'El pedido fue ingresado exitosamente.';
+        $this->confirmModalBody = 'El pedido fue ingresado exitosamente con el turno ' . ($nuevoPedido->turno ?? 'N/A') . '.';
     }
     public function render(): View
     {
@@ -203,6 +248,8 @@ class POS extends Component implements HasActions, HasSchemas
             'bodegaSeleccionada' => $this->bodegaSeleccionada,
             'userId' => $this->userId,
             'pucs' => $this->pucs,
+            'tipoPrecio' => $this->tipoPrecio,
+            'esAdmin' => $this->esAdmin,
         ]);
         return $view;
     }

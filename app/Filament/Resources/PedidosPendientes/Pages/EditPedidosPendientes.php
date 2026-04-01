@@ -27,7 +27,7 @@ class EditPedidosPendientes extends EditRecord
             //DeleteAction::make(),
             //este solo va a aparece cuando el estado sea igual a PENDIENTE
             Action::make('download_pdf')
-                ->label(fn () => 'Descargar PDF (' . ($this->record->contador_impresiones ?? 0) . ')')
+                ->label(fn () => 'Descargar PDF')
                 //->icon('heroicon-o-document-download')
                 ->url(fn () => route('pedidos.pdf.download', $this->record->id))
                 ->openUrlInNewTab(),

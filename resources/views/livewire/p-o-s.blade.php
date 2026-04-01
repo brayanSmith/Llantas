@@ -2,6 +2,7 @@
 <div class="pos-container">
 
     <div id="alpine-pos-main" x-data="pedidoForm(
+
         @js($clientes),
         @js($alistadores),
         @js($bodegas),
@@ -9,15 +10,26 @@
         @js($users),
         @js($empresa),
         @js($bodegaSeleccionada),
+        @js($stock), // <-- Pasar el stock inicial desde Livewire
         @js($userId),
-        @js($pucs)
+        @js($pucs),
+        null, // pucSeleccionado
+        false, // mostrarModalPago
+        false, // mostrarModalAgregarProducto
+        'agregar', // accionModalAgregarProducto
+        false, // mostrarModalPanelDerecho
+        0, // conCuantoPaga
+        @js($tipoPrecio),
+        @js($esAdmin) // <-- Pasar la variable esAdmin desde Livewire
 
         //pucSeleccionado: null
-
     )" x-init="window.addEventListener('limpiar-catalogos', () => {
         limpiarCacheCatalogos();
         location.reload();
     });
+    //console.log('Stock inicial desde Livewire:', stock);
+    //console.log('prodcutos cargados en Alpine:', productos);
+
     init();" class="space-y-4">
 
         {{-- Toast Notification --}}
@@ -28,9 +40,11 @@
 
         @include('livewire.pos.pos-panel-izquierdo')
         @include('livewire.pos.pos-panel-derecho')
-        @include('livewire.pos.pos-modal-confirmacion-venta')
-        {{-- Esta modal se agrega aqui para que ocupe toda la pantalla --}}
+        {{-- Seccion Modales --}}
+        @include('livewire.pos.pos-modal-agregar-producto')
         @include('livewire.pos.pos-modal-pago')
+        @include('livewire.pos.pos-modal-confirmacion-venta')
+
 
         {{-- Scripts --}}
         <script src="{{ asset('js/pedidos.js') }}"></script>
@@ -49,15 +63,37 @@
                 users = [],
                 empresa = null,
                 bodegaSeleccionada = 1,
-                stockBodegas = [],
+                stock = {}, // <-- Recibe el stock inicial aquí
                 userId = null,
                 pucs = [],
                 pucSeleccionado = null,
-                mostrarModalPago = true,
-                conCuantoPaga = 0) {
+                mostrarModalPago = false,
+                mostrarModalAgregarProducto = false,
+                accionModalAgregarProducto = "agregar",
+                mostrarModalPanelDerecho = false,
+                conCuantoPaga = 0,
+                tipoPrecio = null,
+                esAdmin = false
+
+            ) {
 
                 console.log('bodegaSeleccionada:', bodegaSeleccionada);
+                console.log('tipoPrecio:', tipoPrecio);
+                console.log('esAdmin:', esAdmin);
+                // Exponer el stock globalmente para Alpine
+                if (window.Alpine) {
+                    Alpine.store('pos', {
+                        stock: stock
+                    });
+                } else {
+                    document.addEventListener('alpine:init', () => {
+                        Alpine.store('pos', {
+                            stock: stock
+                        });
+                    });
+                }
                 return {
+                    stock: stock, // <-- Inicializa la variable stock en Alpine.js
                     // --- Funciones para limpiar catálogos cacheados ---
                     // Eliminadas funciones de limpieza de cache localStorage
                     mostrarToast: false,
@@ -72,33 +108,32 @@
                     empresa: empresa,
                     bodegaSeleccionada: bodegaSeleccionada,
                     totalCantidadProductos: 0, // Nueva propiedad reactiva
+
                     productoSeleccionado: null,
                     cantidadSeleccionada: 1,
+                    precioSeleccionado: 0,
+
                     mostrarModalPago: mostrarModalPago,
+                    mostrarModalAgregarProducto: mostrarModalAgregarProducto,
+                    accionModalAgregarProducto: accionModalAgregarProducto,
+                    mostrarModalPanelDerecho: mostrarModalPanelDerecho,
                     conCuantoPaga: conCuantoPaga,
+                    tipoPrecio: tipoPrecio,
+                    esAdmin: esAdmin,
+                    isLoading: false,
 
                     pedido: {
-                        codigo: '',
-                        fe: '',
+                        //codigo: '',
                         cliente_id: null,
                         fecha: '',
-                        dias_plazo_vencimiento: 30,
-                        fecha_vencimiento: '',
-                        ciudad: '',
                         estado: 'PENDIENTE',
-                        stock_retirado: false,
-                        en_cartera: false,
-                        metodo_pago: 'CREDITO',
-                        tipo_precio: 'FERRETERO',
-                        tipo_venta: 'REMISIONADA',
                         estado_pago: 'EN_CARTERA',
-                        estado_cartera: 'CARTERA_AL_DIA',
-                        estado_venta: 'VENTA',
-                        estado_vencimiento: 'AL_DIA',
-                        // Siempre asignar un valor válido a bodega_id
+                        tipo_pago: '',
+                        tipo_precio: tipoPrecio || 'DETAL', // Establecer el tipo de precio inicial basado en el rol del usuario
+                        id_puc: null,
                         bodega_id: bodegaSeleccionada ?? (empresa ? empresa.bodega_id : null),
-                        puc_id: pucSeleccionado ?? null,
-                        primer_comentario: '',
+                        observacion: '',
+                        observacion_pago: '',
                         subtotal: 0,
                         abono: 0,
                         descuento: 0,
@@ -106,12 +141,11 @@
                         total_a_pagar: 0,
                         saldo_pendiente: 0,
                         user_id: userId,
-                        alistador_id: userId,
+                        aplica_turno: false,
+                        turno: null,
                         detalles: [],
-                        created_at: '',
-                        updated_at: '',
-                        iva: 0,
                     },
+
                     init() {
                         const pedidoGuardado = localStorage.getItem('pedidoPOS');
                         if (pedidoGuardado) {
@@ -134,15 +168,25 @@
                                 const producto = this.productos.find(p => p.id === detalle.producto_id);
                                 if (producto) {
                                     const nuevoPrecio = getPrecio(producto, this.pedido.tipo_precio);
-                                    detalle.precio = nuevoPrecio;
-                                    detalle.precio_con_iva = getPrecioConIva(producto, nuevoPrecio, true);
+                                    detalle.precio_unitario = nuevoPrecio;
                                     detalle.subtotal = getSubtotal(nuevoPrecio, detalle.cantidad);
                                 }
+                                console.log('Detalle actualizado por cambio de tipo_precio:', detalle);
                             });
                             // Recalcular totales del pedido después de actualizar precios
-                            this.pedido.subtotal = getTotal(this.pedido);
-                            this.pedido.total_a_pagar = getTotalAPagar(this.pedido);
-                            this.pedido.saldo_pendiente = getSaldoPendiente(this.pedido);
+                            this.calcularTotales();
+                        });
+
+                        this.$watch('pedido.descuento', () => {
+                            this.calcularTotales();
+                        });
+
+                        this.$watch('pedido.flete', () => {
+                            this.calcularTotales();
+                        });
+
+                        this.$watch('pedido.con_cuanto_paga', () => {
+                            this.calcularTotales();
                         });
 
                         // Suscripción a eventos de Echo dentro de Alpine
@@ -162,10 +206,14 @@
                     // Función para modificar el stock de productos, ahora soporta un array de productos con id y stock
                     modificarStockProducto(productosActualizar, nuevoStock = null) {
                         if (Array.isArray(productosActualizar)) {
-                            // Soporta objetos con 'id' o 'producto_id'
                             productosActualizar.forEach(item => {
                                 const id = item.producto_id;
                                 const stock = item.stock;
+                                // Actualiza el store global de Alpine
+                                if (this.$store && this.$store.pos && this.$store.pos.stock) {
+                                    this.$store.pos.stock[id] = stock;
+                                }
+                                // Actualiza el stock en el array de productos locales
                                 const prod = this.productos.find(p => p.id === id);
                                 if (prod) {
                                     prod.stock = stock;
@@ -173,6 +221,9 @@
                             });
                         } else {
                             // Caso original: id y nuevoStock como argumentos
+                            if (this.$store && this.$store.pos && this.$store.pos.stock) {
+                                this.$store.pos.stock[productosActualizar] = nuevoStock;
+                            }
                             const prod = this.productos.find(p => p.id === productosActualizar);
                             if (prod) {
                                 prod.stock = nuevoStock;
@@ -184,113 +235,139 @@
                     get tipoPrecio() {
                         return this.pedido.tipo_precio;
                     },
+
                     // Funciones para manejar los detalles del pedido
-                    agregarDetalle() {
-                        const precio = getPrecio(this.productoSeleccionado, this.pedido.tipo_precio);
-                        const precioConIva = getPrecioConIva(this.productoSeleccionado, precio, true);
-                        const subTotal = getSubtotal(precio, this.cantidadSeleccionada);
+                    agregarDetalle(productoAgregar, cantidadAgregar, precioAgregar) {
+                        if (!cantidadAgregar || cantidadAgregar < 1){
+                            this.mensajeToast = 'La cantidad debe ser al menos 1.';
+                            this.mostrarToast = true;
+                            setTimeout(() => this.mostrarToast = false, 3000);
+                            return;
+                        }
+                        //validar quer no este repetido
+                        const yaExiste = this.pedido.detalles.some(d => d.producto_id === productoAgregar.id);
+                        if (yaExiste) {
+                            this.mensajeToast = 'El producto ya está en el carrito. Edita la cantidad desde el carrito.';
+                            this.mostrarToast = true;
+                            setTimeout(() => this.mostrarToast = false, 3000);
+                            return;
+                        }
 
-                        agregarDetalleReutilizable(
-                            this.pedido,
-                            this.productoSeleccionado,
-                            this.cantidadSeleccionada,
-                            precio,
-                            false,
-                            precio,
-                            subTotal,
-                            (msg) => {
-                                this.mensajeToast = msg;
-                                this.mostrarToast = true;
-                                setTimeout(() => this.mostrarToast = false, 3000);
-                            }
-                        );
-                        const total = getTotal(this.pedido);
+                        const cantidad = parseFloat(cantidadAgregar) || 0;
+                        const precioUnitario = parseFloat(precioAgregar) || 0;
 
-                        console.log('Detalles del pedido:', JSON.parse(JSON.stringify(this.pedido.detalles)));
-                        // Imprimir el array de detalles actualizado
-                        console.log('Detalles del pedido:', this.pedido.detalles);
-                        // Imprimir el total de productos
-                        console.log('Total cantidad productos:', this.totalCantidadProductos);
-                        // Imprimir el producto seleccionado
-                        console.log('Producto seleccionado:', this.productoSeleccionado);
-                        // Imprimir el pedido completo
-                        console.log('Pedido completo:', this.pedido);
-                        // Actualizar total y guardar en memoria después de agregar
-                        this.totalCantidadProductos = this.pedido.detalles.reduce((acc, d) => acc + (parseFloat(d.cantidad) ||
-                            0), 0);
+                        const nuevoDetalle = {
+                            producto_id: productoAgregar.id,
+                            cantidad: cantidad,
+                            precio_unitario: precioUnitario,
+                            subtotal: getSubtotal(precioUnitario, cantidad),
+                        };
+                        this.pedido.detalles.push(nuevoDetalle);
+                        console.log('Detalle agregado:', nuevoDetalle);
+                        this.calcularTotales();
 
-                        this.guardarPedidoEnMemoria();
                     },
+
+                    editarDetalle(index, cantidadAModificar, valorUnitarioAModificar) {
+                        if (!cantidadAModificar || cantidadAModificar < 1){
+                            this.mensajeToast = 'La cantidad debe ser al menos 1.';
+                            this.mostrarToast = true;
+                            setTimeout(() => this.mostrarToast = false, 3000);
+                            return;
+                        }
+                        const cantidad = parseFloat(cantidadAModificar) || 0;
+                        const valorUnitario = parseFloat(valorUnitarioAModificar) || 0;
+
+                        const detalle = this.pedido.detalles[index];
+                        if (detalle) {
+                            detalle.cantidad = cantidad;
+                            detalle.precio_unitario = valorUnitario;
+                            detalle.subtotal = getSubtotal(valorUnitario, cantidad);
+                        }
+                        console.log('Detalle editado:', detalle);
+
+                        this.calcularTotales();
+                    },
+
                     removeDetalle(index) {
-
-                        // Actualizar el stock del producto en la lista de productos antes de eliminar el detalle
-                        const producto = this.productos.find(p => p.id === this.pedido.detalles[index].producto_id);
-                        if (producto) {
-                            producto.stock = changeStockDisplay(producto, this.pedido.detalles[index].cantidad, 'remover');
-                            console.log(`Stock actualizado para producto ${producto.id}: ${producto.stock}`);
-                        }
-
-                        removeDetalleReutilizable(
-                            this.pedido,
-                            index,
-                            (total) => {
-                                this.totalCantidadProductos = total;
-                                this.guardarPedidoEnMemoria();
-                            }
-                        );
-
-                    },
-                    actualizarCantidad(index) {
-                        actualizarCantidadReutilizable(
-                            this.pedido,
-                            index,
-                            (total) => {
-                                this.totalCantidadProductos = total;
-                                // Recalcular todos los totales del pedido
-                                this.pedido.subtotal = getTotal(this.pedido);
-                                this.pedido.total_a_pagar = getTotalAPagar(this.pedido);
-                                this.pedido.saldo_pendiente = getSaldoPendiente(this.pedido);
-                                this.guardarPedidoEnMemoria();
-                            }
-                        );
-                        // Actualizar el stock del producto en la lista de productos después de cambiar la cantidad
-                        const producto = this.productos.find(p => p.id === this.pedido.detalles[index].producto_id);
-                        if (producto) {
-                            producto.stock = changeStockDisplay(producto, this.pedido.detalles[index].cantidad, 'actualizar');
-                            console.log(`Stock actualizado para producto ${producto.id}: ${producto.stock}`);
-                        }
+                        this.pedido.detalles.splice(index, 1);
+                        this.calcularTotales();
 
                     },
 
                     //Funcion para Enviar Pedido
                     enviar() {
-                        enviarPedidoReutilizable(
-                            this.pedido,
-                            (pedido) => {
-                                const payload = {
-                                    productos: pedido.detalles.map(d => ({
-                                        producto_id: d.producto_id,
-                                        bodega_id: pedido.bodega_id
-                                    })),
-                                    bodega_id: pedido.bodega_id
-                                };
-                                console.log('Payload enviado a /api/recalcular-stock:', payload);
-                                // Guardar el pedido primero y luego recalcular el stock por API
-                                this.$wire.guardarPedido(pedido).then(() => {
-                                    // Después de guardar el pedido, recalcula el stock por API
-                                    fetch('/api/recalcular-stock', {
-                                        method: 'POST',
-                                        headers: {
-                                            'Content-Type': 'application/json',
-                                            'Accept': 'application/json',
-                                            'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')
-                                                .content
-                                        },
-                                        body: JSON.stringify(payload)
-                                    });
-                                });
-                            }
-                        );
+                        //console.log('Ejecutando enviar()');
+                        const errores = validarRegistros(this.pedido);
+                        if (errores.length > 0) {
+                            this.mensajeToast = errores.join("\n");
+                            //console.log('Mostrando Toast con mensaje:', this.mensajeToast);
+                            this.mostrarToast = true;
+                            setTimeout(() => this.mostrarToast = false, 3000);
+                            return;
+                        }
+
+                        const pedidoSalida = {
+                            //codigo: this.pedido.codigo,
+                            cliente_id: this.pedido.cliente_id,
+                            fecha: this.pedido.fecha,
+                            estado: this.pedido.estado,
+                            estado_pago: this.pedido.estado_pago,
+                            tipo_pago: this.pedido.tipo_pago,
+                            tipo_precio: this.pedido.tipo_precio,
+                            id_puc: this.pedido.id_puc,
+                            bodega_id: this.pedido.bodega_id,
+                            observacion: this.pedido.observacion,
+                            observacion_pago: this.pedido.observacion_pago,
+                            aplica_turno: this.pedido.aplica_turno,
+                            subtotal: this.pedido.subtotal,
+                            abono: this.pedido.abono,
+                            descuento: this.pedido.descuento,
+                            flete: this.pedido.flete,
+                            total_a_pagar: this.pedido.total_a_pagar,
+                            saldo_pendiente: this.pedido.saldo_pendiente,
+                            detalles: this.pedido.detalles,
+                        }
+                        console.log('Pedido a enviar:', pedidoSalida);
+                        this.isLoading = true;
+                        console.log('Enviando pedido...');
+
+                        const payload = {
+                            productos: pedidoSalida.detalles.map(d => ({
+                                producto_id: d.producto_id,
+                                bodega_id: pedidoSalida.bodega_id
+                            })),
+                            bodega_id: pedidoSalida.bodega_id
+                        };
+                        console.log('Payload enviado a /api/recalcular-stock:', payload);
+                        // Guardar el pedido primero y luego recalcular el stock por API
+                        this.$wire.guardarPedido(pedidoSalida).then(() => {
+                            this.isLoading = false;
+                            this.mostrarModalPago = false;
+                            console.log('Pedido Enviado');
+                            // Después de guardar el pedido, recalcula el stock por API
+                            fetch('/api/recalcular-stock', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content
+                                },
+                                body: JSON.stringify(payload)
+
+
+                            });
+                        });
+                        localStorage.removeItem("pedidoPOS");
+
+                    },
+
+                    tipoPrecio(tipoPrecio) {
+                        if(tipoPrecio === 'DETAL'){
+                            return getPrecio(this.productoSeleccionado, 'DETAL');
+                        }else{
+                            return getPrecio(this.productoSeleccionado, 'MAYORISTA');
+                        }
                     },
 
                     getTotal() {
@@ -304,6 +381,25 @@
                     },
                     getSaldoPendiente() {
                         return getSaldoPendiente(this.pedido);
+                    },
+
+                    getCambio(totalAPagar, conCuantoPaga) {
+                        const cambio = Number(conCuantoPaga) - Number(totalAPagar);
+                        return cambio >= 0 ? cambio : 0;
+                    },
+
+                    calcularTotales() {
+                        this.pedido.subtotal = getTotal(this.pedido);
+                        this.pedido.total_a_pagar = getTotalAPagar(this.pedido);
+                        this.pedido.saldo_pendiente = getSaldoPendiente(this.pedido);
+                        this.pedido.cambio = this.getCambio(this.pedido.total_a_pagar, Number(this.pedido.con_cuanto_paga));
+                        console.log('Totales recalculados:', {
+                            subtotal: this.pedido.subtotal,
+                            total_a_pagar: this.pedido.total_a_pagar,
+                            saldo_pendiente: this.pedido.saldo_pendiente,
+                            con_cuanto_paga: this.pedido.con_cuanto_paga,
+                            cambio: this.pedido.cambio
+                        });
                     },
 
                     // Función para resetear todos los datos del pedido

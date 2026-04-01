@@ -11,12 +11,20 @@
         </div>
     </div>
 
-    <button @click="enviar()" wire:loading.attr="disabled"
+    {{--<button @click="enviar()" wire:loading.attr="disabled"
         class="w-full py-4 bg-green-600 text-white font-bold text-lg rounded-lg
                        transition-colors duration-200 hover:bg-green-700
                        disabled:opacity-50 disabled:cursor-not-allowed shadow-lg mb-3">
         Finalizar Venta
+    </button>--}}
+
+    <button @click="mostrarModalPago = true" wire:loading.attr="disabled"
+        class="w-full py-3 bg-blue-600 text-white font-semibold text-base rounded-lg
+                       transition-colors duration-200 hover:bg-blue-700 shadow-md mb-3 disabled:opacity-50 disabled:cursor-not-allowed">
+        Proceder al Pago
     </button>
+
+
 
     <!-- Botón para limpiar carrito -->
     <button

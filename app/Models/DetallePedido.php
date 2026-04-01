@@ -19,9 +19,6 @@ class DetallePedido extends Model
         'producto_id',
         'cantidad',
         'precio_unitario',
-        'aplicar_iva',
-        'iva',
-        'precio_con_iva',
         'subtotal'
     ];
     public function pedido()

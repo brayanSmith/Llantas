@@ -7,12 +7,9 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class PedidoPDFPendienteController extends Controller
 {
-    public function download($id) 
+    public function download($id)
     {
         $pedido = Pedido::with(['cliente', 'detalles.producto'])->findOrFail($id);
-
-        // incrementar contador de impresiones de forma atómica
-        $pedido->increment('contador_impresiones');
 
         // Ordenar detalles por ubicación y código de producto
         $detallesOrdenados = $pedido->detalles->sortBy([
@@ -33,8 +30,6 @@ class PedidoPDFPendienteController extends Controller
     {
         $pedido = Pedido::with(['cliente', 'detalles.producto'])->findOrFail($id);
 
-        // incrementar contador de impresiones de forma atómica
-        $pedido->increment('contador_impresiones');
 
         // Ordenar detalles por ubicación y código de producto
         $detallesOrdenados = $pedido->detalles->sortBy([
