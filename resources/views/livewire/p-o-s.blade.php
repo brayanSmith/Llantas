@@ -4,7 +4,6 @@
     <div id="alpine-pos-main" x-data="pedidoForm(
 
         @js($clientes),
-        @js($alistadores),
         @js($bodegas),
         @js($productos),
         @js($users),
@@ -28,7 +27,7 @@
         location.reload();
     });
     //console.log('Stock inicial desde Livewire:', stock);
-    //console.log('prodcutos cargados en Alpine:', productos);
+    console.log('prodcutos cargados en Alpine:', productos);
 
     init();" class="space-y-4">
 
@@ -57,7 +56,6 @@
         <script>
             function pedidoForm(
                 clientes = [],
-                alistadores = [],
                 bodegas = [],
                 productos = [],
                 users = [],
@@ -101,7 +99,6 @@
                     error: '',
                     success: '',
                     clientes: clientes,
-                    alistadores: alistadores,
                     bodegas: bodegas,
                     productos: productos,
                     users: users,

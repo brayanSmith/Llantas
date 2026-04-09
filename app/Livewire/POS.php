@@ -29,7 +29,6 @@ class POS extends Component implements HasActions, HasSchemas
 
     public array $clientes = [];
     public array $users = [];
-    public array $alistadores = [];
     public array $bodegas = [];
     public array $productos = [];
     public ?Empresa $empresa = null;
@@ -73,9 +72,6 @@ class POS extends Component implements HasActions, HasSchemas
         $this->clientes = $clientesQuery->get()->toArray();
         $this->users = User::select('id', 'name')->with('roles')->get()->toArray();
         $this->bodegas = Bodega::select('id', 'nombre_bodega')->get()->toArray();
-        $this->alistadores = User::select('id', 'name')->whereHas('roles', function ($query) {
-            $query->where('name', 'Logistica');
-        })->get()->toArray();
         //$this->productos = $this->getFilteredProductos();
         $this->productos = Producto::select(
             'id',
@@ -85,7 +81,10 @@ class POS extends Component implements HasActions, HasSchemas
             'valor_mayorista',
             'valor_sin_instalacion',
             'imagen_producto',
-        )->get()->toArray();
+        )
+        ->with(['stockBodegas' ])
+        ->get()
+        ->toArray();
         $this->bodegaSeleccionada = User::select('bodega_id')->where('id', $this->userId)->first()->bodega_id ?? null;
         $this->stock = $this->obtenerStockPorBodega($this->bodegaSeleccionada);
         $this->pucs = Puc::select('id', 'concatenar_subcuenta_concepto')->get()->toArray();
@@ -197,8 +196,8 @@ class POS extends Component implements HasActions, HasSchemas
             //'codigo' => $pedido['codigo'],
             'cliente_id' => $pedido['cliente_id'],
             'fecha' => empty($pedido['fecha']) ? now()->toDateString() : $pedido['fecha'],
-            'estado' => $pedido['estado'],
-            'estado_pago' => $pedido['estado_pago'],
+            'estado' => ($pedido['tipo_pago'] === 'APARTADO' || $pedido['tipo_pago'] === 'CONTADO') ? 'COMPLETADO' : 'PENDIENTE',
+            'estado_pago' => $pedido['saldo_pendiente'] > 1000 ? 'EN_CARTERA' : 'SALDADO',
             //'tipo_pedido' => $pedido['tipo_pedido'],
             'tipo_pago' => $pedido['tipo_pago'],
             'tipo_precio' => $pedido['tipo_precio'],
@@ -211,7 +210,9 @@ class POS extends Component implements HasActions, HasSchemas
             'flete' => $pedido['flete'],
             'total_a_pagar' => $pedido['total_a_pagar'],
             'abono' => $pedido['abono'],
-            'saldo_pendiente' => $pedido['saldo_pendiente'],
+
+            'saldo_pendiente' => $pedido['abono'] < $pedido['total_a_pagar'] ? $pedido['total_a_pagar'] - $pedido['abono'] : 0,
+
             'user_id' => auth()->id(),
             'aplica_turno' => $pedido['aplica_turno'] ?? false,
             'turno' => $pedido['aplica_turno'] ? $this->generarTurno() : null,
@@ -249,7 +250,6 @@ class POS extends Component implements HasActions, HasSchemas
         $clientes = request()->has('clientes_cargados') ? [] : $this->clientes;
         $view = view('livewire.p-o-s', [
             'clientes' => $clientes,
-            'alistadores' => $this->alistadores,
             'bodegas' => $this->bodegas,
             'productos' => $productos,
             'users' => $this->users,

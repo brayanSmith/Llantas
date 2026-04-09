@@ -69,6 +69,8 @@
                                         Stock restante:
                                         <strong x-text="stockRestante"></strong>
                                     </span>
+
+
                                 </p>
                             </div>
 

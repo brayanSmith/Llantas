@@ -29,7 +29,7 @@
                     <th class="px-4 py-2 text-center text-xs font-semibold text-gray-700 dark:text-gray-200 w-[15%]">
                         Subtotal
                     </th>
-                    <th class="px-4 py-2 text-center text-xs font-semibold text-gray-700 dark:text-gray-200 w-[20%]">
+                    <th x-show="!soloLectura" class="px-4 py-2 text-center text-xs font-semibold text-gray-700 dark:text-gray-200 w-[20%]">
                         Acciones
                     </th>
                 </tr>
@@ -64,7 +64,7 @@
                                     minimumFractionDigits: 2
                                 })" />
                         </td>
-                        <td class="px-4 py-2">
+                        <td x-show="!soloLectura" class="px-4 py-2">
                             <div class="flex items-center justify-center gap-2">
                                 <button type="button" @click="traerDetalle(index)"
                                     class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded shadow transition text-sm">Editar

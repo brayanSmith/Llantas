@@ -32,7 +32,7 @@ class PedidosTable
         return $table
         ->striped()
             ->modifyQueryUsing(function ($query) {
-                $query->where('estado_venta', 'VENTA');
+                //$query->where('estado_venta', 'VENTA');
                 // Si el usuario no es super_admin, mostrar solo sus pedidos
                 if (!auth()->user()->hasRole(['super_admin','Financiero','Logistica'])) {
                     $query->where('user_id', auth()->id());
@@ -45,21 +45,14 @@ class PedidosTable
                 /*Group::make('fecha')
                     ->date()
                     ->collapsible(),*/
-                Group::make('cliente.ruta.ruta')
-                    ->collapsible(),
-            ])->defaultGroup('cliente.ruta.ruta')
+            ])
 
             ->columns([
                 ...HasPedidoTable::tableColumns(),
             ])
             ->filters([
                 // Filtro por Ruta
-                SelectFilter::make('cliente.ruta_id')
-                    ->label('Ruta')
-                    ->relationship('cliente.ruta', 'ruta')
-                    ->searchable()
-                    ->preload()
-                    ->multiple(),
+
 
                 // Filtro por Cliente
                 SelectFilter::make('cliente_id')

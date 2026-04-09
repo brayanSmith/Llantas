@@ -26,19 +26,9 @@ class ListPedidos extends ListRecords
             ->modifyQueryUsing(fn (EloquentBuilder $query) => $query->where('estado', 'PENDIENTE')),
             //->badge(fn () => \App\Models\Pedido::where('estado', 'PENDIENTE')->count()),
 
-        'FACTURADO' => Tab::make()
-            ->modifyQueryUsing(fn (EloquentBuilder $query) => $query->where('estado', 'FACTURADO')),
-           // ->badge(fn () => \App\Models\Pedido::where('estado', 'FACTURADO')->count()),
-        'ENTREGADO' => Tab::make()
-            ->modifyQueryUsing(fn (EloquentBuilder $query) => $query->where('estado', 'ENTREGADO')),
-           // ->badge(fn () => \App\Models\Pedido::where('estado', 'ENTREGADO')->count()),
-        'DEVUELTO' => Tab::make()
-            ->modifyQueryUsing(fn (EloquentBuilder $query) => $query->where('estado', 'DEVUELTO')),
-           // ->badge(fn () => \App\Models\Pedido::where('estado', 'DEVUELTO')->count()),
-
-        'ANULADO' => Tab::make()
-            ->modifyQueryUsing(fn (EloquentBuilder $query) => $query->where('estado', 'ANULADO')),
-           // ->badge(fn () => \App\Models\Pedido::where('estado', 'ANULADO')->count()),
+        'COMPLETADO' => Tab::make()
+            ->modifyQueryUsing(fn (EloquentBuilder $query) => $query->where('estado', 'COMPLETADO')),
+           // ->badge(fn () => \App\Models\Pedido::where('estado', 'COMPLETADO')->count()),
     ];
 }
 

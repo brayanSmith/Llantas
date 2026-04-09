@@ -2,42 +2,13 @@
     class="fixed inset-0 flex items-center justify-center z-50 bg-black/40 dark:bg-black/60 backdrop-blur-sm">
     <div class="bg-white dark:bg-neutral-900 p-6 rounded shadow-lg w-full max-w-md mx-2">
 
-        {{-- ...Metodo de Pago... --}}
-        <div class="mt-4">
-            <span class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Método de Pago:</span>
-            <div class="inline-flex rounded-base shadow-xs -space-x-px" role="group">
-                <button type="button"
-                    :class="pedido.tipo_pago === 'APARTADO' ?
-                        'bg-blue-600 text-white border-blue-600' :
-                        'text-body bg-neutral-primary-soft border border-default hover:bg-neutral-secondary-medium hover:text-heading'"
-                    class="font-medium leading-5 rounded-s-base text-sm px-3 py-2 focus:outline-none"
-                    @click="pedido.tipo_pago = 'APARTADO'">
-                    APARTADO
-                </button>
-                <button type="button"
-                    :class="pedido.tipo_pago === 'CONTADO' ?
-                        'bg-blue-600 text-white border-blue-600' :
-                        'text-body bg-neutral-primary-soft border border-default hover:bg-neutral-secondary-medium hover:text-heading'"
-                    class="font-medium leading-5 rounded-e-base text-sm px-3 py-2 focus:outline-none"
-                    @click="pedido.tipo_pago = 'CONTADO'">
-                    CONTADO
-                </button>
-                <button type="button"
-                    :class="pedido.tipo_pago === 'CONTRA_ENTREGA' ?
-                        'bg-blue-600 text-white border-blue-600' :
-                        'text-body bg-neutral-primary-soft border border-default hover:bg-neutral-secondary-medium hover:text-heading'"
-                    class="font-medium leading-5 rounded-e-base text-sm px-3 py-2 focus:outline-none"
-                    @click="pedido.tipo_pago = 'CONTRA_ENTREGA'">
-                    CONTRA ENTREGA
-                </button>
-            </div>
-        </div>
         {{-- Puc --}}
         <div class="flex justify-between items-center gap-3">
             <x-select-dinamico label="Medio de Pago" placeholder="Seleccione un medio de pago..." model="pedido.id_puc"
                 x-model="pedido.id_puc" :options="$pucs" idKey="id" textKey="concatenar_subcuenta_concepto"
                 selectId="select-puc" />
         </div>
+
         {{-- Descuento --}}
         <div class="flex justify-between items-center gap-3 mt-4">
             <label for="descuento"
@@ -62,13 +33,11 @@
                 <span>Total a Pagar:</span>
                 <span>COP:
                     <span
-                        x-text="getTotalAPagar().toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })">
+                        x-text="Number(pedido.total_a_pagar).toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 2 })">
                     </span>
                 </span>
             </div>
         </div>
-
-        <div x-show="pedido.tipo_pago !== ''">
             {{-- Con cuanto paga --}}
             <div class="flex justify-between items-center gap-3 mt-4">
                 <label for="con-cuanto-paga"
@@ -94,7 +63,7 @@
                     </span>
                 </div>
             </div>
-        </div>
+
 
         {{-- Comentario Pago --}}
         <div class="mt-6 pt-6 border-t border-gray-200 dark:border-neutral-700">

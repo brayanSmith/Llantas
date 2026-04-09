@@ -8,45 +8,26 @@
     abonoSeleccionado: null,
 
     pedido: @js($pedidoEncontrado),
-    abonos: @js($abonos),
+    //abonos: @js($abonos),
     clientes: @js($clientes),
     bodegas: @js($bodegas),
-    alistadores: @js($alistadores),
     users: @js($users),
     productos: @js($productos),
-    detalles: @js($detalles)
+    detalles: @js($detalles),
+    pucs: @js($pucs),
+    soloLectura: @js($soloLectura),
+
 })" x-init="init()" class="space-y-4">
 
-    <div
-        class="flex items-center justify-center gap-4 bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6 mb-6">
-        <label class="block text-sm font-semibold text-gray-700 mb-0 text-center whitespace-nowrap">Estado Venta</label>
-        <div class="flex gap-4">
-            <label class="inline-flex items-center cursor-pointer">
-                <input type="radio" x-model="pedido.estado_venta" value="COTIZACION"
-                    class="form-radio text-blue-600 focus:ring-blue-400" />
-                <span class="ml-2">COTIZACION</span>
-            </label>
-            <label class="inline-flex items-center cursor-pointer">
-                <input type="radio" x-model="pedido.estado_venta" value="VENTA"
-                    class="form-radio text-blue-600 focus:ring-blue-400" />
-                <span class="ml-2">VENTA</span>
-            </label>
-        </div>
-    </div>
-
-    <div x-show="pedido.estado_venta !== 'COTIZACION'">
+    <div>
         @include('livewire.pedidos.livewire-pedidos-seccion-general')
-    </div>
-
-    <div x-show="pedido.estado_venta === 'COTIZACION'">
-        @include('livewire.pedidos.livewire-pedidos-seccion-general-cotizacion')
     </div>
 
     <div x-show="pedido.abonos && pedido.abonos.length > 0" class="space-y-4">
         @include('livewire.pedidos.livewire-pedidos-seccion-abonos')
     </div>
 
-    <div class="sticky top-16 z-10">
+    <div x-show="!soloLectura" class="sticky top-16 z-10">
         @include('livewire.pedidos.livewire-pedidos-seccion-detalle-agregar')
     </div>
 
@@ -58,7 +39,7 @@
         class="sticky bottom-0 left-0 w-full z-30 bg-white/80 dark:bg-gray-900/80 backdrop-blur border-t border-gray-200 dark:border-gray-700 shadow-lg flex flex-col items-center py-4 space-y-2 transition-colors duration-300">
         @include('livewire.pedidos.livewire-pedidos-seccion-resumen')
     </div>
-    @include('livewire.pedidos.pedido-modal-venta')
+    @include('livewire.pedidos.livewire-pedidos-modal-pago')
     @include('livewire.pedidos.componentes.livewire-pedidos-modal-abonos')
 </div>
 
@@ -81,8 +62,7 @@
         pedido,
         clientes,
         bodegas,
-        abonos,
-        alistadores,
+        //abonos,
         users,
         productos,
         detalles,
@@ -91,14 +71,17 @@
         subTotalIngresado = 0,
         productoIngresado = null,
         nuevoMontoAbono = 0,
-        abonoSeleccionado = null
+        abonoSeleccionado = null,
+        pucs,
+        soloLectura = false,
+        mostrarModalPago = false,
+
     }) {
         return {
             pedido,
-            abonos,
+            //abonos,
             clientes,
             bodegas,
-            alistadores,
             users,
             productos,
             detalles,
@@ -113,16 +96,34 @@
             productoSeleccionado: null,
             cantidadSeleccionada: 1,
             isLoading: false,
+            pucs,
+            soloLectura,
+            mostrarModalPago: mostrarModalPago,
             init() {
+                console.log('soloLectura:', this.soloLectura);
                 console.log('Datos del pedido:', this.pedido);
-                console.log('Abonos del pedido:', this.pedido.abonos);
-                console.log('Total de abonos:', this.pedido.abonos?.reduce((acc, abono) => acc + parseFloat(abono.monto || 0), 0));
+                //console.log('Abonos del pedido:', this.pedido.abonos);
+                /*console.log('Total de abonos:', this.pedido.abonos?.reduce((acc, abono) => acc + parseFloat(abono
+                    .monto || 0), 0));*/
 
                 // Recalcular el abono total basándose en los abonos reales
-                if (this.pedido.abonos && Array.isArray(this.pedido.abonos)) {
-                    this.pedido.abono = this.pedido.abonos.reduce((acc, abono) => acc + parseFloat(abono.monto || 0), 0);
+                /*if (this.pedido.abonos && Array.isArray(this.pedido.abonos)) {
+                    this.pedido.abono = this.pedido.abonos.reduce((acc, abono) => acc + parseFloat(abono.monto || 0),
+                    0);
                     console.log('Abono recalculado:', this.pedido.abono);
-                }
+                }*/
+
+                this.$watch('pedido.descuento', () => {
+                            this.calcularTotales();
+                        });
+
+                        this.$watch('pedido.flete', () => {
+                            this.calcularTotales();
+                        });
+
+                        this.$watch('pedido.con_cuanto_paga', () => {
+                            this.calcularTotales();
+                        });
 
                 // Asegurar que flete y descuento sean números
                 this.pedido.flete = parseFloat(this.pedido.flete) || 0;
@@ -137,8 +138,6 @@
                     producto_id: String(detalle.producto_id),
                     cantidad: detalle.cantidad,
                     precio_unitario: detalle.precio_unitario,
-                    aplicar_iva: false,
-                    precio_con_iva: detalle.precio_unitario,
                     subtotal: detalle.cantidad * detalle.precio_unitario
                 }));
 
@@ -155,12 +154,7 @@
                     if (selectBodega && this.pedido.bodega_id !== undefined && this.pedido.bodega_id !== null) {
                         selectBodega.value = this.pedido.bodega_id;
                     }
-                    // Alistador
-                    const selectAlistador = document.querySelector('select[x-model="pedido.alistador_id"]');
-                    if (selectAlistador && this.pedido.alistador_id !== undefined && this.pedido
-                        .alistador_id !== null) {
-                        selectAlistador.value = this.pedido.alistador_id;
-                    }
+
                     // Usuario
                     const selectUsuario = document.querySelector('select[x-model="pedido.user_id"]');
                     if (selectUsuario && this.pedido.user_id !== undefined && this.pedido.user_id !== null) {
@@ -171,8 +165,6 @@
                         producto_id: String(detalle.producto_id),
                         cantidad: detalle.cantidad,
                         precio_unitario: detalle.precio_unitario,
-                        aplicar_iva: false,
-                        precio_con_iva: detalle.precio_unitario,
                         subtotal: detalle.cantidad * detalle.precio_unitario
                     }));
                 });
@@ -209,7 +201,6 @@
                     producto_id: productoId,
                     cantidad: cantidadNum,
                     precio_unitario: valorUnitarioNum,
-                    aplicar_iva: false,
                     subtotal: subTotalCalculado
                 });
 
@@ -248,10 +239,11 @@
                 console.log('Estado del objeto pedido al remover detalle:', this.pedido);
             },
             //Funcion para Remover Algun Abono
-            removeAbono(index) {
+            /*removeAbono(index) {
                 this.pedido.abonos.splice(index, 1);
                 // Recalcular el monto total de abonos
-                const montoTotalAbonos = this.pedido.abonos.reduce((acc, abono) => acc + parseFloat(abono.monto || 0), 0);
+                const montoTotalAbonos = this.pedido.abonos.reduce((acc, abono) => acc + parseFloat(abono.monto || 0),
+                    0);
                 this.pedido.abono = montoTotalAbonos;
 
                 // Recalcular saldo pendiente y estado de pago
@@ -259,7 +251,7 @@
                 this.pedido.estado_pago = this.pedido.saldo_pendiente <= 0 ? 'SALDADO' : 'EN_CARTERA';
 
                 console.log('Estado del objeto pedido al remover abono:', this.pedido);
-            },
+            },*/
             // Funcion para Seleccionar un Abono
             selectAbono(abono) {
                 this.abonoSeleccionado = abono;
@@ -270,8 +262,8 @@
                 try {
                     // El abono ya está actualizado en tiempo real por x-model
                     // Solo recalcular totales
-                    const montoTotalAbonos = this.pedido.abonos.reduce((acc, a) => acc + parseFloat(a.monto || 0), 0);
-                    this.pedido.abono = montoTotalAbonos;
+                    //const montoTotalAbonos = this.pedido.abonos.reduce((acc, a) => acc + parseFloat(a.monto || 0), 0);
+                    //this.pedido.abono = montoTotalAbonos;
                     this.pedido.saldo_pendiente = this.pedido.total_a_pagar - this.pedido.abono;
                     this.pedido.estado_pago = this.pedido.saldo_pendiente <= 0 ? 'SALDADO' : 'EN_CARTERA';
 
@@ -328,7 +320,6 @@
                 detalle.producto_id = productoId;
                 detalle.cantidad = parseFloat(cantidad) || 0;
                 detalle.precio_unitario = parseFloat(valorUnitario) || 0;
-                detalle.precio_con_iva = valorUnitarioNum;
                 detalle.subtotal = subTotalCalculado;
 
                 // Actualizar subtotal y total_a_pagar del pedido
@@ -353,7 +344,7 @@
                 console.log('Estado del objeto pedido al actualizar detalle:', this.pedido);
             },
             //Funcion para Actualizar Valores del Abono
-            actualizarValoresAbono(index, formaPagoId, monto, descripcion, fecha, imagen) {
+            /*actualizarValoresAbono(index, formaPagoId, monto, descripcion, fecha, imagen) {
                 const abono = this.pedido.abonos[index];
                 if (!formaPagoId) {
                     alert('Debe seleccionar una forma de pago');
@@ -370,7 +361,8 @@
                 abono.imagen = imagen || null;
 
                 // Recalcular el monto total de abonos
-                const montoTotalAbonos = this.pedido.abonos.reduce((acc, abono) => acc + parseFloat(abono.monto || 0), 0);
+                const montoTotalAbonos = this.pedido.abonos.reduce((acc, abono) => acc + parseFloat(abono.monto || 0),
+                    0);
                 this.pedido.abono = montoTotalAbonos;
 
                 // Recalcular saldo pendiente y estado de pago
@@ -378,7 +370,7 @@
                 this.pedido.estado_pago = this.pedido.saldo_pendiente <= 0 ? 'SALDADO' : 'EN_CARTERA';
 
                 console.log('Estado del objeto pedido al actualizar abono:', this.pedido);
-            },
+            },*/
 
             //Funcion para Obtener Precio Segun Tipo
             getPrecio(detalle, tipoPrecio) {
@@ -386,11 +378,11 @@
                 if (!prod) return 0;
                 switch (this.tipoPrecio) {
                     case 'MAYORISTA':
-                        return prod.valor_mayorista_producto ?? 0;
-                    case 'FERRETERO':
-                        return prod.valor_ferretero_producto ?? 0;
+                        return prod.valor_mayorista ?? 0;
+                    case 'DETAL':
+                        return prod.valor_detal ?? 0;
                     default:
-                        return prod.valor_detal_producto ?? 0;
+                        return prod.valor_detal ?? 0;
                 }
             },
             //PRECIOS PARA EL AGREGADOR PRINCIPAL------------------------------------------
@@ -400,28 +392,20 @@
                 if (!prod) return 0;
                 switch (tipoPrecio) {
                     case 'MAYORISTA':
-                        precioUnitario = prod.valor_mayorista_producto ?? 0;
+                        precioUnitario = prod.valor_mayorista ?? 0;
                         break;
-                    case 'FERRETERO':
-                        precioUnitario = prod.valor_ferretero_producto ?? 0;
+                    case 'DETAL':
+                        precioUnitario = prod.valor_detal ?? 0;
                         break;
                     default:
-                        precioUnitario = prod.valor_detal_producto ?? 0;
+                        precioUnitario = prod.valor_detal ?? 0;
                 }
                 //console.log('Precio unitario obtenido para productoId', productoId, 'tipoPrecio', tipoPrecio, ':', precioUnitario);
                 return precioUnitario;
             },
             //----------------------------------------------------------------------------
 
-            //Funcion para Obtener Precio con IVA
-            getPrecioConIva(detalle, tipoPrecio) {
-                const prod = this.productos.find(p => p.id == detalle.producto_id);
-                let precio = detalle.precio_unitario || this.getPrecio(detalle, tipoPrecio);
-                if (detalle.aplicar_iva && prod && prod.iva_producto) {
-                    precio = precio * (1 + prod.iva_producto / 100);
-                }
-                return Math.round(precio * 100) / 100;
-            },
+
             //Funcion para Obtener Subtotal
             getSubtotal(detalle) {
                 // Usar el precio_unitario que ya está en el detalle, no buscar uno nuevo
@@ -437,7 +421,6 @@
                     this.pedido.detalles.forEach((detalle, index) => {
                         // Actualizar precios según el tipo de precio
                         detalle.precio_unitario = this.getPrecio(detalle, this.tipoPrecio);
-                        detalle.precio_con_iva = this.getPrecio(detalle, this.tipoPrecio);
                         detalle.subtotal = this.getSubtotal(detalle);
                     });
                 }
@@ -450,8 +433,35 @@
             getTotalFinal(pedido) {
                 if (!pedido || !Array.isArray(pedido.detalles)) return 0;
                 // tu lógica aquí, por ejemplo:
-                return this.getTotal(pedido) + (pedido.flete || 0) - (pedido.descuento || 0);
+                return this.getTotal(pedido) + parseFloat(pedido.flete || 0) - parseFloat(pedido.descuento || 0);
             },
+
+            getTotalAPagar() {
+                return getTotalAPagar(this.pedido);
+            },
+            getSaldoPendiente() {
+                return getSaldoPendiente(this.pedido);
+            },
+
+            getCambio(totalAPagar, conCuantoPaga) {
+                const cambio = Number(conCuantoPaga) - Number(totalAPagar);
+                return cambio >= 0 ? cambio : 0;
+            },
+
+            getAbono(totalAPagar, conCuantoPaga) {
+                const abono = Number(conCuantoPaga) >= Number(totalAPagar) ? totalAPagar : conCuantoPaga;
+                return abono >= 0 ? abono : 0;
+            },
+
+            calcularTotales() {
+                this.pedido.subtotal = this.getTotal(this.pedido);
+                this.pedido.total_a_pagar = this.getTotalAPagar();
+                this.pedido.saldo_pendiente = this.getSaldoPendiente();
+                this.pedido.cambio = this.getCambio(this.pedido.total_a_pagar, Number(this.pedido.con_cuanto_paga));
+                this.pedido.abono = this.getAbono(this.pedido.total_a_pagar, Number(this.pedido.con_cuanto_paga));
+                //this.pedido.estado_pago = this.pedido.saldo_pendiente <= 0 ? 'SALDADO' : 'EN_CARTERA';
+            },
+
 
             //Funcion para Validar Detalles
             validarDetalles() {
@@ -491,10 +501,8 @@
                 if (Array.isArray(this.pedido.detalles)) {
                     this.pedido.detalles.forEach((detalle, idx) => {
                         // Si el usuario modificó manualmente el precio_unitario, se respeta
-                        // pero siempre recalculamos precio_con_iva y subtotal
+
                         detalle.precio_unitario = detalle.precio_unitario ?? this.getPrecio(detalle, this
-                            .tipoPrecio);
-                        detalle.precio_con_iva = detalle.precio_unitario ?? this.getPrecio(detalle, this
                             .tipoPrecio);
                         detalle.subtotal = this.getSubtotal(detalle);
                     });

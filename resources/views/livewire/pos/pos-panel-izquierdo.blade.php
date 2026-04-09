@@ -15,18 +15,23 @@
                 <label>
                     <input type="radio" :value="bodega.id" x-model="bodegaSeleccionada"
                         @change="
-                    pedido.bodega_id = bodegaSeleccionada;
-                    $wire.obtenerStockPorBodega(bodegaSeleccionada).then(data => {
-                        stock = data;
-                        if (window.Alpine && Alpine.store('pos')) {
-                            Alpine.store('pos').stock = data;
-                        }
-                    })
-                ">
+                            console.log('Bodega seleccionada:', bodegaSeleccionada);
+                            pedido.bodega_id = bodegaSeleccionada;
+                            $wire.obtenerStockPorBodega(bodegaSeleccionada).then(data => {
+                                stock = data;
+                                if (window.Alpine && Alpine.store('pos')) {
+                                    Alpine.store('pos').stock = data;
+                                }
+                            })
+                        "
+                    >
                     <span x-text="bodega.nombre_bodega"></span>
                 </label>
             </template>
             </div>
+
+            <!-- Seleccionador de Bodega con alpine.js -->
+            
 
             <!-- Buscador -->
             @include('livewire.pos.componentes-panel-izquierdo.buscador-productos')

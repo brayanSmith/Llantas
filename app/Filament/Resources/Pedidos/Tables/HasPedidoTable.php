@@ -5,12 +5,16 @@ namespace App\Filament\Resources\Pedidos\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use App\Filament\Tables\Columns\DescargarPdfColumn;
+use Dom\Text;
 
 class HasPedidoTable
 {
     public static function tableColumns(): array
     {
         return [
+            TextColumn::make('id')
+                ->label('ID')
+                ->sortable(),
             TextColumn::make('estado')
                 ->label('Estado')
                 ->sortable(),
@@ -52,9 +56,6 @@ class HasPedidoTable
                 ->numeric(2, ",", ".", 2)
 
                 //->money('COP', true,0,2)
-                ->sortable(),
-            TextColumn::make('cliente.ruta.ruta')
-                ->label('Ruta')
                 ->sortable(),
             TextColumn::make('user.name')
                 ->label('Vendedor')

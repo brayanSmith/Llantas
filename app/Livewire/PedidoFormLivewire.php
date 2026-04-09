@@ -3,24 +3,24 @@
 namespace App\Livewire;
 
 
-use App\Models\User;
-
-use App\Models\Bodega;
-use App\Models\Pedido;
 use App\Models\Abono;
+use App\Models\Bodega;
 use App\Models\Cliente;
-use App\Models\Empresa;
-use Livewire\Component;
-use App\Models\Producto;
-use App\Models\StockBodega;
-use Filament\Schemas\Schema;
 use App\Models\DetallePedido;
+use App\Models\Empresa;
+use App\Models\Pedido;
+use App\Models\Producto;
+use App\Models\Puc;
+use App\Models\StockBodega;
+use App\Models\User;
+use Filament\Actions\Concerns\InteractsWithActions;
+use Filament\Actions\Contracts\HasActions;
+use Filament\Schemas\Concerns\InteractsWithSchemas;
+use Filament\Schemas\Contracts\HasSchemas;
+use Filament\Schemas\Schema;
 use Illuminate\Contracts\View\View;
 use Livewire\Attributes\On;
-use Filament\Actions\Contracts\HasActions;
-use Filament\Schemas\Contracts\HasSchemas;
-use Filament\Actions\Concerns\InteractsWithActions;
-use Filament\Schemas\Concerns\InteractsWithSchemas;
+use Livewire\Component;
 
 class PedidoFormLivewire extends Component implements HasActions, HasSchemas
 {
@@ -29,7 +29,6 @@ class PedidoFormLivewire extends Component implements HasActions, HasSchemas
 
     public array $clientes = [];
     public array $users = [];
-    public array $alistadores = [];
     public array $bodegas = [];
     public array $productos = [];
     public ?Empresa $empresa = null;
@@ -41,28 +40,43 @@ class PedidoFormLivewire extends Component implements HasActions, HasSchemas
     public ?Pedido $pedido = null;
     public array $detalles = [];
     public array $abonos = [];
+    public array $pucs = [];
+    public bool $soloLectura = true;
 
     public function mount(): void
+
     {
         $pedidoId = request()->get('pedido_id');
         if ($pedidoId) {
             // Cargar la relación bodega junto con el pedido
-            $this->pedido = Pedido::with('bodega', 'detalles', 'user', 'alistador', 'cliente', 'abonos.formaPago', 'abonos.user')->find($pedidoId);
+            $this->pedido = Pedido::with('bodega', 'detalles', 'user', 'alistador', 'cliente', 'abonos.formaPago', 'abonos.user', 'puc')->find($pedidoId);
         }
+        \Log::info('[Livewire] Pedido cargado en mount', ['pedido' => $this->pedido]);
         $this->detalles = DetallePedido::where('pedido_id', $pedidoId)->get()->toArray();
         $this->abonos = $this->pedido?->abonos->toArray() ?? [];
         // Log para saber que el formulario fue cargado
         // Si no hay user_id en sesión, usar el usuario logueado
-        if (!$this->userId) { $this->userId = auth()->id();}
+        if (!$this->userId) {
+            $this->userId = auth()->id();
+        }
+
+
         $this->empresa = Empresa::first();
         $user = auth()->user();
+
+        $this->soloLectura = true;
+        if ($user->hasAnyRole(['super_admin', 'Financiero', 'Logistica']) && (!$this->pedido || $this->pedido->estado !== 'COMPLETADO')) {
+            $this->soloLectura = false;
+        }
+
         $clientesQuery = Cliente::select(
             'id',
             'razon_social',
             'numero_documento',
             'ciudad',
             'saldo_total_pedidos_en_cartera',
-            'saldo_total_pedidos_vencidos')
+            'saldo_total_pedidos_vencidos'
+        )
             ->where('activo', 1);
         if (!$user->hasRole(['super_admin', 'Financiero', 'Logistica'])) {
             $clientesQuery->where('comercial_id', $this->userId);
@@ -70,48 +84,19 @@ class PedidoFormLivewire extends Component implements HasActions, HasSchemas
         $this->clientes = $clientesQuery->get()->toArray();
         $this->users = User::select('id', 'name')->get()->toArray();
         $this->bodegas = Bodega::select('id', 'nombre_bodega')->get()->toArray();
-        $this->alistadores = User::role('Logistica')->select('id', 'name')->get()->toArray();
+
         //$this->alistadores = User::select('id', 'name')->get()->toArray();
-        $this->productos = $this->getFilteredProductos();
-        $this->bodegaSeleccionada = $this->empresa->bodega_id;
-
-
-    }
-    protected function getFilteredProductos()
-    {
-        $empresa = $this->empresa;
-        $bodega = $this->bodegaSeleccionada ?? ($empresa->bodega_id ?? null);
-        $productosQuery = Producto::select(
+        $this->productos = Producto::select(
             'id',
             'concatenar_codigo_nombre',
-            'valor_detal_producto',
-            'valor_mayorista_producto',
-            'valor_ferretero_producto',
-            'iva_producto',
+            'costo_producto',
+            'valor_detal',
+            'valor_mayorista',
+            'valor_sin_instalacion',
             'imagen_producto',
-            'nombre_producto',
-            'codigo_producto',
-        )->where('categoria_producto', '!=', 'MATERIA_PRIMA')
-            ->where('activo', 1);
-        /*if ($empresa && !$empresa->mostrar_productos_sin_inventario) {
-            $productos = $productosQuery->whereHas('stockBodegas', function ($q) use ($bodega) {
-                $q->where('bodega_id', $bodega)
-                    ->where('stock', '>', 0);
-            });
-        }*/
-        // Eager loading solo los stocks de la bodega seleccionada
-        $productos = $productosQuery->with(['stockBodegas' => function ($q) use ($bodega) {
-            $q->where('bodega_id', $bodega);
-        }])->get();
-        $productosArray = [];
-        foreach ($productos as $producto) {
-            $stock = $producto->stockBodegas->first()?->stock ?? 0;
-            $productoArr = $producto->toArray();
-            unset($productoArr['stock_bodegas']); // Eliminar el array de stock_bodegas
-            $productoArr['stock'] = $stock;
-            $productosArray[] = $productoArr;
-        }
-        return $productosArray;
+        )->get()->toArray();
+        $this->bodegaSeleccionada = $this->empresa->bodega_id;
+        $this->pucs = Puc::select('id', 'concatenar_subcuenta_concepto')->get()->toArray();
     }
 
     public function editarPedido($pedido)
@@ -119,7 +104,7 @@ class PedidoFormLivewire extends Component implements HasActions, HasSchemas
         //$start = microtime(true);
 
         // Buscar el pedido por el código
-        $pedidoExistente = Pedido::where('codigo', $pedido['codigo'])->first();
+        $pedidoExistente = Pedido::find($pedido['id']);
 
         if (!$pedidoExistente) {
             $this->confirmModalTitle = 'Error';
@@ -130,33 +115,25 @@ class PedidoFormLivewire extends Component implements HasActions, HasSchemas
 
         // Actualizar los campos del pedido
         $pedidoExistente->update([
-            'fe' => $pedido['fe'],
+
             'cliente_id' => $pedido['cliente_id'],
             'fecha' => empty($pedido['fecha']) ? now()->toDateString() : $pedido['fecha'],
-            'dias_plazo_vencimiento' => $pedido['dias_plazo_vencimiento'],
-            'fecha_vencimiento' => empty($pedido['fecha_vencimiento']) ? now()->addDays(30)->toDateString() : $pedido['fecha_vencimiento'],
-            'ciudad' => $pedido['ciudad'],
-            'estado' => $pedido['estado'],
-            'stock_retirado' => $pedido['stock_retirado'],
-            'en_cartera' => $pedido['en_cartera'],
-            'metodo_pago' => $pedido['metodo_pago'],
-            'tipo_precio' => $pedido['tipo_precio'],
-            'tipo_venta' => $pedido['tipo_venta'],
+            'estado' => $pedido['saldo_pendiente'] <= 0 ? 'COMPLETADO' : 'PENDIENTE',
             'estado_pago' => $pedido['estado_pago'],
-            'estado_cartera' => $pedido['estado_cartera'],
-            'estado_venta' => $pedido['estado_venta'],
-            'estado_vencimiento' => $pedido['estado_vencimiento'],
-            'primer_comentario' => $pedido['primer_comentario'],
+            //'tipo_pedido' => $pedido['tipo_pedido'],
+            'tipo_pago' => $pedido['tipo_pago'],
+            'tipo_precio' => $pedido['tipo_precio'],
+            'id_puc' => $pedido['id_puc'] ?? null,
+            'bodega_id' => $pedido['bodega_id'] ?? null,
+            'observacion' => $pedido['observacion'] ?? '',
+            'observacion_pago' => $pedido['observacion_pago'] ?? '',
             'subtotal' => $pedido['subtotal'],
-            'abono' => $pedido['abono'],
             'descuento' => $pedido['descuento'],
             'flete' => $pedido['flete'],
             'total_a_pagar' => $pedido['total_a_pagar'],
+            'abono' => $pedido['abono'],
             'saldo_pendiente' => $pedido['saldo_pendiente'],
-            'user_id' => $pedido['user_id'] ?? auth()->id(),
-            'alistador_id' => $pedido['alistador_id'] ?? auth()->id(),
-            'bodega_id' => $pedido['bodega_id'] ?? null,
-            'iva' => $pedido['iva'] ?? 0,
+            'user_id' => auth()->id(),
         ]);
 
         $detallesActuales = $pedidoExistente->detalles()->get()->keyBy('producto_id');
@@ -169,6 +146,9 @@ class PedidoFormLivewire extends Component implements HasActions, HasSchemas
                 $detalleExistente->update([
                     'cantidad' => $detalle['cantidad'],
                     'precio_unitario' => $detalle['precio_unitario'] ?? 0,
+                    'costo_unitario' => $detalle['costo_unitario'] ?? 0,
+                    'costo_total' => $detalle['costo_total'] ?? 0,
+                    'ganancia_total' => $detalle['ganancia_total'] ?? 0,
                     'subtotal' => $detalle['subtotal'] ?? 0,
                 ]);
             } else {
@@ -176,6 +156,9 @@ class PedidoFormLivewire extends Component implements HasActions, HasSchemas
                     'producto_id' => $detalle['producto_id'],
                     'cantidad' => $detalle['cantidad'],
                     'precio_unitario' => $detalle['precio_unitario'] ?? 0,
+                    'costo_unitario' => $detalle['costo_unitario'] ?? 0,
+                    'costo_total' => $detalle['costo_total'] ?? 0,
+                    'ganancia_total' => $detalle['ganancia_total'] ?? 0,
                     'subtotal' => $detalle['subtotal'] ?? 0,
                 ]);
             }
@@ -252,12 +235,13 @@ class PedidoFormLivewire extends Component implements HasActions, HasSchemas
     {
         return view('livewire.pedidos.pedido-form-livewire', [
             'clientes' => $this->clientes,
-            'alistadores' => $this->alistadores,
             'bodegas' => $this->bodegas,
             'productos' => $this->productos,
             'users' => $this->users,
             'pedidoEncontrado' => $this->pedido,
             'detalles' => $this->detalles,
+            'pucs' => $this->pucs,
+            'soloLectura' => $this->soloLectura,
         ]);
     }
 }
