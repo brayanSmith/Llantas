@@ -17,6 +17,15 @@ class PedidosOutletsTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function ($query) {
+                $query->whereHas('bodega', function ($q) {
+                    $q->where('nombre_bodega', 'Outlet');
+                })
+                ->where('tipo_precio', 'DETAL')
+                ->where('estado', 'COMPLETADO');
+                return $query;
+            })
+
             ->columns([
                 ...HasPedidoTable::tableColumns(),
             ])

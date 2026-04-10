@@ -17,6 +17,11 @@ class PedidosMayoristasTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function ($query) {
+                $query->where('tipo_precio', 'MAYORISTA')
+                ->where('estado', 'COMPLETADO');
+                return $query;
+            })
             ->columns([
                 //
                 ...HasPedidoTable::tableColumns(),

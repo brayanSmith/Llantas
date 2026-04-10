@@ -17,6 +17,10 @@ class PedidosConsignacionsTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function ($query) {
+                $query->where('estado', 'PENDIENTE');
+                return $query;
+            })
             ->columns([
                 //
                 ...HasPedidoTable::tableColumns(),

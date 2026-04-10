@@ -60,4 +60,19 @@ class PedidosConsignacionResource extends Resource
                 SoftDeletingScope::class,
             ]);
     }
+
+    public static function getNavigationBadge(): ?string
+    {
+        $query = static::getModel()::query()
+        ->where('estado', 'PENDIENTE');
+        $count = $query->count();
+
+        return $count > 0 ? (string) $count : null;
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'warning';
+    }
 }
+

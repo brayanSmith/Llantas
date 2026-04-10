@@ -61,4 +61,22 @@ class PedidosOutletResource extends Resource
                 SoftDeletingScope::class,
             ]);
     }
+
+    public static function getNavigationBadge(): ?string
+    {
+        $query = static::getModel()::query()
+            ->whereHas('bodega', function ($q) {
+                $q->where('nombre_bodega', 'Outlet');
+            })
+            ->where('tipo_precio', 'DETAL')
+            ->where('estado', 'COMPLETADO');
+        $count = $query->count();
+
+        return $count > 0 ? (string) $count : null;
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'warning';
+    }
 }
