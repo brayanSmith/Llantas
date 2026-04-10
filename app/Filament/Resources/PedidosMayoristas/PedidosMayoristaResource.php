@@ -15,6 +15,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use UnitEnum;
 
 class PedidosMayoristaResource extends Resource
 {
@@ -25,6 +26,9 @@ class PedidosMayoristaResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
+    protected static string|UnitEnum|null $navigationGroup = 'Ventas';
+    //protected static ?string $navigationParentItem = 'Pedidos';
+    protected static ?int $navigationSort = 3;
     protected static ?string $recordTitleAttribute = 'id';
 
     public static function form(Schema $schema): Schema
@@ -74,6 +78,23 @@ class PedidosMayoristaResource extends Resource
     public static function getNavigationBadgeColor(): ?string
     {
         return 'warning';
+    }
+    // Métodos de autorización personalizados para Shield
+    public static function canEdit($record): bool
+    {
+        return auth()->user()->can('Update:PedidosMayoristaResource');
+    }
+    public static function canDelete($record): bool
+    {
+        return auth()->user()->can('Delete:PedidosMayoristaResource');
+    }
+    public static function canView($record): bool
+    {
+        return auth()->user()->can('View:PedidosMayoristaResource');
+    }
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('ViewAny:PedidosMayoristaResource');
     }
 }
 

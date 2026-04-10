@@ -15,6 +15,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use UnitEnum;
 
 class PedidosConsignacionResource extends Resource
 {
@@ -25,6 +26,9 @@ class PedidosConsignacionResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
+    protected static string|UnitEnum|null $navigationGroup = 'Ventas';
+    //protected static ?string $navigationParentItem = 'Pedidos';
+    protected static ?int $navigationSort = 4;
     protected static ?string $recordTitleAttribute = 'id';
 
     public static function form(Schema $schema): Schema
@@ -73,6 +77,23 @@ class PedidosConsignacionResource extends Resource
     public static function getNavigationBadgeColor(): ?string
     {
         return 'warning';
+    }
+    // Permisos personalizados para Shield
+    public static function canEdit($record): bool
+    {
+        return auth()->user()->can('Update:PedidosConsignacionResource');
+    }
+    public static function canDelete($record): bool
+    {
+        return auth()->user()->can('Delete:PedidosConsignacionResource');
+    }
+    public static function canView($record): bool
+    {
+        return auth()->user()->can('View:PedidosConsignacionResource');
+    }
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('ViewAny:PedidosConsignacionResource');
     }
 }
 

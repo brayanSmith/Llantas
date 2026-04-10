@@ -15,6 +15,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use UnitEnum;
 
 class PedidosEconomicResource extends Resource
 {
@@ -25,6 +26,9 @@ class PedidosEconomicResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
+    protected static string|UnitEnum|null $navigationGroup = 'Ventas';
+    //protected static ?string $navigationParentItem = 'Pedidos';
+    protected static ?int $navigationSort = 2;
     protected static ?string $recordTitleAttribute = 'id';
 
     public static function form(Schema $schema): Schema
@@ -77,5 +81,22 @@ class PedidosEconomicResource extends Resource
     public static function getNavigationBadgeColor(): ?string
     {
         return 'warning';
+    }
+    //permisos para shield
+    public static function canEdit($record): bool
+    {
+        return auth()->user()->can('Update:PedidosEconomicResource');
+    }
+    public static function canDelete($record): bool
+    {
+        return auth()->user()->can('Delete:PedidosEconomicResource');
+    }
+    public static function canView($record): bool
+    {
+        return auth()->user()->can('View:PedidosEconomicResource');
+    }
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('ViewAny:PedidosEconomicResource');
     }
 }
