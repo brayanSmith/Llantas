@@ -4,7 +4,13 @@
         {{-- @forelse($products as $product) --}}
         <template x-for="product in productosFiltradosPaginados" :key="product.id">
             <div x-data="{
-                get stock() { return $store.pos.stock[product.id] ?? 0 },
+                get stock() {
+                    if (product.stock_bodegas && bodegaSeleccionada) {
+                        const reg = product.stock_bodegas.find(r => r.bodega_id == bodegaSeleccionada);
+                        return reg ? reg.stock : 0;
+                    }
+                    return 0;
+                },
                 get cantidadEnCarrito() { return pedido.detalles.find(d => d.producto_id == product.id)?.cantidad ?? 0 },
                 get stockRestante() { return this.stock - this.cantidadEnCarrito }
             }">
@@ -51,13 +57,29 @@
                                 </p>
                                 <!-- Vamos a poner el Stock -->
                                 <p class="text-[10px] md:text-xs text-gray-800 dark:text-gray-100 mt-1">STOCK:
-                                    <strong x-text="stock"
-                                        :class="stock > 4 ?
-                                            'bg-green-600 text-white px-2 py-0.5 rounded' :
-                                            (stock > 0 ?
-                                                'bg-yellow-500 text-white px-2 py-0.5 rounded' :
-                                                'bg-red-600 text-white px-2 py-0.5 rounded')">
-                                    </strong>
+                                    <template x-if="product.stock_bodegas && product.stock_bodegas.length && typeof bodegaSeleccionada !== 'undefined' && bodegaSeleccionada">
+                                        <span>
+                                            <template x-if="product.stock_bodegas.find(r => r.bodega_id == bodegaSeleccionada)">
+                                                <span class="inline-block mr-2">
+                                                    <span x-text="product.stock_bodegas.find(r => r.bodega_id == bodegaSeleccionada).stock"
+                                                        :class="
+                                                            (product.stock_bodegas.find(r => r.bodega_id == bodegaSeleccionada).stock > 4) ?
+                                                                'bg-green-600 text-white px-2 py-0.5 rounded' :
+                                                            (product.stock_bodegas.find(r => r.bodega_id == bodegaSeleccionada).stock > 0) ?
+                                                                'bg-yellow-500 text-white px-2 py-0.5 rounded' :
+                                                                'bg-red-600 text-white px-2 py-0.5 rounded'
+                                                        ">
+                                                    </span>
+                                                </span>
+                                            </template>
+                                            <template x-if="!product.stock_bodegas.find(r => r.bodega_id == bodegaSeleccionada)">
+                                                <span class="text-gray-400">Sin stock en esta bodega</span>
+                                            </template>
+                                        </span>
+                                    </template>
+                                    <template x-if="!product.stock_bodegas || !product.stock_bodegas.length || !bodegaSeleccionada">
+                                        <span class="text-gray-400">Sin datos</span>
+                                    </template>
                                     <!-- Vamos a mostrar la cantidad retirada del carrito -->
                                     <template x-if="cantidadEnCarrito">
                                         <span class="text-[10px] md:text-xs text-gray-500 dark:text-gray-400 ml-2">
@@ -69,8 +91,6 @@
                                         Stock restante:
                                         <strong x-text="stockRestante"></strong>
                                     </span>
-
-
                                 </p>
                             </div>
 

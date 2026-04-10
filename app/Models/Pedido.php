@@ -7,11 +7,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Services\Pedido\PedidoCalculoService;
 use App\Services\Pedido\PedidoStockService;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Pedido extends Model
 {
     //
     use HasFactory;
+    use SoftDeletes;
 
     protected $fillable = [
         'codigo',

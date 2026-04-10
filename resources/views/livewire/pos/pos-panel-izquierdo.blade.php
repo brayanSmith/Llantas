@@ -7,31 +7,40 @@
             Productos
         </h2>
         <!-- Radio button con las bodegas -->
-        <div x-data="{ stock: {} }">
+        <div x-data="{
+            stock: {},
+            bodegaSeleccionada: localStorage.getItem('bodegaSeleccionada') || '',
+        }" x-init="
+            if (bodegaSeleccionada) {
+                pedido.bodega_id = bodegaSeleccionada;
+            }
+            $watch('bodegaSeleccionada', value => {
+                localStorage.setItem('bodegaSeleccionada', value);
+            });
+        ">
             <!-- Selector de bodega -->
             <div x-show="esAdmin" class="mb-4">
                 <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Selecciona una bodega:</p>
             <template  x-for="bodega in bodegas" :key="bodega.id">
                 <label>
                     <input type="radio" :value="bodega.id" x-model="bodegaSeleccionada"
+                        :disabled="pedido.detalles && pedido.detalles.length > 0"
                         @change="
-                            console.log('Bodega seleccionada:', bodegaSeleccionada);
                             pedido.bodega_id = bodegaSeleccionada;
-                            $wire.obtenerStockPorBodega(bodegaSeleccionada).then(data => {
-                                stock = data;
-                                if (window.Alpine && Alpine.store('pos')) {
-                                    Alpine.store('pos').stock = data;
-                                }
-                            })
+                            localStorage.setItem('bodegaSeleccionada', bodegaSeleccionada);
+                            console.log('Bodega seleccionada:', bodegaSeleccionada);
                         "
                     >
                     <span x-text="bodega.nombre_bodega"></span>
                 </label>
+                            <template x-if="pedido.detalles && pedido.detalles.length > 0">
+                                <p class="text-xs text-red-600 mb-2">No puedes cambiar de bodega mientras haya productos en el carrito.</p>
+                            </template>
             </template>
             </div>
 
             <!-- Seleccionador de Bodega con alpine.js -->
-            
+
 
             <!-- Buscador -->
             @include('livewire.pos.componentes-panel-izquierdo.buscador-productos')

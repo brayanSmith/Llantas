@@ -65,23 +65,8 @@ class PedidosTable
 
             ])
             ->recordActions([
-                ActionGroup::make([
-                    HasActionSections::registrarAbonoAction(),
-                    ViewAction::make()
-                        ->modalWidth('full'),
-                    //Accion Editar personalizada para redireccionar a la vista de edición del pedido
-                    $instance->getEditarAction('filament.admin.resources.pedidos.edit'),
-                    Action::make('download_pdf')
-                        ->label(fn ($record) => 'Descargar PDF (' . ($record->contador_impresiones ?? 0) . ')')
-                        //->icon('heroicon-o-document-download')
-                        ->url(fn ($record) => route('pedidos.pdf.download', $record->id))
-                        ->openUrlInNewTab(),
-                    Action::make('download_pdf_facturado')
-                        ->label('Descargar PDF Facturado')
-                        //->icon('heroicon-o-document-download')
-                        ->url(fn ($record) => route('pedidosFacturados.pdf.download', $record->id))
-                        ->openUrlInNewTab(),
-                ]),
+                // Solo la acción de editar personalizada
+                $instance->getEditarAction('filament.admin.resources.pedidos.edit'),
             ],
             position: RecordActionsPosition::BeforeColumns
         )

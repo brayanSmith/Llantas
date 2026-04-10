@@ -409,6 +409,7 @@
                         this.pedido.total_a_pagar = getTotalAPagar(this.pedido);
                         this.pedido.saldo_pendiente = getSaldoPendiente(this.pedido);
                         this.pedido.cambio = this.getCambio(this.pedido.total_a_pagar, Number(this.pedido.con_cuanto_paga));
+                        this.totalCantidadProductos = this.pedido.detalles.reduce((acc, d) => acc + (parseFloat(d.cantidad) || 0), 0);
                         console.log('Totales recalculados:', {
                             subtotal: this.pedido.subtotal,
                             total_a_pagar: this.pedido.total_a_pagar,

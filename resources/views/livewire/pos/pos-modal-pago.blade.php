@@ -68,7 +68,7 @@
             </div>
         </div>
 
-        <div x-show="pedido.tipo_pago !== ''">
+        <div x-show="pedido.tipo_pago !== 'CONTRA_ENTREGA'">
             {{-- Con cuanto paga --}}
             <div class="flex justify-between items-center gap-3 mt-4">
                 <label for="con-cuanto-paga"
