@@ -23,6 +23,7 @@ return new class extends Migration
             $table->decimal('descuento', 12, 2)->default(0)->nullable();
             $table->decimal('total_a_pagar', 12, 2)->default(0);
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
@@ -32,5 +33,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('compras');
+        // Eliminar registros relacionados en detalle_compras
     }
 };

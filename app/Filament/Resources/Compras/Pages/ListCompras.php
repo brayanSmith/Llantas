@@ -19,12 +19,14 @@ class ListCompras extends ListRecords
     public function getTabs(): array
     {
         return [
+            /*
             'TODOS' => Tab::make(),
             'PRODUCTO' => Tab::make()
                 ->modifyQueryUsing(fn(EloquentBuilder $query) => $query->where('item_compra', 'PRODUCTO')),
             'GASTO' => Tab::make()
                 ->modifyQueryUsing(fn(EloquentBuilder $query) => $query->where('item_compra', 'GASTO')),
-        ];
+
+        */        ];
     }
 
 
@@ -32,7 +34,7 @@ class ListCompras extends ListRecords
     {
         return [
             CreateAction::make(),
-            $this->getAbonoAction(),
+            //$this->getAbonoAction(),
         ];
     }
 }

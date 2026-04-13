@@ -12,7 +12,11 @@ class ComprasTable
 
     public static function configure(Table $table): Table
     {
-        return self::configureComprasTable($table)
+        return $table
+            ->columns([
+                //
+                ...HasCompraTable::tableColumns(),
+            ])
         ->recordActions([
             //EditAction::make(),
             Action::make('edit')

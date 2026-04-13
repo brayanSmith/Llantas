@@ -5,6 +5,7 @@ namespace App\Filament\Resources\DetallePedidos;
 use App\Filament\Resources\DetallePedidos\Pages\ManageDetallePedidos;
 use App\Models\DetallePedido;
 use BackedEnum;
+use Dom\Text;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -37,30 +38,61 @@ class DetallePedidoResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->paginated([25, 50, 100]) // Opciones de paginación
+            ->defaultPaginationPageOption(100) // Por defecto 100 registros por página
             ->recordTitleAttribute('pedido_id')
+            ->groups([
+                \Filament\Tables\Grouping\Group::make('pedido.fecha')
+                    ->label('Fecha del Pedido')
+                    ->date()
+                    ->collapsible(),
+            ])
             ->columns([
-                TextColumn::make('pedido_id')
-                    ->searchable(),
+
+
+                TextColumn::make('stock_total')
+                    ->label('Stock Total')
+                    ->sortable()
+                    ->getStateUsing(fn ($record) => $record->producto?->stockBodegas->sum('stock') ?? 0)
+                    ->badge()
+                    ->color(fn ($state) => $state < 0 ? 'danger' : ($state > 3 ? 'success' : ($state > 0 ? 'warning' : 'danger'))),
+                /*TextColumn::make('pedido_id')
+                    ->searchable(),*/
                 TextColumn::make('producto.concatenar_codigo_nombre')
                     ->searchable(),
-                TextColumn::make('cantidad'),
-                TextColumn::make('precio_unitario'),
-                TextColumn::make('costo_unitario'),
-                TextColumn::make('costo_total'),
-                TextColumn::make('ganancia_total'),
-                TextColumn::make('subtotal'),
+
+                TextColumn::make('pedido.fecha')
+                    ->date()
+                    ->sortable(),
+                TextColumn::make('cantidad')
+                    ->sortable(),
+                TextColumn::make('precio_unitario')
+                    ->formatStateUsing(fn ($state) => '$' . number_format($state, 2))
+                    ->sortable(),
+                TextColumn::make('costo_unitario')
+                    ->formatStateUsing(fn ($state) => '$' . number_format($state, 2))
+                    ->sortable(),
+                TextColumn::make('costo_total')
+                    ->formatStateUsing(fn ($state) => '$' . number_format($state, 2))
+                    ->sortable(),
+                TextColumn::make('ganancia_total')
+                    ->formatStateUsing(fn ($state) => '$' . number_format($state, 2))
+                    ->sortable(),
+                TextColumn::make('subtotal')
+                    ->formatStateUsing(fn ($state) => '$' . number_format($state, 2))
+                    ->sortable(),
             ])
             ->filters([
                 //
             ])
-            ->recordActions([
+            /*->recordActions([
                 EditAction::make(),
                 DeleteAction::make(),
-            ])
+            ])*/
             ->toolbarActions([
-                BulkActionGroup::make([
+                /*BulkActionGroup::make([
                     DeleteBulkAction::make(),
-                ]),
+                ]),*/
             ]);
     }
 

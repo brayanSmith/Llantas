@@ -13,48 +13,23 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 use UnitEnum;
 
 class ComprasPendientesResource extends Resource
 {
     protected static ?string $model = Compra::class;
-
-    // Labels personalizados para Shield
     protected static ?string $modelLabel = 'Compra Pendiente';
     protected static ?string $pluralModelLabel = 'Compras Pendientes';
-    protected static ?string $navigationLabel = 'Pendientes';
+    protected static ?string $navigationLabel = 'Compras Pendientes';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static ?string $recordTitleAttribute = 'titulo';
-     protected static string|UnitEnum|null $navigationGroup = 'Compras';
-     protected static ?string $navigationParentItem = 'Compras';
-     protected static ?int $navigationSort = 1;
-
-    public static function canViewAny(): bool
-    {
-        return auth()->user()->can('ViewAny:ComprasPendientesResource');
-    }
-
-    public static function canView($record): bool
-    {
-        return auth()->user()->can('View:ComprasPendientesResource');
-    }
-
-    public static function canCreate(): bool
-    {
-        return auth()->user()->can('Create:ComprasPendientesResource');
-    }
-
-    public static function canEdit($record): bool
-    {
-        return auth()->user()->can('Update:ComprasPendientesResource');
-    }
-
-    public static function canDelete($record): bool
-    {
-        return auth()->user()->can('Delete:ComprasPendientesResource');
-    }
+    protected static string|UnitEnum|null $navigationGroup = 'Compras';
+    protected static ?int $navigationSort = 2;
+    protected static ?string $recordTitleAttribute = 'id';
 
     public static function form(Schema $schema): Schema
     {
@@ -73,21 +48,27 @@ class ComprasPendientesResource extends Resource
         ];
     }
 
-    public static function getNavigationLabel(): string
+    public static function getPages(): array
     {
-        return 'Compras Pendientes';
+        return [
+            'index' => ListComprasPendientes::route('/'),
+            'create' => CreateComprasPendientes::route('/create'),
+            'edit' => EditComprasPendientes::route('/{record}/edit'),
+        ];
     }
-    public static function getPluralLabel(): string
+
+    public static function getRecordRouteBindingEloquentQuery(): Builder
     {
-        return 'Compras Pendientes';
+        return parent::getRecordRouteBindingEloquentQuery()
+            ->withoutGlobalScopes([
+                SoftDeletingScope::class,
+            ]);
     }
 
     public static function getNavigationBadge(): ?string
     {
-        $query = static::$model::where('estado', 'PENDIENTE');
-        /*if (!auth()->user()->hasRole('super_admin')) {
-            $query->where('user_id', auth()->id());
-        }*/
+        $query = static::getModel()::query()
+            ->where('estado', 'PENDIENTE');
         $count = $query->count();
 
         return $count > 0 ? (string) $count : null;
@@ -98,13 +79,20 @@ class ComprasPendientesResource extends Resource
         return 'warning';
     }
 
-
-    public static function getPages(): array
+    public static function canEdit($record): bool
     {
-        return [
-            'index' => ListComprasPendientes::route('/'),
-            'create' => CreateComprasPendientes::route('/create'),
-            'edit' => EditComprasPendientes::route('/{record}/edit'),
-        ];
+        return auth()->user()->can('Update:ComprasPendientesResource');
+    }
+    public static function canDelete($record): bool
+    {
+        return auth()->user()->can('Delete:ComprasPendientesResource');
+    }
+    public static function canView($record): bool
+    {
+        return auth()->user()->can('View:ComprasPendientesResource');
+    }
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('ViewAny:ComprasPendientesResource');
     }
 }
