@@ -19,46 +19,92 @@ class StatsOverview extends StatsOverviewWidget
 
     protected function getStats(): array
     {
-
+        $bodegaId = $this->pageFilters['bodega_id'] ?? null;
         $startDate = $this->pageFilters['startDate'] ?? null;
         $endDate = $this->pageFilters['endDate'] ?? null;
-        $userIds = $this->pageFilters['user_id'] ?? null;
-        $calculo = $this->pageFilters['calculo'] ?? 'valor';
+        $productosIds = $this->pageFilters['producto_id'] ?? null;
+        //$userIds = $this->pageFilters['user_id'] ?? null;
+        //$calculo = $this->pageFilters['calculo'] ?? 'valor';
 
         return [
             //
 
             Stat::make(
-                label: 'Total pedidos facturados',
-                value: ChartPedidoService::obtenerTotalPedidos(
-                    estado: 'FACTURADO',
-                    calculo: $calculo,
+                label: 'Total Pedidos',
+                value: ChartPedidoService::getFiltroWidgets(
+                    bodegaId: $bodegaId,
                     startDate: $startDate,
                     endDate: $endDate,
-                    userIds: $userIds
+                    productoIds: $productosIds,
+                    calculo: 'cantidad'
                 ),
             )
             ->icon(Heroicon::OutlinedPresentationChartBar, IconPosition::Before)
             ->color('success')
-            ->description('Total de pedidos facturados')
-            ->chart(ChartPedidoService::obtenerVentasPorDia('FACTURADO')),
+            ->description('Total de pedidos')
+            ->chart(ChartPedidoService::obtenerVentasPorDia('COMPLETADO')),
 
             Stat::make(
-                label: 'Total pedidos pendientes',
-                value: ChartPedidoService::obtenerTotalPedidos(
-                    estado: 'PENDIENTE',
-                    calculo: $calculo,
+                label: 'Valor Pedidos',
+                value: ChartPedidoService::getFiltroWidgets(
+                    bodegaId: $bodegaId,
                     startDate: $startDate,
                     endDate: $endDate,
-                    userIds: $userIds
+                    productoIds: $productosIds,
+                    calculo: 'valor_venta'
                 ),
             )
             ->icon(Heroicon::OutlinedPresentationChartBar, IconPosition::Before)
             ->color('warning')
-            ->description('Total de pedidos pendientes')
+            ->description('Valor total de pedidos')
             ->chart(ChartPedidoService::obtenerVentasPorDia('PENDIENTE')),
 
             Stat::make(
+                label: 'Valor Inversion',
+                value: ChartPedidoService::getFiltroWidgets(
+                    bodegaId: $bodegaId,
+                    startDate: $startDate,
+                    endDate: $endDate,
+                    productoIds: $productosIds,
+                    calculo: 'inversion'
+                ),
+            )
+            ->icon(Heroicon::OutlinedPresentationChartBar, IconPosition::Before)
+            ->color('warning')
+            ->description('Valor total de inversión')
+            ->chart(ChartPedidoService::obtenerVentasPorDia('PENDIENTE')),
+
+            /*Stat::make(
+                label: 'Valor Gasto',
+                value: ChartPedidoService::getFiltroWidgets(
+                    bodegaId: $bodegaId,
+                    startDate: $startDate,
+                    endDate: $endDate,
+                    productoIds: $productosIds,
+                    calculo: 'gasto'
+                ),
+            )
+            ->icon(Heroicon::OutlinedPresentationChartBar, IconPosition::Before)
+            ->color('danger')
+            ->description('Valor total de gasto')
+            ->chart(ChartPedidoService::obtenerVentasPorDia('PENDIENTE')),*/
+
+            Stat::make(
+                label: 'Valor Ganancia',
+                value: ChartPedidoService::getFiltroWidgets(
+                    bodegaId: $bodegaId,
+                    startDate: $startDate,
+                    endDate: $endDate,
+                    productoIds: $productosIds,
+                    calculo: 'ganancia'
+                ),
+            )
+            ->icon(Heroicon::OutlinedPresentationChartBar, IconPosition::Before)
+            ->color('warning')
+            ->description('Valor total de ganancia')
+            ->chart(ChartPedidoService::obtenerVentasPorDia('PENDIENTE')),
+
+            /*Stat::make(
                 label: 'Total pedidos entregados',
                 value: ChartPedidoService::obtenerTotalPedidos(
                     estado: 'ENTREGADO',
@@ -86,7 +132,7 @@ class StatsOverview extends StatsOverviewWidget
             ->icon(Heroicon::OutlinedPresentationChartBar, IconPosition::Before)
             ->color('danger')
             ->description('Total de pedidos anulados')
-            ->chart(ChartPedidoService::obtenerVentasPorDia('ANULADO')),
+            ->chart(ChartPedidoService::obtenerVentasPorDia('ANULADO')),*/
         ];
     }
 }

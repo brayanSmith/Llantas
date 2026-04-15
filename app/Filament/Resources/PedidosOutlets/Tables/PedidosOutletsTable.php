@@ -4,12 +4,14 @@ namespace App\Filament\Resources\PedidosOutlets\Tables;
 
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use App\Filament\Resources\Pedidos\Tables\HasPedidoTable;
+use App\Filament\Resources\Pedidos\Tables\HasDetallePedidoTable;
+use App\Filament\Tables\Columns\DescargarPdfColumn;
 use Filament\Actions\Action;
 
 class PedidosOutletsTable
@@ -17,6 +19,15 @@ class PedidosOutletsTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->paginated([25, 50, 100]) // Opciones de paginación
+            ->defaultPaginationPageOption(100) // Por defecto 100 registros por página
+            ->recordTitleAttribute('pedido_id')
+            ->groups([
+                \Filament\Tables\Grouping\Group::make('fecha')
+                    ->label('Fecha del Pedido')
+                    ->date()
+                    ->collapsible(),
+            ])
             ->modifyQueryUsing(function ($query) {
                 $query->whereHas('bodega', function ($q) {
                     $q->where('nombre_bodega', 'Outlet');
@@ -25,9 +36,12 @@ class PedidosOutletsTable
                 ->where('estado', 'COMPLETADO');
                 return $query;
             })
-
             ->columns([
-                ...HasPedidoTable::tableColumns(),
+                // === Columnas tab Pedidos ===
+                ...array_map(fn ($column) => $column->visible(fn ($livewire) => ($livewire->activeTab ?? 'pedidos') === 'pedidos'), HasPedidoTable::tableColumns()),
+
+                // === Columnas tab Detalles ===
+                ...array_map(fn ($column) => $column->visible(fn ($livewire) => ($livewire->activeTab ?? 'pedidos') === 'detalles'), HasDetallePedidoTable::tableColumns()),
             ])
             ->filters([
                 TrashedFilter::make(),
@@ -37,7 +51,14 @@ class PedidosOutletsTable
                     ->label('Editar')
                     ->icon('heroicon-o-pencil')
                     ->url(fn($record) => route('filament.admin.resources.pedidos-outlets.edit', ['record' => $record->getKey(), 'pedido_id' => $record->getKey()]))
-                    ->openUrlInNewTab(false),
+                    ->openUrlInNewTab(false)
+                    ->visible(fn ($livewire) => ($livewire->activeTab ?? 'pedidos') === 'pedidos'),
+                Action::make('ver_pedido')
+                    ->label('Ver Pedido')
+                    ->icon('heroicon-o-eye')
+                    ->url(fn($record) => route('filament.admin.resources.pedidos-outlets.edit', ['record' => $record->pedido_id, 'pedido_id' => $record->pedido_id]))
+                    ->openUrlInNewTab(false)
+                    ->visible(fn ($livewire) => ($livewire->activeTab ?? 'pedidos') === 'detalles'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
@@ -45,6 +66,7 @@ class PedidosOutletsTable
                     ForceDeleteBulkAction::make(),
                     RestoreBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->defaultSort('fecha', 'desc');
     }
 }

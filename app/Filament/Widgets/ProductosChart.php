@@ -5,6 +5,7 @@ namespace App\Filament\Widgets;
 use App\Models\Producto;
 use Filament\Widgets\ChartWidget;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
+use App\Services\ChartPedidoService;
 
 class ProductosChart extends ChartWidget
 {
@@ -16,53 +17,22 @@ class ProductosChart extends ChartWidget
 
     protected function getData(): array
     {
-
+        $bodegaId = $this->pageFilters['bodega_id'] ?? null;
         $startDate = $this->pageFilters['startDate'] ?? null;
         $endDate = $this->pageFilters['endDate'] ?? null;
-        $userIds = $this->pageFilters['user_id'] ?? null;
-        $calculo = $this->pageFilters['calculo'] ?? 'valor';
-
-        // Obtener los 5 productos más vendidos con ambos datos
-        $productosVendidos = Producto::query()
-            ->where('categoria_producto', 'PRODUCTO_TERMINADO')
-            ->withSum([
-                'detallePedidos as cantidad_vendida' => function ($query) use ($startDate, $endDate) {
-                    $query->whereHas('pedido', function($q) use ($startDate, $endDate) {
-                        $q->whereIn('estado', ['FACTURADO', 'ENTREGADO']);
-                        if ($startDate && $endDate) {
-                            $q->whereBetween('fecha', [$startDate, $endDate]);
-                        }
-                    });
-                }
-            ], 'cantidad')
-            ->withSum([
-                'detallePedidos as total_ventas' => function ($query) use ($startDate, $endDate) {
-                    $query->whereHas('pedido', function($q) use ($startDate, $endDate) {
-                        $q->whereIn('estado', ['FACTURADO', 'ENTREGADO']);
-                        if ($startDate && $endDate) {
-                            $q->whereBetween('fecha', [$startDate, $endDate]);
-                        }
-                    });
-                }
-            ], 'subtotal')
-            ->orderByDesc($calculo === 'cantidad' ? 'cantidad_vendida' : 'total_ventas')
-            ->limit(5)
-            ->get();
-
-        // Determinar qué datos mostrar según el filtro
-        if ($calculo === 'cantidad') {
-            $data = $productosVendidos->pluck('cantidad_vendida')->toArray();
-            $label = 'Cantidad Vendida (Unidades)';
-        } else {
-            $data = $productosVendidos->pluck('total_ventas')->toArray();
-            $label = 'Total en Ventas ($)';
-        }
+        $productosIds = $this->pageFilters['producto_id'] ?? null;
 
         return [
             'datasets' => [
                 [
-                    'label' => $label,
-                    'data' => $data,
+                    'label' => 'Total en Ventas ($)',
+                    'data' => ChartPedidoService::getFiltroWidgets(
+                        bodegaId: $bodegaId,
+                        startDate: $startDate,
+                        endDate: $endDate,
+                        productoIds: $productosIds,
+                        calculo: 'datos_ventas_producto'
+                    ),
                     'backgroundColor' => [
                         'rgba(34, 197, 94, 0.8)',   // Verde
                         'rgba(59, 130, 246, 0.8)',  // Azul
@@ -80,7 +50,13 @@ class ProductosChart extends ChartWidget
                     'borderWidth' => 2,
                 ],
             ],
-            'labels' => $productosVendidos->pluck('nombre_producto')->toArray(),
+            'labels' => ChartPedidoService::getFiltroWidgets(
+                        bodegaId: $bodegaId,
+                        startDate: $startDate,
+                        endDate: $endDate,
+                        productoIds: $productosIds,
+                        calculo: 'labels_ventas_producto'
+                    ),
         ];
     }
 
@@ -93,6 +69,13 @@ class ProductosChart extends ChartWidget
     {
         return [
             'indexAxis' => 'y',
+            'responsive' => true,
+            'maintainAspectRatio' => false,
+            'layout' => [
+                'padding' => [
+                    'left' => 10,
+                ],
+            ],
             'plugins' => [
                 'legend' => [
                     'display' => true,
@@ -101,6 +84,15 @@ class ProductosChart extends ChartWidget
             'scales' => [
                 'x' => [
                     'beginAtZero' => true,
+                ],
+                'y' => [
+                    'ticks' => [
+                        'autoSkip' => false,
+                        'font' => [
+                            'size' => 11,
+                        ],
+                        'callback' => null,
+                    ],
                 ],
             ],
         ];

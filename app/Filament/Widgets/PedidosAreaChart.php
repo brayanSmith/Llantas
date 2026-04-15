@@ -8,6 +8,7 @@ use App\Filament\Traits\HasDateRangeFilter;
 use App\Filament\Traits\HasCountTypeFilter;
 use Carbon\Carbon;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
+use App\Services\ChartPedidoService;
 
 class PedidosAreaChart extends ChartWidget
 {
@@ -25,53 +26,57 @@ class PedidosAreaChart extends ChartWidget
 
     protected function getData(): array
     {
+
+        $bodegaId = $this->pageFilters['bodega_id'] ?? null;
         $startDate = $this->pageFilters['startDate'] ?? null;
         $endDate = $this->pageFilters['endDate'] ?? null;
-        $userIds = $this->pageFilters['user_id'] ?? null;
-        $calculo = $this->pageFilters['calculo'] ?? 'valor';
-
-        $query = Pedido::query()
-            ->whereIn('estado', ['FACTURADO', 'ENTREGADO'])
-            ->whereIn('user_id', $userIds ?? Pedido::pluck('user_id')->toArray());
-
-        if ($startDate && $endDate) {
-            $query->whereBetween('fecha', [$startDate, $endDate]);
-        }
-
-        // Agrupar por fecha
-        if ($calculo === 'cantidad') {
-            $datos = $query
-                ->selectRaw('DATE(fecha) as fecha, COUNT(*) as total')
-                ->groupBy('fecha')
-                ->orderBy('fecha')
-                ->get();
-
-            $label = 'Cantidad de Pedidos';
-        } else {
-            $datos = $query
-                ->selectRaw('DATE(fecha) as fecha, SUM(total_a_pagar) as total')
-                ->groupBy('fecha')
-                ->orderBy('fecha')
-                ->get();
-
-            $label = 'Total en Ventas ($)';
-        }
+        $productosIds = $this->pageFilters['producto_id'] ?? null;
 
         return [
             'datasets' => [
                 [
-                    'label' => $label,
-                    'data' => $datos->pluck('total')->toArray(),
+                    'label' => 'Total en Ventas ($)',
+                    //'data' => $datos->pluck('total')->toArray(),
+                    'data' => ChartPedidoService::getFiltroWidgets(
+                        bodegaId: $bodegaId,
+                        startDate: $startDate,
+                        endDate: $endDate,
+                        productoIds: $productosIds,
+                        calculo: 'datos_pedidos'
+                    ),
                     'fill' => true,
                     'backgroundColor' => 'rgba(59, 130, 246, 0.2)',
                     'borderColor' => 'rgba(59, 130, 246, 1)',
                     'borderWidth' => 2,
                     'tension' => 0,
                 ],
+                [
+                    'label' => 'Cantidad de Pedidos',
+                    //'data' => $datos->pluck('total')->toArray(),
+                    'data' => ChartPedidoService::getFiltroWidgets(
+                        bodegaId: $bodegaId,
+                        startDate: $startDate,
+                        endDate: $endDate,
+                        productoIds: $productosIds,
+                        calculo: 'datos_cantidad_pedidos'
+                    ),
+                    'fill' => true,
+                    'backgroundColor' => 'rgba(16, 185, 129, 0.2)',
+                    'borderColor' => 'rgba(16, 185, 129, 1)',
+                    'borderWidth' => 2,
+                    'tension' => 0,
+                ],
             ],
-            'labels' => $datos->map(function($item) {
+            /*'labels' => $datos->map(function($item) {
                 return Carbon::parse($item->fecha)->format('d/m');
-            })->toArray(),
+            })->toArray(),*/
+            'labels' => ChartPedidoService::getFiltroWidgets(
+                bodegaId: $bodegaId,
+                startDate: $startDate,
+                endDate: $endDate,
+                productoIds: $productosIds,
+                calculo: 'labels_pedidos'
+            ),
         ];
     }
 

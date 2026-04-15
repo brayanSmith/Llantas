@@ -20,6 +20,10 @@ class Dashboard extends BaseDashboard
             ->components([
                 Section::make()
                     ->schema([
+                        Select::make('bodega_id')
+                            ->label('Bodega')
+                            ->options(\App\Models\Bodega::pluck('nombre_bodega', 'id'))
+                            ->preload(),
                         DatePicker::make('startDate'),
                         DatePicker::make('endDate'),
                         Select::make('calculo')
@@ -29,12 +33,18 @@ class Dashboard extends BaseDashboard
                             ])
                             ->default('valor')
                             ->label('Cálculo'),
-                        Select::make('user_id')
+                        Select::make('producto_id')
+                            ->label('Producto')
+                            ->options(\App\Models\Producto::pluck('concatenar_codigo_nombre', 'id'))
+                            ->searchable()
+                            ->preload()
+                            ->multiple(),
+                        /*Select::make('user_id')
                         ->label('Usuario')
                         ->options(\App\Models\User::pluck('name', 'id'))
                         ->searchable()
                         ->preload()
-                        ->multiple(),
+                        ->multiple(),*/
                     ])
                     ->columns(4)
                     ->columnSpanFull(),

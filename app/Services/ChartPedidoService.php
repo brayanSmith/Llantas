@@ -7,6 +7,70 @@ use Illuminate\Support\Facades\DB;
 
 class ChartPedidoService
 {
+    public static function getFiltroWidgets(?string $bodegaId = null, ?string $startDate = null, ?string $endDate = null, array $productoIds = [], string $calculo = 'todos'){
+        $query = Pedido::query();
+
+        if ($bodegaId) {
+            $query->where('bodega_id', $bodegaId);
+        }
+
+        if ($startDate && $endDate) {
+            $query->whereBetween('fecha', [$startDate, $endDate]);
+        }
+
+        if (!empty($productoIds)) {
+            $query->whereHas('detalles', function ($q) use ($productoIds) {
+                $q->whereIn('producto_id', $productoIds);
+            });
+        }
+
+        return match ($calculo) {
+            'cantidad' => $query->count(),
+            'valor_venta' => number_format($query->sum('total_a_pagar'), 2, ',', '.'),
+            'inversion' => number_format($query->withSum('detalles', 'costo_total')->get()->sum('detalles_sum_costo_total'), 2, ',', '.'),
+            'gasto' => number_format($query->withSum('detalles', 'subtotal')->get()->sum('detalles_sum_subtotal'), 2, ',', '.'),
+            'ganancia' => number_format(
+                $query->clone()->withSum('detalles', 'ganancia_total')->get()->sum('detalles_sum_ganancia_total') - $query->sum('descuento'),
+                2, ',', '.'
+            ),
+            //grafico de Linea ventas por dia
+            'datos_pedidos' => $query->clone()->selectRaw('DATE(fecha) as fecha, SUM(total_a_pagar) as total')
+                ->groupBy('fecha')
+                ->orderBy('fecha')
+                ->pluck('total')
+                ->toArray(),
+            'datos_cantidad_pedidos' => $query->clone()->selectRaw('DATE(fecha) as fecha, COUNT(*) as total')
+                ->groupBy('fecha')
+                ->orderBy('fecha')
+                ->pluck('total')
+                ->toArray(),
+            'labels_pedidos' => $query->clone()->selectRaw('DATE(fecha) as fecha')
+                ->groupBy('fecha')
+                ->orderBy('fecha')
+                ->pluck('fecha')
+                ->map(fn($fecha) => \Carbon\Carbon::parse($fecha)->format('d/m/y'))
+                ->toArray(),
+            //Grafico de Barras Ventas por Producto
+             'datos_ventas_producto' => \App\Models\DetallePedido::whereIn('pedido_id', $query->clone()->pluck('id'))
+                ->selectRaw('producto_id, SUM(subtotal) as total')
+                ->groupBy('producto_id')
+                ->orderByDesc('total')
+                ->limit(5)
+                ->pluck('total')
+                ->toArray(),
+             'labels_ventas_producto' => \App\Models\DetallePedido::whereIn('pedido_id', $query->clone()->pluck('id'))
+                ->selectRaw('producto_id, SUM(subtotal) as total')
+                ->groupBy('producto_id')
+                ->orderByDesc('total')
+                ->limit(5)
+                ->pluck('producto_id')
+                ->map(fn($id) => \Illuminate\Support\Str::limit(\App\Models\Producto::find($id)?->concatenar_codigo_nombre ?? 'Producto ' . $id, 25))
+                ->toArray(),
+
+            default => $query->get(),
+        };
+
+    }
     public static function obtenerTotalPedidos(string $estado, string $calculo, ?string $startDate = null, ?string $endDate = null, ?array $userIds = null): float|int|string
     {
         $query = Pedido::whereIn('estado', [$estado]);
