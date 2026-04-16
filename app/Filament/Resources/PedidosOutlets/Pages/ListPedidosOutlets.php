@@ -33,7 +33,7 @@ class ListPedidosOutlets extends ListRecords
                     ->join('productos', 'detalle_pedidos.producto_id', '=', 'productos.id')
                     ->select([
                         'detalle_pedidos.id as id',
-                        'pedidos.id as pedido_id',
+                        'pedidos.id as pedido_base_id',
                         'pedidos.fecha',
                         'pedidos.cliente_id',
                         'detalle_pedidos.producto_id',

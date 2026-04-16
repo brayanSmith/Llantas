@@ -13,7 +13,7 @@ class HasDetallePedidoTable
                 ->label('Stock Total')
                 ->badge()
                 ->color(fn ($state) => $state < 0 ? 'danger' : ($state > 3 ? 'success' : ($state > 0 ? 'warning' : 'danger'))),
-            TextColumn::make('pedido_id')
+            TextColumn::make('pedido_base_id')
                 ->label('Código Pedido')
                 ->searchable(query: fn ($query, $search) => $query->where('pedidos.id', 'like', "%{$search}%"))
                 ->sortable(query: fn ($query, $direction) => $query->orderBy('pedidos.id', $direction)),

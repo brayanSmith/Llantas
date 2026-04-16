@@ -43,17 +43,13 @@ class PedidosConsignacionsTable
             ])
             ->recordActions([
                 Action::make('edit')
-                    ->label('Editar')
-                    ->icon('heroicon-o-pencil')
-                    ->url(fn($record) => route('filament.admin.resources.pedidos-consignacions.edit', ['record' => $record->getKey(), 'pedido_id' => $record->getKey()]))
-                    ->openUrlInNewTab(false)
-                    ->visible(fn ($livewire) => ($livewire->activeTab ?? 'pedidos') === 'pedidos'),
-                Action::make('ver_pedido')
-                    ->label('Ver Pedido')
-                    ->icon('heroicon-o-eye')
-                    ->url(fn($record) => route('filament.admin.resources.pedidos-consignacions.edit', ['record' => $record->pedido_id, 'pedido_id' => $record->pedido_id]))
-                    ->openUrlInNewTab(false)
-                    ->visible(fn ($livewire) => ($livewire->activeTab ?? 'pedidos') === 'detalles'),
+                    ->label(fn ($livewire) => ($livewire->activeTab ?? 'pedidos') === 'pedidos' ? 'Editar' : 'Ver Pedido')
+                    ->icon(fn ($livewire) => ($livewire->activeTab ?? 'pedidos') === 'pedidos' ? 'heroicon-o-pencil' : 'heroicon-o-eye')
+                    ->url(fn ($record, $livewire) => ($livewire->activeTab ?? 'pedidos') === 'detalles'
+                        ? route('filament.admin.resources.pedidos-consignacions.edit', ['record' => $record->pedido_base_id, 'pedido_id' => $record->pedido_base_id])
+                        : route('filament.admin.resources.pedidos-consignacions.edit', ['record' => $record->getKey(), 'pedido_id' => $record->getKey()])
+                    )
+                    ->openUrlInNewTab(false),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
