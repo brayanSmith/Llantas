@@ -25,7 +25,7 @@ class ComprasPendientesResource extends Resource
     protected static ?string $pluralModelLabel = 'Compras Pendientes';
     protected static ?string $navigationLabel = 'Compras Pendientes';
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedArrowPathRoundedSquare;
 
     protected static string|UnitEnum|null $navigationGroup = 'Compras';
     protected static ?int $navigationSort = 2;

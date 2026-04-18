@@ -23,13 +23,16 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Grid;
 use App\Filament\Traits\HasTrasladosSection;
 use App\Filament\Traits\HasProductosStockSection;
-
+use UnitEnum;
 
 class StockBodegaResource extends Resource
 {
     protected static ?string $model = StockBodega::class;
+    protected static ?string $modelLabel = 'Stock Bodegas';
+    protected static ?string $pluralModelLabel = 'Stock Bodegas';
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCircleStack;
+    protected static string|UnitEnum|null $navigationGroup = 'Stock';
 
     protected static ?string $recordTitleAttribute = 'producto.concatenar_codigo_nombre';
 

@@ -22,7 +22,9 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Filament\Support\Assets\Css;
 use Filament\Support\Assets\Js;
+use Filament\Navigation\NavigationGroup;
 use App\Models\Empresa;
+
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -96,6 +98,16 @@ class AdminPanelProvider extends PanelProvider
             // 👇 (Opcional) inyecta un blade al final del <body> para tu JS de inicialización
             //->renderHook('panels::body.end', fn() => view('filament.custom-scripts'))
 
+            ->navigationGroups([
+                NavigationGroup::make('Sistema'),
+                NavigationGroup::make('Pedidos'),
+                NavigationGroup::make('Compras'),
+                NavigationGroup::make('Productos'),
+                NavigationGroup::make('Stock'),
+                NavigationGroup::make('Users'),
+                NavigationGroup::make('Filament Shield'),
+
+            ])
 
             ->authMiddleware([
                 Authenticate::class,

@@ -16,12 +16,16 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class GastoResource extends Resource
 {
     protected static ?string $model = Gasto::class;
+    protected static ?string $modelLabel = 'Gastos';
+    protected static ?string $pluralModelLabel = 'Gastos';
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBanknotes;
+    protected static string|UnitEnum|null $navigationGroup = 'Sistema';
 
     protected static ?string $recordTitleAttribute = 'descripcion';
 

@@ -22,12 +22,16 @@ use App\Models\StockBodega;
 use App\Services\StockCalculoService;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\Textarea;
+use UnitEnum;
 
 class TrasladoResource extends Resource
 {
     protected static ?string $model = Traslado::class;
+    protected static ?string $modelLabel = 'Traslados';
+    protected static ?string $pluralModelLabel = 'Traslados';
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedArrowsRightLeft;
+    protected static string|UnitEnum|null $navigationGroup = 'Stock';
 
     protected static ?string $recordTitleAttribute = 'producto_id';
 

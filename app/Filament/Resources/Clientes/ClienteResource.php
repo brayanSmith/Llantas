@@ -20,7 +20,7 @@ class ClienteResource extends Resource
 {
     protected static ?string $model = Cliente::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUserGroup;
     protected static string | UnitEnum | null $navigationGroup = 'Users';
 
     protected static ?string $recordTitleAttribute = 'razon_social';
@@ -33,9 +33,9 @@ class ClienteResource extends Resource
     public static function table(Table $table): Table
     {
         return ClientesTable::configure($table)
-            ->modifyQueryUsing(fn ($query) => 
+            ->modifyQueryUsing(fn ($query) =>
                 auth()->user()?->hasAnyRole(['super_admin', 'Financiero'])
-                    ? $query 
+                    ? $query
                     : $query->where('comercial_id', auth()->id())
             );
     }

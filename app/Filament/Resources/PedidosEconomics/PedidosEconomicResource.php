@@ -24,11 +24,11 @@ class PedidosEconomicResource extends Resource
     protected static ?string $pluralModelLabel = 'Pedidos Economics';
     protected static ?string $navigationLabel = 'Pedidos Economic';
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBuildingStorefront;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Ventas';
+    protected static string|UnitEnum|null $navigationGroup = 'Pedidos';
     //protected static ?string $navigationParentItem = 'Pedidos';
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 3;
     protected static ?string $recordTitleAttribute = 'id';
 
     public static function form(Schema $schema): Schema

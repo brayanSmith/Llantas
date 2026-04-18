@@ -30,7 +30,7 @@ class CatalogoResource extends Resource
     protected static ?string $modelLabel = 'Catálogo de Productos';
     protected static ?string $pluralModelLabel = 'Catálogo de Productos';
     protected static ?string $navigationLabel = 'Catalogos';
-    
+
     // Métodos de autorización independientes para Catálogo
     public static function canViewAny(): bool
     {
@@ -57,7 +57,7 @@ class CatalogoResource extends Resource
         return auth()->user()->can('Delete:CatalogoResource');
     }
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedViewColumns;
     protected static string|UnitEnum|null $navigationGroup = 'Productos';
 
     protected static ?string $recordTitleAttribute = 'codigo_producto';
@@ -115,7 +115,7 @@ class CatalogoResource extends Resource
                         ->searchable()
                         ->extraAttributes([
                              'class' => 'text-xs text-yellow-500 font-bold', // pequeño, amarillo y negrita
-                        ]),                    
+                        ]),
                     TextColumn::make('valor_ferretero_producto')
                         ->label('Ferretero')
                         ->formatStateUsing(fn($state) => 'Ferretero: $' . number_format($state, 0)),

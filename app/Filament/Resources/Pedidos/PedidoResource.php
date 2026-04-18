@@ -25,10 +25,11 @@ class PedidoResource extends Resource
     // Labels personalizados para Shield
     protected static ?string $modelLabel = 'Pedido General';
     protected static ?string $pluralModelLabel = 'Pedidos Generales';
-    protected static ?string $navigationLabel = 'Pedidos';
+    protected static ?string $navigationLabel = 'Pedidos General';
+    protected static ?int $navigationSort = 1;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::ShoppingCart;
-    protected static string | UnitEnum | null $navigationGroup = 'Ventas';
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboardDocumentList;
+    protected static string | UnitEnum | null $navigationGroup = 'Pedidos';
 
     protected static ?string $recordTitleAttribute = 'codigo';
 

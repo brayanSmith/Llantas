@@ -11,7 +11,7 @@ class Pos extends Page
 {
     use HasPageShield;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedShoppingCart;
 
     protected static ?string $title = 'POS - Punto de Venta';
     protected static ?string $navigationLabel = 'POS';

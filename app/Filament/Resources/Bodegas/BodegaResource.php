@@ -21,7 +21,7 @@ class BodegaResource extends Resource
 {
     protected static ?string $model = Bodega::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBuildingOffice2;
 
     protected static string|UnitEnum|null $navigationGroup = 'Productos';
 
@@ -60,7 +60,7 @@ class BodegaResource extends Resource
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
-                
+
                 ]),
             ]);
     }

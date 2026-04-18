@@ -7,7 +7,7 @@ use App\Models\Puc;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction; 
+use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -23,9 +23,13 @@ use unitEnum;
 class PucResource extends Resource
 {
     protected static ?string $model = Puc::class;
+     protected static ?string $modelLabel = 'Medios de Pago';
+    protected static ?string $pluralModelLabel = 'Medios de Pago';
+    protected static ?string $navigationLabel = 'Medios de Pago';
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
-    protected static string | UnitEnum | null $navigationGroup = 'Compras';
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedWallet;
+    protected static string | UnitEnum | null $navigationGroup = 'Sistema';
+
 
     protected static ?string $recordTitleAttribute = 'concatenar_subcuenta_concepto';
 
@@ -48,16 +52,16 @@ class PucResource extends Resource
                     ->live()
                     ->afterStateUpdated(function ($set, $get) {
                         // actualizar el campo concatenado
-                        $tipo = $get('tipo');                        
+                        $tipo = $get('tipo');
                         $set('cuenta', $tipo);
                     })
                     ->required(),
                 TextInput::make('cuenta')
                     ->required()
                     ->live(onBlur: true)
-                    ->afterStateUpdated(function ($set, $get) { 
+                    ->afterStateUpdated(function ($set, $get) {
                         // actualizar el campo concatenado
-                        $cuenta = $get('cuenta');                        
+                        $cuenta = $get('cuenta');
                         $set('subcuenta', $cuenta);
                     }),
                 TextInput::make('subcuenta')
@@ -83,7 +87,7 @@ class PucResource extends Resource
                     ->rows(3),
                 TextInput::make('concatenar_subcuenta_concepto')
                     ->required(),
-               
+
             ]);
     }
 
@@ -108,7 +112,7 @@ class PucResource extends Resource
                             '9' => 'Cuentas de orden acreedoras',
                             default => 'Desconocido',
                         };
-                    })        
+                    })
                     ->badge(),
                 TextColumn::make('cuenta')
                     ->searchable(),

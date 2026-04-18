@@ -24,7 +24,7 @@ class CompraResource extends Resource
     protected static ?string $pluralModelLabel = 'Compras Generales';
     protected static ?string $navigationLabel = 'Compras';
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboardDocumentList;
 
     protected static ?string $recordTitleAttribute = 'titulo';
      protected static string|UnitEnum|null $navigationGroup = 'Compras';

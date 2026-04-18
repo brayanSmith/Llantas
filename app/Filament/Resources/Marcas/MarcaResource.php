@@ -15,14 +15,44 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class MarcaResource extends Resource
 {
     protected static ?string $model = Marca::class;
+    protected static ?string $modelLabel = 'Marcas';
+    protected static ?string $pluralModelLabel = 'Marcas';
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedFingerPrint;
+    protected static string|UnitEnum|null $navigationGroup = 'Productos';
 
     protected static ?string $recordTitleAttribute = 'marca';
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('ViewAny:MarcaResource');
+    }
+
+    public static function canView($record): bool
+    {
+        return auth()->user()->can('View:MarcaResource');
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()->can('Create:MarcaResource');
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->user()->can('Update:MarcaResource');
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->user()->can('Delete:MarcaResource');
+    }
+
 
     public static function form(Schema $schema): Schema
     {

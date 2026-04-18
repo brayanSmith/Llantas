@@ -23,14 +23,14 @@ class ProductoResource extends Resource
     protected static ?string $model = Producto::class;
 
     // Labels personalizados para Shield
-    protected static ?string $modelLabel = 'Gestión de Productos';
-    protected static ?string $pluralModelLabel = 'Gestión de Productos';
+    protected static ?string $modelLabel = 'Productos';
+    protected static ?string $pluralModelLabel = 'Productos';
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCube;
     protected static string|UnitEnum|null $navigationGroup = 'Productos';
 
     protected static ?string $recordTitleAttribute = 'codigo_producto';
-    
+
     // Métodos de autorización independientes para Productos
     public static function canViewAny(): bool
     {
