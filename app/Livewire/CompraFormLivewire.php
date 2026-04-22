@@ -3,7 +3,6 @@
 namespace App\Livewire;
 
 use App\Models\Bodega;
-use App\Models\Categoria;
 use App\Models\Compra;
 use App\Models\Producto;
 use App\Models\Proveedor;
@@ -22,7 +21,6 @@ class CompraFormLivewire extends Component implements HasActions, HasSchemas
     public array $proveedores = [];
     public array $bodegas = [];
     public array $productos = [];
-    public array $categorias = [];
     public bool $showConfirmModal = false;
     public string $confirmModalTitle = '';
     public string $confirmModalBody = '';
@@ -59,8 +57,7 @@ class CompraFormLivewire extends Component implements HasActions, HasSchemas
     {
         $this->proveedores = Proveedor::select('id', 'nombre_proveedor')->get()->toArray();
         $this->bodegas = Bodega::select('id', 'nombre_bodega')->get()->toArray();
-        $this->categorias = Categoria::select('id', 'nombre_categoria')->get()->toArray();
-        $this->productos = $this->getFilteredProductos();
+        $this->productos = Producto::select('id', 'concatenar_codigo_nombre')->get()->toArray();
     }
 
     /**
@@ -85,35 +82,7 @@ class CompraFormLivewire extends Component implements HasActions, HasSchemas
         }
     }
 
-    protected function getFilteredProductos(): array
-    {
-        return Producto::select(
-            'id',
-            'categoria_id',
-            'concatenar_codigo_nombre',
-            'nombre_producto',
-            'codigo_producto',
-        )->with('categoria')->get()->toArray();
-    }
 
-    /**
-     * Crea una nueva compra desde JSON
-     *
-     * @param array $json Datos de la compra en formato JSON
-    * {
-    *   "compra": {
-    *     "factura": "FAC01",
-    *     "proveedor_id": 1,
-    *     "fecha": "2026-02-02",
-    *     "estado": "PENDIENTE",
-    *     "observaciones": "NA",
-    *     "subtotal": 10000,
-    *     "descuento": 500,
-    *     "total_a_pagar": 9500,
-    *     "detallesCompra": [...]
-    *   }
-    * }
-     */
     public function crearCompra(array $json): void
     {
         try {
@@ -392,7 +361,6 @@ class CompraFormLivewire extends Component implements HasActions, HasSchemas
             'compraEncontrada' => $this->compra,
             'detalles_compra' => $this->detallesCompra,
             'esEdicion' => $this->esEdicion,
-            'categorias' => $this->categorias,
         ]);
     }
 }

@@ -1,17 +1,35 @@
 <div x-data="productoForm({
     producto: @js($productoEncontrado),
-    categorias: @js($categorias),
     marcas: @js($marcas),
-    atributoProductos: @js($atributoProductos),
 })"
-    x-watch="producto.categoria_id"
-    x-init="init(); cargarAtributosLocales()"
+    x-init="init()"
     @select-changed.window="actualizarConcatenacion()"
     class="space-y-4">
     <div class="space-y-6">
+        <!-- Primera sección: Categoría/Tipo/Inventariable -->
         @include('livewire.productos.livewire-producto-categoria')
-        @include('livewire.productos.livewire-producto-atributos')
-        @include('livewire.productos.livewire-producto-create')
+
+        <!-- Segunda sección: Atributos y Imagen lado a lado -->
+        <div class="grid grid-cols-1 lg:grid-cols-10 gap-6">
+            <div class="lg:col-span-7">
+                <div x-show="producto.categoria === 'LLANTA' && (producto.tipo === 'NUEVO' || producto.tipo === 'USADO')" x-cloak>
+                    @include('livewire.productos.categorias.livewire-productos-categoria-llantas')
+                </div>
+                <div x-show="producto.categoria === 'RIN' && (producto.tipo === 'NUEVO' || producto.tipo === 'USADO')" x-cloak>
+                    @include('livewire.productos.categorias.livewire-productos-categoria-rines')
+                </div>
+                <div x-show="producto.categoria === 'OTRO' && (producto.tipo === 'NUEVO' || producto.tipo === 'USADO')" x-cloak>
+                    @include('livewire.productos.categorias.livewire-productos-categoria-otros')
+                </div>
+                <div x-show="producto.categoria === 'SERVICIO'" x-cloak>
+                    @include('livewire.productos.categorias.livewire-productos-categoria-servicios')
+                </div>
+            </div>
+            <div class="lg:col-span-3">
+                @include('livewire.productos.livewire-producto-imagen')
+            </div>
+        </div>
+
         <div class="flex justify-end gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
             <!-- Botón Cancelar -->
             <button
@@ -46,45 +64,51 @@
     </div>
 </div>
 <script>
-    function productoForm({ producto, categorias, marcas, atributoProductos }) {
+    function productoForm({ producto, marcas }) {
         return {
             producto: producto || {
+                categoria: '',
+                tipo: '',
+                inventariable: false,
+                referencia_producto: '',
                 nombre_producto: '',
                 descripcion: '',
                 precio: '',
                 stock: '',
-                categoria_id: null,
                 marca_id: null,
-                atributo_productos: {},
-                categoriaSeleccionada: null,
+                //categoriaSeleccionada: null,
             },
-            categorias: categorias || [],
             marcas: marcas || [],
-            atributos: [],
-            lastCategoriaId: null,
             enviando: false,
             init() {
-                const existing = this.producto.atributo_productos;
-                if (Array.isArray(existing)) {
-                    const map = {};
-                    existing.forEach((item) => {
-                        if (item && item.atributo_id !== undefined) {
-                            map[item.atributo_id] = item.valor ?? '';
-                        }
+                // Watchers para actualizar concatenación automáticamente
+                const camposReferencia = [
+                    'producto.ancho',
+                    'producto.perfil',
+                    'producto.construccion',
+                    'producto.rin',
+                    'producto.diametro',
+                    'producto.categoria',
+                    'producto.tipo',
+                ];
+                camposReferencia.forEach((campo) => {
+                    this.$watch(campo, () => {
+                        this.actualizarReferencia();
                     });
-                    this.producto.atributo_productos = map;
-                } else if (!existing || Object.keys(existing).length === 0) {
-                    this.producto.atributo_productos = atributoProductos || {};
-                }
-                // Inicializar atributos si ya hay categoría seleccionada
-                this.cargarAtributosLocales();
-
-                // Watcher para actualizar referencia automáticamente
-                this.$watch('producto.atributo_productos', () => {
-                    this.actualizarReferencia();
                 });
 
-                // Watchers para actualizar concatenación automáticamente
+                this.$watch('producto.tipo', () => {
+                    this.producto.ancho = '';
+                    this.producto.perfil = '';
+                    this.producto.construccion = '';
+                    this.producto.rin = '';
+                    this.producto.diametro = '';
+                    this.producto.referencia_producto = '';
+                    this.producto.descripcion_producto = '';
+                    this.producto.marca_id = null;
+                    this.actualizarConcatenacion();
+                });
+
                 this.$watch('producto.referencia_producto', () => {
                     this.actualizarConcatenacion();
                 });
@@ -95,86 +119,27 @@
                     this.actualizarConcatenacion();
                 });
             },
-            cargarAtributosLocales() {
-                if (this.producto.categoria_id) {
-                    const categoriaSeleccionada = this.categorias.find(cat => cat.id === this.producto.categoria_id);
-                    if (categoriaSeleccionada && categoriaSeleccionada.atributos) {
-                        this.atributos = categoriaSeleccionada.atributos;
-                        if (this.lastCategoriaId !== null && this.lastCategoriaId !== this.producto.categoria_id) {
-                            // Resetear los valores de atributos al cambiar de categoría
-                            this.producto.atributo_productos = {};
-                        }
-                        this.lastCategoriaId = this.producto.categoria_id;
-                        console.log('Atributos de la categoría:', this.atributos);
 
-                        // Inicializar valores por defecto y actualizar referencia
-                        this.$nextTick(() => {
-                            this.actualizarReferencia();
-                        });
-                    }
-                } else {
-                    this.atributos = [];
-                    this.producto.atributo_productos = {};
-                    this.lastCategoriaId = null;
-                }
-            },
-            parseOpciones(opcionesString) {
-                if (!opcionesString) return [];
-                try {
-                    let result = [];
-                    let cleaned = String(opcionesString).trim();
-
-                    // Intentar parsear como JSON
-                    try {
-                        let parsed = JSON.parse(cleaned);
-
-                        // Si es array dentro de array, desempacar
-                        if (Array.isArray(parsed) && parsed.length > 0 && typeof parsed[0] === 'string') {
-                            try {
-                                parsed = JSON.parse(parsed[0]);
-                            } catch (e) {
-                                // No es JSON válido, manejarlo después
-                            }
-                        }
-
-                        // Si es array, procesarlo
-                        if (Array.isArray(parsed)) {
-                            result = parsed.map(item => {
-                                let str = String(item);
-                                // Limpiar comillas escapadas y corchetes
-                                return str.replace(/\\+"/g, '"').replace(/^\["|"\]$/g, '').replace(/^"|"$/g, '').trim();
-                            });
-                        } else {
-                            result = [String(parsed)];
-                        }
-                    } catch (parseErr) {
-                        // Si JSON.parse falla, intentar regex para extraer valores
-                        const matches = cleaned.match(/"([^"\\]|\\.)*"/g) || [];
-                        result = matches.map(m => m.replace(/^"|"$/g, '').replace(/\\"/g, '"'));
-                    }
-
-                    return result;
-                } catch (e) {
-                    console.error('Error parsing opciones:', opcionesString);
-                    return [];
-                }
-            },
             actualizarReferencia() {
-                if (this.atributos.length === 0) {
-                    return;
-                }
-
-                // Concatenar valores de atributos en orden
+                const ancho = String(this.producto.ancho ?? '').trim();
+                const perfil = String(this.producto.perfil ?? '').trim();
+                const construccion = String(this.producto.construccion ?? '').trim();
+                const rin = String(this.producto.rin ?? '').trim();
+                const diametro = String(this.producto.diametro ?? '').trim();
                 let referencia = '';
-                this.atributos.forEach((atributo) => {
-                    const valor = this.producto.atributo_productos[atributo.id];
-                    if (valor !== null && valor !== undefined && String(valor).trim() !== '') {
-                        referencia += String(valor);
-                    }
-                });
 
+                if (this.producto.categoria === 'LLANTA' && this.producto.tipo === 'NUEVO') {
+                    referencia += (ancho ? ancho : '') + '/' +
+                        (perfil ? perfil : '') +
+                        (construccion ? construccion : '') +
+                        (rin ? rin : '');
+                } else if (this.producto.categoria === 'RIN' && this.producto.tipo === 'NUEVO') {
+                    referencia += (diametro ? diametro : '') + 'X' +
+                        (ancho ? ancho : '');
+                }
                 this.producto.referencia_producto = referencia;
             },
+
             actualizarConcatenacion() {
                 let concatenacion = '';
 
@@ -200,10 +165,6 @@
                 console.log('Concatenación actualizada:', concatenacion);
             },
             enviar() {
-                if (!this.producto.categoria_id) {
-                    alert('Por favor, seleccione una categoría.');
-                    return;
-                }
                 if (!this.producto.marca_id) {
                     alert('Por favor, seleccione una marca.');
                     return;
@@ -236,13 +197,6 @@
                 this.enviando = true;
 
                 const payload = JSON.parse(JSON.stringify(this.producto));
-                const atributos = payload.atributo_productos || {};
-                payload.atributo_productos = Object.entries(atributos)
-                    .filter(([, valor]) => valor !== null && valor !== undefined && String(valor).trim() !== '')
-                    .map(([atributoId, valor]) => ({
-                        atributo_id: Number(atributoId),
-                        valor: valor,
-                    }));
                 console.log('Producto payload:', payload);
 
                 this.$wire.guardarProducto(payload)

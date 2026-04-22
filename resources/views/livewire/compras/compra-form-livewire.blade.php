@@ -1,6 +1,5 @@
 <div x-data="compraForm({
 
-    categoriaSeleccionada: null,
     productoIngresado: null,
     cantidadIngresada: 1,
     valorIngresado: 0,
@@ -13,7 +12,6 @@
     productos: @js($productos),
     detalles_compra: @js($detalles_compra),
     esEdicion: @js($esEdicion),
-    categorias: @js($categorias),
 
 })" x-init="init()" class="space-y-4">
     <div>
@@ -64,8 +62,6 @@
         valorIngresado = 0,
         subTotalIngresado = 0,
         productoIngresado = null,
-        categoriaSeleccionada = null,
-        categorias = [],
 
         fechaIngresada = null,
     }) {
@@ -87,8 +83,6 @@
             cantidadSeleccionada: 1,
             isLoading: false,
             cantidadesPorBodega: {},
-            categorias,
-            categoriaSeleccionada,
             init() {
                 //muestra en consola los datos de la compra para verificar que se están cargando correctamente
                 console.log('Datos de la compra:', this.compra);

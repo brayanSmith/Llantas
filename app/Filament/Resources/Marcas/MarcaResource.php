@@ -59,7 +59,8 @@ class MarcaResource extends Resource
         return $schema
             ->components([
                 TextInput::make('marca')
-                    ->required(),
+                    ->required()
+                    ->unique(ignoreRecord: true),
                 TextInput::make('descripcion_marca'),
             ]);
     }

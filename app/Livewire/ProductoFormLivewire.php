@@ -2,18 +2,14 @@
 
 namespace App\Livewire;
 
-use App\Models\AtributoProducto;
-use App\Models\Categoria;
 use App\Models\Marca;
 use App\Models\Producto;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
-use Filament\Schemas\Schema;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
-use Livewire\Attributes\Validate;
 use Illuminate\Support\Facades\Storage;
 use Livewire\WithFileUploads;
 
@@ -24,9 +20,7 @@ class ProductoFormLivewire extends Component implements HasActions, HasSchemas
     use WithFileUploads;
 
     public ?Producto $producto = null;
-    public ?array $categoria = [];
     public ?array $marca = [];
-    public ?array $categorias = [];
     public ?array $marcas = [];
     public bool $esEdicion = false;
 
@@ -36,6 +30,9 @@ class ProductoFormLivewire extends Component implements HasActions, HasSchemas
     protected function getProductoDefaults(): array
     {
         return [
+                'categoria' => '',
+                'tipo' => '',
+
             'referencia_producto' => '',
             'descripcion_producto' => '',
             'costo_producto' => 0,
@@ -46,7 +43,6 @@ class ProductoFormLivewire extends Component implements HasActions, HasSchemas
             'porcentaje_valor_mayorista' => 0,
             'porcentaje_valor_sin_instalacion' => 0,
             'porcentaje_dinamico' => false,
-            'categoria_id' => null,
             'marca_id' => null,
         ];
     }
@@ -67,20 +63,18 @@ class ProductoFormLivewire extends Component implements HasActions, HasSchemas
         $this->producto = null;
         if ($productoId) {
             $this->esEdicion = true;
-            $productoEncontrado = Producto::with(['categoria', 'marca', 'atributoProductos'])->find($productoId);
+            $productoEncontrado = Producto::with(['marca'])->find($productoId);
             if ($productoEncontrado) {
                 $this->producto = $productoEncontrado;
-                $this->categoria = $productoEncontrado->categoria ? $productoEncontrado->categoria->toArray() : [];
                 $this->marca = $productoEncontrado->marca ? $productoEncontrado->marca->toArray() : [];
 
                 // Cargar path de imagen si existe
                 if ($productoEncontrado->imagen_producto) {
-                    $this->imagenProductoPath = Storage::url('productos/' . $productoEncontrado->imagen_producto);
+                    $this->imagenProductoPath = Storage::disk('public')->url($productoEncontrado->imagen_producto);
                 }
             }
         }
         // Cargar todas las categorías y marcas disponibles
-        $this->categorias = Categoria::with('atributos')->get()->toArray();
         $this->marcas = Marca::get()->toArray();
     }
 
@@ -88,14 +82,12 @@ class ProductoFormLivewire extends Component implements HasActions, HasSchemas
     {
         try {
             $productoData = $datos;
-            $atributosDetalle = $productoData['atributo_productos'] ?? [];
-            unset($productoData['atributo_productos']);
 
             // Guardar la imagen si existe
             $rutaImagen = null;
             if ($this->imagen_producto) {
                 $rutaImagen = $this->imagen_producto->store('productos', 'public');
-                $productoData['imagen_producto'] = basename($rutaImagen);
+                $productoData['imagen_producto'] = $rutaImagen;
             }
 
             // Guardar o actualizar producto
@@ -106,24 +98,6 @@ class ProductoFormLivewire extends Component implements HasActions, HasSchemas
                 }
             } else {
                 $productoModel = Producto::create($productoData);
-            }
-
-            if (isset($productoModel)) {
-                AtributoProducto::where('producto_id', $productoModel->id)->delete();
-                foreach ($atributosDetalle as $atributo) {
-                    if (!isset($atributo['atributo_id'])) {
-                        continue;
-                    }
-                    $valor = $atributo['valor'] ?? null;
-                    if ($valor === null || trim((string) $valor) === '') {
-                        continue;
-                    }
-                    AtributoProducto::create([
-                        'producto_id' => $productoModel->id,
-                        'atributo_id' => $atributo['atributo_id'],
-                        'valor' => $valor,
-                    ]);
-                }
             }
 
             $this->imagen_producto = null;
@@ -149,18 +123,9 @@ class ProductoFormLivewire extends Component implements HasActions, HasSchemas
 
     public function render(): View
     {
-        $atributoProductos = [];
-        if ($this->producto && $this->producto->relationLoaded('atributoProductos')) {
-            $atributoProductos = $this->producto->atributoProductos
-                ->pluck('valor', 'atributo_id')
-                ->toArray();
-        }
-
         return view('livewire.producto-form-livewire', [
             'productoEncontrado' => $this->producto,
-            'categorias' => $this->categorias,
             'marcas' => $this->marcas,
-            'atributoProductos' => $atributoProductos,
         ]);
     }
 }

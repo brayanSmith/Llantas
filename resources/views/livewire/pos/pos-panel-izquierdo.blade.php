@@ -7,15 +7,20 @@
             Productos
         </h2>
         <!-- Radio button con las bodegas -->
-        <div x-data="{
-            stock: {},
-            bodegaSeleccionada: localStorage.getItem('bodegaSeleccionada') || '',
-        }" x-init="
-            if (bodegaSeleccionada) {
-                pedido.bodega_id = bodegaSeleccionada;
+        <div x-init="
+            const bodegaGuardada = localStorage.getItem('bodegaSeleccionada');
+
+            if (bodegaGuardada !== null && bodegaGuardada !== '') {
+                bodegaSeleccionada = Number(bodegaGuardada);
+                pedido.bodega_id = Number(bodegaGuardada);
+            } else if (bodegaSeleccionada !== null && bodegaSeleccionada !== '') {
+                localStorage.setItem('bodegaSeleccionada', Number(bodegaSeleccionada));
             }
+
             $watch('bodegaSeleccionada', value => {
-                localStorage.setItem('bodegaSeleccionada', value);
+                const valorNormalizado = value !== null && value !== '' ? Number(value) : '';
+                localStorage.setItem('bodegaSeleccionada', valorNormalizado);
+                pedido.bodega_id = valorNormalizado;
             });
         ">
             <!-- Selector de bodega -->
@@ -23,7 +28,7 @@
                 <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Selecciona una bodega:</p>
             <template  x-for="bodega in bodegas" :key="bodega.id">
                 <label>
-                    <input type="radio" :value="bodega.id" x-model="bodegaSeleccionada"
+                    <input type="radio" :value="bodega.id" x-model.number="bodegaSeleccionada"
                         :disabled="pedido.detalles && pedido.detalles.length > 0"
                         @change="
                             pedido.bodega_id = bodegaSeleccionada;

@@ -104,8 +104,4 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->hasMany(Abono::class, 'vendedor_id');
     }
-    public function bodega()
-    {
-        return $this->belongsTo(Bodega::class);
-    }
 }

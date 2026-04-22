@@ -8,4 +8,9 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateProducto extends CreateRecord
 {
     protected static string $resource = ProductoResource::class;
+
+    protected function getFormActions(): array
+    {
+        return [];
+    }
 }

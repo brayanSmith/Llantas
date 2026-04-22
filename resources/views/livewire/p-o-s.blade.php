@@ -207,6 +207,7 @@
                         if (Array.isArray(productosActualizar)) {
                             productosActualizar.forEach(item => {
                                 const id = item.producto_id;
+                                const bodegaId = item.bodega_id;
                                 const stock = item.stock;
                                 // Actualiza el store global de Alpine
                                 if (this.$store && this.$store.pos && this.$store.pos.stock) {
@@ -215,6 +216,14 @@
                                 // Actualiza el stock en el array de productos locales
                                 const prod = this.productos.find(p => p.id === id);
                                 if (prod) {
+                                    // Actualizar en stock_bodegas (usado en galeria)
+                                    if (prod.stock_bodegas && Array.isArray(prod.stock_bodegas)) {
+                                        const bodegaStock = prod.stock_bodegas.find(b => b.bodega_id === bodegaId);
+                                        if (bodegaStock) {
+                                            bodegaStock.stock = stock;
+                                        }
+                                    }
+                                    // Mantener retrocompatibilidad con prod.stock (si existe)
                                     prod.stock = stock;
                                 }
                             });

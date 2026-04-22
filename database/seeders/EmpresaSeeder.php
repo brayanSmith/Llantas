@@ -19,7 +19,6 @@ class EmpresaSeeder extends Seeder
             'direccion_empresa' => 'Calle 123 #45-67, Bogotá',
             'telefono_empresa' => '3101234567',
             'email_empresa' => 'info@servillantas.com',
-            'mostrar_productos_sin_inventario' => true,
         ]);
     }
 }

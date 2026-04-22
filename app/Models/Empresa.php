@@ -16,13 +16,13 @@ class Empresa extends Model
         'email_empresa',
         'nit_empresa',
         'logo_empresa',
-        'cuentas_bancarias',
-        'mostrar_productos_sin_inventario',
+        //'cuentas_bancarias',
+        //'mostrar_productos_sin_inventario',
     ];
 
     protected $casts = [
-        'cuentas_bancarias' => 'array',
-        'mostrar_productos_sin_inventario' => 'boolean',
+        //'cuentas_bancarias' => 'array',
+        //'mostrar_productos_sin_inventario' => 'boolean',
     ];
 
 

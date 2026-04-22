@@ -27,21 +27,24 @@ return new class extends Migration
 
         Schema::create('productos', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('categoria_id')->constrained('categorias')->onDelete('cascade');
+            $table->enum('categoria', ['LLANTA', 'RIN', 'SERVICIO', 'OTRO'])->nullable();
+            $table->enum('tipo', ['NUEVO', 'USADO'])->nullable();
+            $table->boolean('inventariable')->default(true);
+            //Llantas
+            $table->string('ancho')->nullable();
+            $table->string('perfil')->nullable();
+            $table->string('construccion')->nullable();
+            $table->string('rin')->nullable();
+            //Rines
+            $table->string('diametro')->nullable();
+
             $table->foreignId('marca_id')->constrained('marcas')->onDelete('cascade');
             $table->string('referencia_producto')->nullable();
             $table->string('descripcion_producto')->nullable();
-
             $table->decimal('costo_producto', 10, 2)->default(0);//Ira cambiando de acuerdo a las entradas
             $table->decimal('valor_detal', 10, 2)->default(0);
             $table->decimal('valor_mayorista', 10, 2)->default(0);
             $table->decimal('valor_sin_instalacion', 10, 2)->default(0);
-
-            /*$table->decimal('porcentaje_valor_detal', 5, 2)->default(0);
-            $table->decimal('porcentaje_valor_mayorista', 5, 2)->default(0);
-            $table->decimal('porcentaje_valor_sin_instalacion', 5, 2)->default(0);
-            $table->boolean('porcentaje_dinamico')->default(false);*/
-
             $table->string('imagen_producto')->nullable();
             $table->string('concatenar_codigo_nombre')->nullable();
             $table->timestamps();

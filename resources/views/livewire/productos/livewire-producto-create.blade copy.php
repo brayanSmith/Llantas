@@ -4,6 +4,23 @@
         <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">Marca e Información Básica</h3>
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Ancho</label>
+                <input type="text" x-model="producto.ancho" @input="actualizarConcatenacion()" class="input-pedido" readonly />
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Perfil</label>
+                <input type="text" x-model="producto.perfil" @input="actualizarConcatenacion()" class="input-pedido" readonly />
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Construcción</label>
+                <input type="text" x-model="producto.construccion" @input="actualizarConcatenacion()" class="input-pedido" readonly />
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Rin</label>
+                <input type="text" x-model="producto.rin" @input="actualizarConcatenacion()" class="input-pedido" readonly />
+            </div>
+            <!-- -->
+            <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Referencia</label>
                 <input type="text" x-model="producto.referencia_producto" @input="actualizarConcatenacion()" class="input-pedido" readonly />
             </div>

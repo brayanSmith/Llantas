@@ -85,7 +85,7 @@ class POS extends Component implements HasActions, HasSchemas
         ->with(['stockBodegas' ])
         ->get()
         ->toArray();
-        $this->bodegaSeleccionada = User::select('bodega_id')->where('id', $this->userId)->first()->bodega_id ?? null;
+        $this->bodegaSeleccionada = $this->bodegaDeAcuerdoAlRol();
         $this->stock = $this->obtenerStockPorBodega($this->bodegaSeleccionada);
         $this->pucs = Puc::select('id', 'concatenar_subcuenta_concepto')->get()->toArray();
     }
@@ -93,13 +93,26 @@ class POS extends Component implements HasActions, HasSchemas
     public function tipoDePrecioDeAcuerdoAlRol()
     {
         $role = User::find($this->userId)->roles()->pluck('name')->first();
-        if (in_array($role, ['super_admin', 'comercial'])) {
+        if (in_array($role, ['super_admin', 'comercial_economi', 'comercial_outlet'])) {
             return 'DETAL';
         } elseif ($role === 'Comercial x Mayor') {
             return 'MAYORISTA';
         }
         return 'DETAL'; // Valor por defecto
 
+    }
+
+    public function bodegaDeAcuerdoAlRol()
+    {
+        $role = User::find($this->userId)->roles()->pluck('name')->first();
+
+        if (in_array($role, ['comercial_economi'])) {
+            return Bodega::where('nombre_bodega', 'Economi')->first()->id ?? null;
+
+        } elseif ($role === 'comercial_outlet') {
+            return Bodega::where('nombre_bodega', 'Outlet')->first()->id ?? null;
+        }
+        return null; // Valor por defecto
     }
 
     public function obtenerStockPorBodega($bodegaId)

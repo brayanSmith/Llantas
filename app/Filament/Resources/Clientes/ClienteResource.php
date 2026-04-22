@@ -53,7 +53,7 @@ class ClienteResource extends Resource
             'index' => ListClientes::route('/'),
             'create' => CreateCliente::route('/create'),
             'edit' => EditCliente::route('/{record}/edit'),
-            'view' => ViewCliente::route('/{record}/view'),
+            //'view' => ViewCliente::route('/{record}/view'),
         ];
     }
 }

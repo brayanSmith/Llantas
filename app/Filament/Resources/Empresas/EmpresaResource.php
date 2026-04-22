@@ -58,21 +58,6 @@ class EmpresaResource extends Resource
                     ->maxSize(1024) // 1MB
                     ->default(null),
 
-                Repeater::make('cuentas_bancarias')
-                    ->label('Cuentas Bancarias')
-
-                    ->schema([
-                        TextInput::make('cuenta')
-                            ->label('Cuenta Bancaria')
-                            ->required()
-                            ->maxLength(255),
-                    ])
-                    ->columnSpanFull()
-                    ->nullable()
-                    ->default(null),
-                Toggle::make('mostrar_productos_sin_inventario')
-                    ->label('Mostrar productos sin inventario')
-                    ->default(false),
             ]);
     }
 

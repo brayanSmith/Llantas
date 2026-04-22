@@ -10,6 +10,10 @@ use Filament\Resources\Pages\EditRecord;
 class EditProducto extends EditRecord
 {
     protected static string $resource = ProductoResource::class;
+    protected function getFormActions(): array
+    {
+        return [];
+    }
 
     protected function getHeaderActions(): array
     {

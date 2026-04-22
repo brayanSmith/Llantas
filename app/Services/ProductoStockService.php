@@ -19,15 +19,18 @@ class ProductoStockService
     public function crearProductosBodega(Producto $producto): void
     {
         $productosIds = [$producto->id];
-        
+
         // Obtener todas las bodegas activas
         $bodegasIds = Bodega::pluck('id');
-        
+
+        if($producto->inventariable === false){
+            return; // No crear stock para productos no inventariables
+        }
         // Crear stock en cada bodega
         foreach ($bodegasIds as $bodegaId) {
             $this->stockCalculoService->crearProductosBodega($bodegaId, $productosIds);
         }
-    }    
+    }
 
     // Recalcula el stock de un producto en todas sus bodegas
     public function recalcularStockTodasBodegas(int $productoId): void

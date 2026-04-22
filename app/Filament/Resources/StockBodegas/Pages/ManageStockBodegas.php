@@ -19,16 +19,18 @@ class ManageStockBodegas extends ManageRecords
             'Todos' => Tab::make(),
                 //->badge(fn () => \App\Models\Pedido::count()),
 
-            'Materia Prima' => Tab::make()
-                ->modifyQueryUsing(fn (EloquentBuilder $query) => $query->where('categoria_producto', 'MATERIA_PRIMA')),
+            'Llantas' => Tab::make()
+                ->modifyQueryUsing(fn (EloquentBuilder $query) => $query->where('categoria', 'LLANTA')),
                 //->badge(fn () => \App\Models\Pedido::where('estado', 'PENDIENTE')->count()),
 
-            'Producto Terminado' => Tab::make()
-                ->modifyQueryUsing(fn (EloquentBuilder $query) => $query->where('categoria_producto', 'PRODUCTO_TERMINADO')),
+            'Rines' => Tab::make()
+                ->modifyQueryUsing(fn (EloquentBuilder $query) => $query->where('categoria', 'RIN')),
             // ->badge(fn () => \App\Models\Pedido::where('estado', 'FACTURADO')->count()),
+            'Servicios' => Tab::make()
+                ->modifyQueryUsing(fn (EloquentBuilder $query) => $query->where('categoria', 'SERVICIO')),
 
-            'Otro' => Tab::make()
-                ->modifyQueryUsing(fn (EloquentBuilder $query) => $query->where('categoria_producto', 'OTRO')),
+            'Otros' => Tab::make()
+                ->modifyQueryUsing(fn (EloquentBuilder $query) => $query->where('categoria', 'OTRO')),
             // ->badge(fn () => \App\Models\Pedido::where('estado', 'ANULADO')->count()),
         ];
     }

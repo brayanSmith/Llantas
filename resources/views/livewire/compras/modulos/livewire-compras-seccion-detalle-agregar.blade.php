@@ -3,10 +3,7 @@
         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 rounded-lg overflow-hidden">
             <thead class="bg-gray-100 dark:bg-gray-800">
                 <tr>
-                    <th class="px-4 py-2 text-left text-xs font-semibold text-gray-700 dark:text-gray-200 w-[18%]">
-                        Categoria
-                    </th>
-                    <th class="px-4 py-2 text-left text-xs font-semibold text-gray-700 dark:text-gray-200 w-[22%]">
+                    <th class="px-4 py-2 text-left text-xs font-semibold text-gray-700 dark:text-gray-200 w-[40%]">
                         Producto
                     </th>
                     <!-- Columnas dinámicas por bodega -->
@@ -31,23 +28,11 @@
                     class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 transition">
                     <td class="px-4">
                         <x-select-searchable
-                            :options="$categorias"
-                            idKey="id"
-                            textKey="nombre_categoria"
-                            selectId="select-categoria"
-                            placeholder="Seleccione una categoría..."
-                            x-model="categoriaSeleccionada" />
-                    </td>
-
-                    <td class="px-4">
-                        <x-select-searchable
                             :options="$productos"
                             idKey="id"
                             textKey="concatenar_codigo_nombre"
                             selectId="select-producto"
                             placeholder="Seleccione un producto..."
-                            dependsOn="categoriaSeleccionada"
-                            filterKey="categoria_id"
                             x-model="productoIngresado" />
                     </td>
                     <!-- Inputs dinámicos por bodega -->

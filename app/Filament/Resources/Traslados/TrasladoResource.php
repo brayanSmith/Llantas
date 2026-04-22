@@ -8,7 +8,6 @@ use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -18,7 +17,6 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Filament\Forms\Components\Select;
 use App\Models\Producto;
-use App\Models\StockBodega;
 use App\Services\StockCalculoService;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\Textarea;
@@ -113,7 +111,7 @@ class TrasladoResource extends Resource
                             };
                         },
                     ]),
-                TextArea::make('observaciones')
+                Textarea::make('observaciones')
                     ->label('Observaciones')
                     ->rows(3)
                     ->maxLength(500)
@@ -155,7 +153,7 @@ class TrasladoResource extends Resource
                 SelectFilter::make('bodega_destino_id')
                     ->relationship('bodegaDestino', 'nombre_bodega'),
                 SelectFilter::make('producto_id')
-                    ->relationship('producto', 'nombre_producto'),
+                    ->relationship('producto', 'concatenar_codigo_nombre'),
             ])
             ->recordActions([
                 //EditAction::make(),
