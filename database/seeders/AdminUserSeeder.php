@@ -21,7 +21,6 @@ class AdminUserSeeder extends Seeder
                 'name' => 'Admin',
                 'password' => bcrypt('password123'),
                 //'role' => Role::firstOrCreate(['name' => 'super_admin']),
-                'bodega_id' => 1, // Asignar a la bodega 1
             ]
         );
             User::updateOrCreate(
@@ -30,7 +29,7 @@ class AdminUserSeeder extends Seeder
                 'name' => 'Comercial',
                 'password' => bcrypt('password123'),
                 //'role' => Role::firstOrCreate(['name' => 'comercial']),
-                'bodega_id' => 1, // Asignar a la bodega 1
+                //'bodega_id' => 1, // Asignar a la bodega 1
             ]
         );
 
@@ -40,7 +39,7 @@ class AdminUserSeeder extends Seeder
                 'name' => 'Cliente',
                 'password' => bcrypt('password123'),
                 //'role' => Role::firstOrCreate(['name' => 'comercial']),
-                'bodega_id' => 2, // Asignar a la bodega 2
+                //'bodega_id' => 2, // Asignar a la bodega 2
             ]
         );
 
@@ -50,7 +49,7 @@ class AdminUserSeeder extends Seeder
                     'name' => 'Comercial x Mayor',
                     'password' => bcrypt('password123'),
                     //'role' => Role::firstOrCreate(['name' => 'comercial_x_mayor']),
-                    'bodega_id' => 1, // Asignar a la bodega 1
+                    //'bodega_id' => 1, // Asignar a la bodega 1
                 ]
             );
     }

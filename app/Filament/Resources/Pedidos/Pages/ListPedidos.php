@@ -38,7 +38,7 @@ class ListPedidos extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            $this->getAbonoPedidoAction(),
+            //$this->getAbonoPedidoAction(),
 
         ];
     }

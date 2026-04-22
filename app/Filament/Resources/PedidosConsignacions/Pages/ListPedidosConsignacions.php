@@ -25,6 +25,7 @@ class ListPedidosConsignacions extends ListRecords
             'pedidos' => Tab::make('Pedidos')
                 ->icon('heroicon-o-shopping-cart')
                 ->modifyQueryUsing(fn (Builder $query) => $query->with(['detalles.producto', 'cliente'])),
+
             'detalles' => Tab::make('Detalle Pedidos')
                 ->icon('heroicon-o-list-bullet')
                 ->modifyQueryUsing(fn (Builder $query) => $query

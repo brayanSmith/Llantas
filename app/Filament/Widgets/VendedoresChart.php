@@ -24,7 +24,7 @@ class VendedoresChart extends ChartWidget
 
         // Obtener los 5 mejores vendedores con ambos datos
         $mejoresVendedores = User::query()
-            ->role(['Comercial'])
+            ->role(['comercial_outlet', 'comercial_economi', 'Comercial x Mayor'])
             ->withCount([
                 'pedidos as cantidad' => function ($query) use ($startDate, $endDate) {
                     $query->whereIn('estado', ['FACTURADO', 'ENTREGADO']);

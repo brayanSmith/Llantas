@@ -99,9 +99,11 @@ class CatalogoResource extends Resource
     {
         return $table
             ->recordTitleAttribute('codigo_producto')
+            ->modifyQueryUsing(fn ($query) => $query->withSum('stockBodegas', 'stock'))
             ->columns([
                 Stack::make([
-                    TextColumn::make('nombre_producto')
+                    TextColumn::make('concatenar_codigo_nombre')
+                        ->alignCenter()
                         ->searchable()
                         ->weight('bold'),
                     ImageColumn::make('imagen_producto')
@@ -112,22 +114,43 @@ class CatalogoResource extends Resource
                         ->width(100)
                         ->alignCenter(),
                     TextColumn::make('codigo_producto')
+                        ->alignCenter()
                         ->searchable()
                         ->extraAttributes([
-                             'class' => 'text-xs text-yellow-500 font-bold', // pequeño, amarillo y negrita
+                            'class' => 'text-center text-xs text-yellow-500 font-bold', // pequeño, amarillo y negrita
                         ]),
-                    TextColumn::make('valor_ferretero_producto')
-                        ->label('Ferretero')
-                        ->formatStateUsing(fn($state) => 'Ferretero: $' . number_format($state, 0)),
+                    TextColumn::make('referencia_producto')
+                        ->alignCenter()
+                        ->searchable()
+                        ->extraAttributes([
+                            'class' => 'text-center text-xs text-blue-500 font-bold', // pequeño, azul y negrita
+                        ]),
+                    TextColumn::make('descripcion_producto')
+                        ->alignCenter()
+                        ->searchable()
+                        ->extraAttributes([
+                            'class' => 'text-center text-xs text-gray-500', // pequeño y gris
+                        ]),
+                    TextColumn::make('valor_mayorista')
+                        ->alignCenter()
+                        ->label('Valor x Mayor')
+                        ->formatStateUsing(fn($state) => 'Valor x Mayor: $' . number_format($state, 0)),
+
+                    TextColumn::make('stock_bodegas_sum_stock')
+                        ->alignCenter()
+                        ->label('Stock')
+                        ->badge()
+                        ->color(fn($state) => ((int) ($state ?? 0)) > 0 ? 'success' : 'danger')
+                        ->formatStateUsing(fn($state) => 'Stock: ' . number_format((int) ($state ?? 0), 0)),
 
                 ])
             ])
             ->contentGrid([
                 'xs' => 2,
                 'sm' => 2,
-                'md' => 5,
-                'lg' => 5,
-                'xl' => 5,
+                'md' => 4,
+                'lg' => 4,
+                'xl' => 4,
             ])
             ->filters([
                 //

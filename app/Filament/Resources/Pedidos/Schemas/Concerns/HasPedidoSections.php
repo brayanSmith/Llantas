@@ -184,7 +184,7 @@ trait HasPedidoSections
                         ->relationship(
                             name: 'user',
                             titleAttribute: 'name',
-                            modifyQueryUsing: fn ($query) => $query->whereHas('roles', fn ($q) => $q->where('name', 'Comercial')/*->orWhere('name', 'super_admin')*/)
+                            modifyQueryUsing: fn ($query) => $query->whereHas('roles', fn ($q) => $q->whereIn('name', ['comercial_outlet', 'comercial_economi', 'Comercial x Mayor'])/*->orWhere('name', 'super_admin')*/)
                         )
                         ->searchable()
                         ->required()

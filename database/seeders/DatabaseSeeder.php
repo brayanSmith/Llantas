@@ -38,7 +38,6 @@ class DatabaseSeeder extends Seeder
             'name' => 'Test User',
             'email' => 'test@example.com',
             'password' => bcrypt('password123'),
-            'bodega_id' => 1,
         ]);
 
             $role = Role::firstOrCreate(['name' => 'super_admin']);

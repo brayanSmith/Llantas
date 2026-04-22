@@ -15,6 +15,9 @@ class ProductoExporter extends Exporter
     public static function getColumns(): array
     {
         return [
+            ExportColumn::make('stock_bodegas_sum_stock')
+                ->label('Stock')
+                ->sum('stockBodegas', 'stock'),
             ExportColumn::make('id'),
             ExportColumn::make('categoria_producto'),
             ExportColumn::make('codigo_producto'),

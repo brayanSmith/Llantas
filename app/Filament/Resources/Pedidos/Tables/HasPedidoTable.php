@@ -42,11 +42,6 @@ class HasPedidoTable
                 ->label('Turno')
                 ->searchable()
                 ->sortable(),
-
-            /*TextColumn::make('fecha')
-                ->label('Fecha de Facturación')
-                ->dateTime(),*/
-                //->sortable(),
             TextColumn::make('updated_at')
                 ->dateTime()
                 ->sortable()

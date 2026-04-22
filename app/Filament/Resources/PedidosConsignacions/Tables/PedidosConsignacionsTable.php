@@ -28,7 +28,7 @@ class PedidosConsignacionsTable
                     ->collapsible(),
             ])
             ->modifyQueryUsing(function ($query) {
-                $query->where('estado', 'PENDIENTE');
+                $query->where('tipo_pago', 'CONTRA_ENTREGA');
                 return $query;
             })
             ->columns([

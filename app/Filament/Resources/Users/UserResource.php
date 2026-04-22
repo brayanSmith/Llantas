@@ -56,12 +56,6 @@ class UserResource extends Resource
                     ->multiple()
                     ->relationship('roles', 'name')
                     ->preload(),
-
-                Select::make('bodega_id')
-                    ->label('Bodega (Solo Aplica para Comerciales)')
-                    //->multiple()
-                    ->relationship('bodega', 'nombre_bodega')
-                    ->preload(),
             ]);
     }
 
@@ -81,8 +75,6 @@ class UserResource extends Resource
                 TextColumn::make('email_verified_at')
                     ->dateTime()
                     ->sortable(),
-                TextColumn::make('bodega.nombre_bodega')
-                    ->label('Bodega'),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
