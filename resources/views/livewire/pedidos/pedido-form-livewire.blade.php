@@ -114,22 +114,23 @@
                 }*/
 
                 this.$watch('pedido.descuento', () => {
-                            this.calcularTotales();
-                        });
+                    this.calcularTotales();
+                });
 
-                        this.$watch('pedido.flete', () => {
-                            this.calcularTotales();
-                        });
-
-                        this.$watch('pedido.con_cuanto_paga', () => {
-                            this.calcularTotales();
-                        });
+                this.$watch('pedido.flete', () => {
+                    this.calcularTotales();
+                });
 
                 // Asegurar que flete y descuento sean números
                 this.pedido.flete = parseFloat(this.pedido.flete) || 0;
                 this.pedido.descuento = parseFloat(this.pedido.descuento) || 0;
+                this.pedido.abono_puc_id = this.pedido.abono_puc_id ?? this.pedido.id_puc ?? null;
+                this.pedido.con_cuanto_paga = Number(this.pedido.con_cuanto_paga) || 0;
+                this.pedido.descripcion_abono = this.pedido.descripcion_abono ?? '';
+                this.pedido.abonos = this.normalizarAbonos(this.pedido.abonos);
 
                 // Recalcular saldo pendiente con el abono correcto
+                this.pedido.abono = this.getTotalAbonos();
                 this.pedido.saldo_pendiente = this.getTotalFinal(this.pedido) - this.pedido.abono;
                 this.pedido.estado_pago = this.pedido.saldo_pendiente <= 0 ? 'SALDADO' : 'EN_CARTERA';
 
@@ -168,6 +169,59 @@
                         subtotal: detalle.cantidad * detalle.precio_unitario
                     }));
                 });
+
+                this.calcularTotales();
+            },
+            normalizarAbonos(abonos) {
+                if (!Array.isArray(abonos)) {
+                    return [];
+                }
+
+                return abonos.map(abono => ({
+                    ...abono,
+                    puc_id: abono.puc_id ?? abono.forma_pago_id ?? abono.forma_pago?.id ?? null,
+                    puc_nombre: abono.puc_nombre ?? abono.forma_pago?.concatenar_subcuenta_concepto ?? null,
+                    monto: parseFloat(abono.monto) || 0,
+                    fecha: abono.fecha ? this.formatDateForInput(abono.fecha).slice(0, 10) : '',
+                    descripcion: abono.descripcion || '',
+                }));
+            },
+            getTotalAbonos() {
+                return (this.pedido.abonos || []).reduce((acc, abono) => acc + (parseFloat(abono.monto) || 0), 0);
+            },
+            getPucIdFromAbono(abono) {
+                return abono?.puc_id ?? abono?.forma_pago_id ?? abono?.forma_pago?.id ?? null;
+            },
+            getNombrePuc(pucId) {
+                const listaPucs = Array.isArray(this.pucs) ? this.pucs : [];
+                const puc = listaPucs.find(item => String(item.id) === String(pucId));
+                return puc ? puc.concatenar_subcuenta_concepto : 'Medio de pago';
+            },
+            agregarAbono() {
+                const pucId = this.pedido.abono_puc_id;
+                const monto = Number(this.pedido.con_cuanto_paga) || 0;
+                const listaPucs = Array.isArray(this.pucs) ? this.pucs : [];
+                const pucSeleccionado = listaPucs.find(item => String(item.id) === String(pucId));
+
+                if (!pucId || monto <= 0) {
+                    alert('Debe seleccionar un medio de pago e ingresar un monto válido para el abono.');
+                    return false;
+                }
+
+                this.pedido.abonos.push({
+                    puc_id: Number(pucId),
+                    puc_nombre: pucSeleccionado?.concatenar_subcuenta_concepto || null,
+                    monto,
+                    fecha: new Date().toISOString().slice(0, 10),
+                    descripcion: this.pedido.descripcion_abono || '',
+                });
+
+                this.pedido.abono_puc_id = null;
+                this.pedido.con_cuanto_paga = 0;
+                this.pedido.descripcion_abono = '';
+                this.calcularTotales();
+
+                return true;
             },
             // Obtener el tipo de precio seleccionado
             get tipoPrecio() {
@@ -218,9 +272,12 @@
 
                 // Limpiar Tom Select
                 setTimeout(() => {
-                    const selectProducto = document.getElementById('select-producto');
-                    if (selectProducto && selectProducto.tomselect) {
-                        selectProducto.tomselect.clear();
+                    const selectProducto = document.getElementById('select-producto-searchable');
+                    if (selectProducto) {
+                        selectProducto.value = '';
+                        selectProducto.dispatchEvent(new Event('change', {
+                            bubbles: true
+                        }));
                     }
                 }, 50);
 
@@ -239,32 +296,24 @@
                 console.log('Estado del objeto pedido al remover detalle:', this.pedido);
             },
             //Funcion para Remover Algun Abono
-            /*removeAbono(index) {
+            removeAbono(index) {
                 this.pedido.abonos.splice(index, 1);
-                // Recalcular el monto total de abonos
-                const montoTotalAbonos = this.pedido.abonos.reduce((acc, abono) => acc + parseFloat(abono.monto || 0),
-                    0);
-                this.pedido.abono = montoTotalAbonos;
-
-                // Recalcular saldo pendiente y estado de pago
-                this.pedido.saldo_pendiente = this.pedido.total_a_pagar - this.pedido.abono;
-                this.pedido.estado_pago = this.pedido.saldo_pendiente <= 0 ? 'SALDADO' : 'EN_CARTERA';
-
+                this.calcularTotales();
                 console.log('Estado del objeto pedido al remover abono:', this.pedido);
-            },*/
+            },
             // Funcion para Seleccionar un Abono
             selectAbono(abono) {
+                abono.puc_id = this.getPucIdFromAbono(abono);
+                abono.puc_nombre = abono.puc_nombre || this.getNombrePuc(abono.puc_id);
                 this.abonoSeleccionado = abono;
                 console.log('Abono seleccionado:', this.abonoSeleccionado);
             },
             // Funcion para Guardar Cambios del Abono
             guardarAbono(abono) {
                 try {
-                    // El abono ya está actualizado en tiempo real por x-model
-                    // Solo recalcular totales
-                    //const montoTotalAbonos = this.pedido.abonos.reduce((acc, a) => acc + parseFloat(a.monto || 0), 0);
-                    //this.pedido.abono = montoTotalAbonos;
-                    this.pedido.saldo_pendiente = this.pedido.total_a_pagar - this.pedido.abono;
+                    abono.puc_id = this.getPucIdFromAbono(abono);
+                    abono.puc_nombre = this.getNombrePuc(abono.puc_id);
+                    this.calcularTotales();
                     this.pedido.estado_pago = this.pedido.saldo_pendiente <= 0 ? 'SALDADO' : 'EN_CARTERA';
 
                     // Cerrar modal
@@ -283,11 +332,14 @@
                     this.cantidadIngresada = detalle.cantidad;
                     this.valorIngresado = detalle.precio_unitario;
                     this.detalleEditandoIndex = index;
-                    // Actualizar Tom Select manualmente
+                    // Actualizar select manualmente
                     this.$nextTick(() => {
-                        const selectProducto = document.querySelector('select[id="select-producto"]');
-                        if (selectProducto && selectProducto.tomselect) {
-                            selectProducto.tomselect.setValue(detalle.producto_id);
+                        const selectProducto = document.getElementById('select-producto-searchable');
+                        if (selectProducto) {
+                            selectProducto.value = detalle.producto_id;
+                            selectProducto.dispatchEvent(new Event('change', {
+                                bubbles: true
+                            }));
                         }
                     });
 
@@ -334,11 +386,14 @@
                 this.valorIngresado = 0;
                 this.subTotalIngresado = 0;
 
-                // Limpiar Tom Select
+                // Limpiar select del producto
                 setTimeout(() => {
-                    const selectProducto = document.getElementById('select-producto');
-                    if (selectProducto && selectProducto.tomselect) {
-                        selectProducto.tomselect.clear();
+                    const selectProducto = document.getElementById('select-producto-searchable');
+                    if (selectProducto) {
+                        selectProducto.value = '';
+                        selectProducto.dispatchEvent(new Event('change', {
+                            bubbles: true
+                        }));
                     }
                 }, 50);
                 console.log('Estado del objeto pedido al actualizar detalle:', this.pedido);
@@ -443,22 +498,17 @@
                 return getSaldoPendiente(this.pedido);
             },
 
-            getCambio(totalAPagar, conCuantoPaga) {
-                const cambio = Number(conCuantoPaga) - Number(totalAPagar);
+            getCambio(totalAPagar, totalAbonado) {
+                const cambio = Number(totalAbonado) - Number(totalAPagar);
                 return cambio >= 0 ? cambio : 0;
-            },
-
-            getAbono(totalAPagar, conCuantoPaga) {
-                const abono = Number(conCuantoPaga) >= Number(totalAPagar) ? totalAPagar : conCuantoPaga;
-                return abono >= 0 ? abono : 0;
             },
 
             calcularTotales() {
                 this.pedido.subtotal = this.getTotal(this.pedido);
                 this.pedido.total_a_pagar = this.getTotalAPagar();
+                this.pedido.abono = this.getTotalAbonos();
                 this.pedido.saldo_pendiente = this.getSaldoPendiente();
-                this.pedido.cambio = this.getCambio(this.pedido.total_a_pagar, Number(this.pedido.con_cuanto_paga));
-                this.pedido.abono = this.getAbono(this.pedido.total_a_pagar, Number(this.pedido.con_cuanto_paga));
+                this.pedido.cambio = this.getCambio(this.pedido.total_a_pagar, this.pedido.abono);
                 //this.pedido.estado_pago = this.pedido.saldo_pendiente <= 0 ? 'SALDADO' : 'EN_CARTERA';
             },
 
@@ -491,6 +541,11 @@
             },
 
             enviar() {
+                const tieneBorradorAbono = this.pedido.abono_puc_id || Number(this.pedido.con_cuanto_paga) > 0;
+                if (tieneBorradorAbono && !this.agregarAbono()) {
+                    return;
+                }
+
                 const errores = this.validarDetalles();
                 if (errores.length > 0) {
                     alert(errores.join('\n'));
@@ -513,7 +568,8 @@
                 this.pedido.total_a_pagar = this.getTotalFinal(this.pedido);
                 this.pedido.descuento = parseFloat(this.pedido.descuento) || 0;
                 this.pedido.flete = parseFloat(this.pedido.flete) || 0;
-                this.pedido.abono = parseFloat(this.pedido.abono) || 0;
+                this.pedido.abono = this.getTotalAbonos();
+                this.pedido.id_puc = this.pedido.abonos[0]?.puc_id ?? null;
                 this.pedido.saldo_pendiente = this.getTotalFinal(this.pedido) - this.pedido.abono;
                 this.pedido.fecha = this.formatDateForInput(this.pedido.fecha);
                 this.pedido.fecha_vencimiento = this.calcularFechaVencimiento(this.pedido.fecha, this.pedido

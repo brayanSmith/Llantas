@@ -49,7 +49,7 @@ class PedidoFormLivewire extends Component implements HasActions, HasSchemas
         $pedidoId = request()->get('pedido_id');
         if ($pedidoId) {
             // Cargar la relación bodega junto con el pedido
-            $this->pedido = Pedido::with('bodega', 'detalles', 'user', 'alistador', 'cliente', 'abonos.formaPago', 'abonos.user', 'puc')->find($pedidoId);
+            $this->pedido = Pedido::with('bodega', 'detalles', 'user', 'alistador', 'cliente', 'abonos', 'puc')->find($pedidoId);
         }
         \Log::info('[Livewire] Pedido cargado en mount', ['pedido' => $this->pedido]);
         $this->detalles = DetallePedido::where('pedido_id', $pedidoId)->get()->toArray();
@@ -123,7 +123,7 @@ class PedidoFormLivewire extends Component implements HasActions, HasSchemas
             //'tipo_pedido' => $pedido['tipo_pedido'],
             'tipo_pago' => $pedido['tipo_pago'],
             'tipo_precio' => $pedido['tipo_precio'],
-            'id_puc' => $pedido['id_puc'] ?? null,
+            'id_puc' => collect($pedido['abonos'] ?? [])->pluck('puc_id')->filter()->first() ?? ($pedido['id_puc'] ?? null),
             'bodega_id' => $pedido['bodega_id'] ?? null,
             'observacion' => $pedido['observacion'] ?? '',
             'observacion_pago' => $pedido['observacion_pago'] ?? '',
@@ -171,15 +171,17 @@ class PedidoFormLivewire extends Component implements HasActions, HasSchemas
         }
 
         $abonosActuales = $pedidoExistente->abonos()->get()->keyBy('id');
-        $nuevosIdsAbonos = collect($pedido['abonos'])->pluck('id')->all();
+        $nuevosIdsAbonos = collect($pedido['abonos'] ?? [])->pluck('id')->filter()->all();
         // Actualizar o crear abonos
-        foreach ($pedido['abonos'] as $abono) {
-            $abonoExistente = $abonosActuales->get($abono['id']);
+        foreach (($pedido['abonos'] ?? []) as $abono) {
+            $abonoExistente = !empty($abono['id']) ? $abonosActuales->get($abono['id']) : null;
+            $pucId = $abono['puc_id'] ?? $abono['forma_pago_id'] ?? $abono['forma_pago'] ?? null;
             if ($abonoExistente) {
                 $abonoExistente->update([
                     'monto' => $abono['monto'],
                     'fecha' => $abono['fecha'],
-                    'forma_pago_id' => $abono['forma_pago'],
+                    'puc_id' => $pucId,
+                    'descripcion' => $abono['descripcion'] ?? '',
                     'user_id' => $abono['user_id'] ?? auth()->id(),
                     'vendedor_id' => $abono['vendedor_id'] ?? null,
                 ]);
@@ -187,7 +189,8 @@ class PedidoFormLivewire extends Component implements HasActions, HasSchemas
                 $pedidoExistente->abonos()->create([
                     'monto' => $abono['monto'],
                     'fecha' => $abono['fecha'],
-                    'forma_pago_id' => $abono['forma_pago'],
+                    'puc_id' => $pucId,
+                    'descripcion' => $abono['descripcion'] ?? '',
                     'user_id' => $abono['user_id'] ?? auth()->id(),
                     'vendedor_id' => $abono['vendedor_id'] ?? null,
                 ]);

@@ -34,7 +34,9 @@
                     <!-- Método de Pago -->
                     <div>
                         <label class="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2 block">Método de Pago</label>
-                        <p class="text-sm text-gray-700 dark:text-gray-300 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-gray-50 dark:bg-gray-800" x-text="abonoSeleccionado.forma_pago?.concatenar_subcuenta_concepto || 'Sin especificar'"></p>
+                        <x-select-searchable :options="$pucs" idKey="id" textKey="concatenar_subcuenta_concepto"
+                            selectId="select-abono-puc-searchable" placeholder="Seleccione un medio de pago..."
+                            x-model="abonoSeleccionado.puc_id" />
                     </div>
 
                     <!-- Observaciones -->

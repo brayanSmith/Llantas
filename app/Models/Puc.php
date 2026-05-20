@@ -22,4 +22,8 @@ class Puc extends Model
     {
         return $this->hasMany(Pedido::class, 'id_puc');
     }
+    public function abonos()
+    {
+        return $this->hasMany(Abono::class, 'puc_id');
+    }
 }

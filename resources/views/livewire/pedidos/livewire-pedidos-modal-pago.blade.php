@@ -1,13 +1,6 @@
 <div x-show="mostrarModalPago" style="display: none;"
     class="fixed inset-0 flex items-center justify-center z-50 bg-black/40 dark:bg-black/60 backdrop-blur-sm">
-    <div class="bg-white dark:bg-neutral-900 p-6 rounded shadow-lg w-full max-w-md mx-2">
-
-        {{-- Puc --}}
-        <div class="flex justify-between items-center gap-3">
-            <x-select-dinamico label="Medio de Pago" placeholder="Seleccione un medio de pago..." model="pedido.id_puc"
-                x-model="pedido.id_puc" :options="$pucs" idKey="id" textKey="concatenar_subcuenta_concepto"
-                selectId="select-puc" />
-        </div>
+    <div class="bg-white dark:bg-neutral-900 p-6 rounded shadow-lg w-full max-w-md mx-2 max-h-[90vh] overflow-y-auto">
 
         {{-- Descuento --}}
         <div class="flex justify-between items-center gap-3 mt-4">
@@ -38,10 +31,19 @@
                 </span>
             </div>
         </div>
-            {{-- Con cuanto paga --}}
+
+
+
+        <div class="mt-4 pt-4 border-t border-gray-200 dark:border-neutral-700 space-y-4">
+            <div class="flex justify-between items-center gap-3">
+                <x-select-searchable :options="$pucs" idKey="id" textKey="concatenar_subcuenta_concepto"
+                    selectId="select-puc-searchable" placeholder="Seleccione un medio de pago..."
+                    x-model="pedido.abono_puc_id" />
+            </div>
+
             <div class="flex justify-between items-center gap-3 mt-4">
                 <label for="con-cuanto-paga"
-                    class="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">Con cuánto paga
+                    class="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">Monto del abono
                     (COP):</label>
                 <input type="number" id="con-cuanto-paga" x-model.number="pedido.con_cuanto_paga" min="0"
                     step="0.01"
@@ -49,21 +51,78 @@
                     placeholder="0" />
             </div>
 
-            {{-- Cambio --}}
-            <div class="mt-4 pt-2">
-                <div class="flex justify-between items-center mb-2 text-lg font-bold">
-                    <span class="flex items-center gap-2">
-                        Cambio:
-                    </span>
-                    <span class="text-blue-600 font-bold flex items-center gap-1">
-                        COP:
-                        <span
-                            x-text="pedido.cambio !== undefined ? pedido.cambio.toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'">
-                        </span>
-                    </span>
-                </div>
+            <div>
+                <label for="descripcion-abono"
+                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Descripcion del abono</label>
+                <textarea id="descripcion-abono" x-model="pedido.descripcion_abono" rows="2"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-neutral-900 dark:border-neutral-700 dark:text-gray-100"
+                    placeholder="Ejemplo: desprendible, transferencia, observacion del abono..."></textarea>
             </div>
 
+            <div class="flex justify-end">
+                <button type="button" @click="agregarAbono()"
+                    class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                    Agregar abono
+                </button>
+            </div>
+
+            <div class="space-y-2 max-h-56 overflow-y-auto pr-1">
+                <template x-if="!pedido.abonos || pedido.abonos.length === 0">
+                    <div class="rounded-lg border border-dashed border-gray-300 px-4 py-3 text-sm text-gray-500 dark:border-neutral-700 dark:text-gray-400">
+                        Aún no has agregado abonos.
+                    </div>
+                </template>
+
+                <template x-for="(abono, index) in pedido.abonos" :key="`abono-${index}`">
+                    <div class="flex items-center justify-between gap-3 rounded-lg border border-gray-200 px-4 py-3 dark:border-neutral-700">
+                        <div class="min-w-0">
+                            <p class="truncate text-sm font-semibold text-gray-800 dark:text-gray-100"
+                                x-text="abono.puc_nombre || getNombrePuc(getPucIdFromAbono(abono))">NA</p>
+
+                            <template x-if="abono.descripcion">
+                                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400 wrap-break-word"
+                                    x-text="abono.descripcion"></p>
+                            </template>
+
+                            <p class="text-xs text-gray-500 dark:text-gray-400"
+                                x-text="abono.fecha || 'Sin fecha'"></p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-sm font-bold text-blue-600 dark:text-blue-400"
+                                x-text="Number(abono.monto || 0).toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })"></span>
+                            <button type="button" @click="removeAbono(index)"
+                                class="rounded-md bg-red-50 px-3 py-1 text-xs font-semibold text-red-600 transition-colors hover:bg-red-100 dark:bg-red-950/40 dark:text-red-300 dark:hover:bg-red-950/70">
+                                Quitar
+                            </button>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        {{-- Cambio --}}
+        <div class="mt-4 pt-2">
+            <div class="flex justify-between items-center mb-2 text-base font-semibold text-gray-700 dark:text-gray-300">
+                <span>Total abonado:</span>
+                <span>
+                    COP:
+                    <span
+                        x-text="getTotalAbonos().toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })">
+                    </span>
+                </span>
+            </div>
+            <div class="flex justify-between items-center mb-2 text-lg font-bold">
+                <span class="flex items-center gap-2">
+                    Cambio:
+                </span>
+                <span class="text-blue-600 font-bold flex items-center gap-1">
+                    COP:
+                    <span
+                        x-text="pedido.cambio !== undefined ? pedido.cambio.toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'">
+                </div>
+                </span>
+
+        </div>
 
         {{-- Comentario Pago --}}
         <div class="mt-6 pt-6 border-t border-gray-200 dark:border-neutral-700">

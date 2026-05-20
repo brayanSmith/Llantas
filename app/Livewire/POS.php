@@ -243,6 +243,19 @@ class POS extends Component implements HasActions, HasSchemas
             ]);
             $productosAfectados[] = $detalle['producto_id'];
         }
+        foreach (($pedido['abonos'] ?? []) as $abono) {
+            $nuevoPedido->abonos()->create([
+                'puc_id' => $abono['puc_id'] ?? null,
+                'monto' => $abono['monto'],
+                'fecha' => empty($abono['fecha']) ? now()->toDateString() : $abono['fecha'],
+                'descripcion' => $abono['descripcion'] ?? '',
+                'imagen' => $abono['imagen'] ?? '',
+                'user_id' => auth()->id(),
+                'vendedor_id' => $abono['vendedor_id'] ?? null,
+            ]);
+        }
+
+
         // Ya no se emite el evento StockActualizado aquí, se maneja desde Alpine.js
 
         // Guardar la URL del PDF en la sesión para mostrar el botón en la modal

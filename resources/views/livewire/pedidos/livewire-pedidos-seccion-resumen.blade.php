@@ -32,7 +32,7 @@
                 x-text="Number(getTotalFinal(pedido) - pedido.abono).toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 2 })"></span>
         </div>
     </div>
-    <div x-show="!soloLectura" class="flex justify-end w-full gap-2">
+    <div x-show=" Number(pedido.saldo_pendiente) > 1000" class="flex justify-end w-full gap-2">
         <button @click="mostrarModalPago = true" type="button" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded shadow transition flex items-center justify-center">
             <span>Registrar Pago</span>
         </button>

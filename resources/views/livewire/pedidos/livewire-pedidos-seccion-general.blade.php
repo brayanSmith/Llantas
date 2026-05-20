@@ -1,12 +1,4 @@
-<div class="rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900 dark:shadow-none"
-    x-data="{
-        calcularFechaVencimiento() {
-            if (!pedido.fecha || !pedido.dias_plazo_vencimiento) return '';
-            const fecha = new Date(pedido.fecha);
-            fecha.setDate(fecha.getDate() + Number(pedido.dias_plazo_vencimiento));
-            return fecha.toISOString().slice(0, 16);
-        }
-    }">
+<div class="rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900 dark:shadow-none">
     <div class="flex items-center justify-between border-b border-gray-100 px-6 py-4 dark:border-gray-800">
         <div class="flex items-center gap-3">
             <div
@@ -40,8 +32,9 @@
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 px-6 py-6">
         <div class="space-y-2 md:col-span-2">
             <label class="text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Cliente</label>
-            <x-select-dinamico label="Cliente" placeholder="Seleccione un cliente" model="pedido.cliente_id"
-                :options="$clientes" idKey="id" textKey="razon_social" selectId="select-cliente" />
+            <x-select-searchable :options="$clientes" idKey="id" textKey="razon_social"
+                selectId="select-cliente-searchable" placeholder="Seleccione un cliente..."
+                x-model="pedido.cliente_id" />
         </div>
         <div class="space-y-2">
             <label class="text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Fecha</label>
@@ -59,13 +52,8 @@
             </select>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 lg:col-span-2">
-            <div class="space-y-2 md:col-span-2 col-span-1">
-                <label class="text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Metodo de Pago</label>
-                <x-select-dinamico label="Medio de Pago" placeholder="Seleccione un medio de pago..."
-                    model="pedido.id_puc" x-model="pedido.id_puc" :options="$pucs" idKey="id"
-                    textKey="concatenar_subcuenta_concepto" selectId="select-puc" />
-            </div>
+        {{--<div class="grid grid-cols-1 md:grid-cols-4 gap-4 lg:col-span-2">
+
             <div class="space-y-2 col-span-1">
                 <label class="text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Tipo Precio</label>
                 <select x-model="pedido.tipo_precio" class="input-pedido-select"
@@ -83,16 +71,16 @@
                     </template>
                 </select>
             </div>
-        </div>
+        </div>--}}
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 lg:col-span-2 mt-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:col-span-4 mt-4">
             <div class="space-y-2">
                 <label class="text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Observacion</label>
-                <textarea x-model="pedido.observacion" class="input-pedido min-h-[96px]"></textarea>
+                <textarea x-model="pedido.observacion" class="input-pedido min-h-24"></textarea>
             </div>
             <div class="space-y-2">
                 <label class="text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Observacion Pago</label>
-                <textarea x-model="pedido.observacion_pago" class="input-pedido min-h-[96px]"></textarea>
+                <textarea x-model="pedido.observacion_pago" class="input-pedido min-h-24"></textarea>
             </div>
         </div>
     </div>

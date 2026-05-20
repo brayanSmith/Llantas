@@ -14,8 +14,8 @@
         <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
             <table class="w-full">
                 <thead>
-                    <tr class="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-900/50 dark:to-gray-800/50 border-b border-gray-200 dark:border-gray-700">
-                        <th class="px-6 py-4 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Comprobante</th>
+                    <tr class="bg-linear-to-r from-gray-50 to-gray-100 dark:from-gray-900/50 dark:to-gray-800/50 border-b border-gray-200 dark:border-gray-700">
+                        {{--<th class="px-6 py-4 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Comprobante</th>--}}
                         <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Método de Pago</th>
                         <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Observaciones</th>
                         <th class="px-6 py-4 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Monto</th>
@@ -27,7 +27,7 @@
                     <template x-for="(abono, index) in pedido.abonos" :key="index">
                         <tr class="border-b border-gray-100 dark:border-gray-700/50 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                             <!-- Comprobante -->
-                            <td class="px-6 py-4">
+                            {{--<td class="px-6 py-4">
                                 <template x-if="abono.imagen">
                                     <div class="flex justify-center">
                                         <a :href="abono.imagen.startsWith('http') ? abono.imagen : '/storage/' + abono.imagen" target="_blank" class="group relative inline-block">
@@ -46,7 +46,7 @@
                                 <template x-if="!abono.imagen">
                                     <span class="text-xs text-gray-400 italic">Sin comprobante</span>
                                 </template>
-                            </td>
+                            </td>--}}
 
 
                             <!-- Método de Pago -->
@@ -55,7 +55,7 @@
                                     <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h10m4 0a1 1 0 11-2 0 1 1 0 012 0zM7 15a1 1 0 11-2 0 1 1 0 012 0z"></path>
                                     </svg>
-                                    <span class="text-sm text-gray-700 dark:text-gray-300" x-text="abono.forma_pago?.concatenar_subcuenta_concepto || 'Sin especificar'"></span>
+                                    <span class="text-sm text-gray-700 dark:text-gray-300" x-text="abono.puc_nombre || abono.forma_pago?.concatenar_subcuenta_concepto || getNombrePuc(getPucIdFromAbono(abono)) || 'Sin especificar'"></span>
                                 </div>
                             </td>
 

@@ -102,6 +102,7 @@
                     bodegas: bodegas,
                     productos: productos,
                     users: users,
+                    pucs: pucs,
                     empresa: empresa,
                     bodegaSeleccionada: bodegaSeleccionada,
                     totalCantidadProductos: 0, // Nueva propiedad reactiva
@@ -129,12 +130,14 @@
                         estado_pago: 'EN_CARTERA',
                         tipo_pago: '',
                         tipo_precio: tipoPrecio || 'DETAL', // Establecer el tipo de precio inicial basado en el rol del usuario
-                        id_puc: null,
+                        abono_puc_id: null,
                         bodega_id: bodegaSeleccionada ?? (empresa ? empresa.bodega_id : null),
                         observacion: '',
                         observacion_pago: '',
+                        descripcion_abono: '',
                         subtotal: 0,
                         abono: 0,
+                        con_cuanto_paga: 0,
                         descuento: 0,
                         flete: 0,
                         total_a_pagar: 0,
@@ -142,6 +145,7 @@
                         user_id: userId,
                         aplica_turno: false,
                         turno: null,
+                        abonos: [],
                         detalles: [],
                     },
 
@@ -149,6 +153,10 @@
                         const pedidoGuardado = localStorage.getItem('pedidoPOS');
                         if (pedidoGuardado) {
                             this.pedido = JSON.parse(pedidoGuardado);
+                            this.pedido.abonos = Array.isArray(this.pedido.abonos) ? this.pedido.abonos : [];
+                            this.pedido.abono_puc_id = this.pedido.abono_puc_id ?? this.pedido.id_puc ?? null;
+                            this.pedido.con_cuanto_paga = Number(this.pedido.con_cuanto_paga) || 0;
+                            this.pedido.descripcion_abono = this.pedido.descripcion_abono ?? '';
                             this.totalCantidadProductos = this.pedido.detalles.reduce((acc, d) => acc + (parseFloat(d
                                 .cantidad) || 0), 0);
                         }
@@ -176,15 +184,22 @@
                             this.calcularTotales();
                         });
 
+                        this.$watch('pedido.tipo_pago', value => {
+                            if (value === 'CONTRA_ENTREGA') {
+                                this.pedido.abonos = [];
+                                this.pedido.abono = 0;
+                                this.pedido.abono_puc_id = null;
+                                this.pedido.con_cuanto_paga = 0;
+                                this.pedido.descripcion_abono = '';
+                            }
+                            this.calcularTotales();
+                        });
+
                         this.$watch('pedido.descuento', () => {
                             this.calcularTotales();
                         });
 
                         this.$watch('pedido.flete', () => {
-                            this.calcularTotales();
-                        });
-
-                        this.$watch('pedido.con_cuanto_paga', () => {
                             this.calcularTotales();
                         });
 
@@ -201,6 +216,8 @@
                                     }
                                 });
                         }
+
+                        this.calcularTotales();
                     },
                     // Función para modificar el stock de productos, ahora soporta un array de productos con id y stock
                     modificarStockProducto(productosActualizar, nuevoStock = null) {
@@ -317,9 +334,85 @@
 
                     },
 
+                    getTotalAbonos() {
+                        return (this.pedido.abonos || []).reduce((acc, abono) => {
+                            return acc + (parseFloat(abono.monto) || 0);
+                        }, 0);
+                    },
+
+                    getNombrePuc(pucId) {
+                        const listaPucs = Array.isArray(this.pucs) ? this.pucs : [];
+                        const puc = listaPucs.find(item => String(item.id) === String(pucId));
+                        return puc ? puc.concatenar_subcuenta_concepto : 'Medio de pago';
+                    },
+
+                    agregarAbono(mostrarErrores = true) {
+                        if (this.pedido.tipo_pago === 'CONTRA_ENTREGA') {
+                            return true;
+                        }
+
+                        const pucId = this.pedido.abono_puc_id;
+                        const monto = Number(this.pedido.con_cuanto_paga) || 0;
+                        const listaPucs = Array.isArray(this.pucs) ? this.pucs : [];
+                        const pucSeleccionado = listaPucs.find(item => String(item.id) === String(pucId));
+
+                        if (!pucId || monto <= 0) {
+                            if (mostrarErrores) {
+                                this.mensajeToast = 'Seleccione un medio de pago e ingrese un monto válido para el abono.';
+                                this.mostrarToast = true;
+                                setTimeout(() => this.mostrarToast = false, 3000);
+                            }
+                            return false;
+                        }
+
+                        this.pedido.abonos.push({
+                            puc_id: Number(pucId),
+                            puc_nombre: pucSeleccionado?.concatenar_subcuenta_concepto || null,
+                            monto: monto,
+                            fecha: new Date().toISOString().slice(0, 10),
+                            descripcion: this.pedido.descripcion_abono || '',
+                        });
+
+                        console.log('Abonos agregados al pedido:', JSON.parse(JSON.stringify(this.pedido.abonos)));
+                        console.log('Pedido despues de agregar abono:', JSON.parse(JSON.stringify(this.pedido)));
+                        console.log('Pedido Completo:', this.pedido);
+
+                        this.pedido.abono_puc_id = null;
+                        this.pedido.con_cuanto_paga = 0;
+                        this.pedido.descripcion_abono = '';
+                        this.calcularTotales();
+
+                        return true;
+                    },
+
+                    removerAbono(index) {
+                        this.pedido.abonos.splice(index, 1);
+                        this.calcularTotales();
+                    },
+
+                    prepararAbonosParaEnvio() {
+                        if (this.pedido.tipo_pago === 'CONTRA_ENTREGA') {
+                            this.pedido.abonos = [];
+                            this.pedido.abono = 0;
+                            return true;
+                        }
+
+                        const tieneBorrador = this.pedido.abono_puc_id || Number(this.pedido.con_cuanto_paga) > 0;
+                        if (tieneBorrador && !this.agregarAbono(true)) {
+                            return false;
+                        }
+
+                        return true;
+                    },
+
                     //Funcion para Enviar Pedido
                     enviar() {
                         //console.log('Ejecutando enviar()');
+                        if (!this.prepararAbonosParaEnvio()) {
+                            return;
+                        }
+
+                        this.calcularTotales();
                         const errores = validarRegistros(this.pedido);
                         if (errores.length > 0) {
                             this.mensajeToast = errores.join("\n");
@@ -328,7 +421,7 @@
                             setTimeout(() => this.mostrarToast = false, 3000);
                             return;
                         }
-                        const abono = this.pedido.con_cuanto_paga >= this.pedido.total_a_pagar ? this.pedido.total_a_pagar : Number(this.pedido.con_cuanto_paga) || 0;
+                        const abono = this.getTotalAbonos();
                         this.pedido.abono = abono;
 
                         const pedidoSalida = {
@@ -339,7 +432,7 @@
                             estado_pago: this.pedido.estado_pago,
                             tipo_pago: this.pedido.tipo_pago,
                             tipo_precio: this.pedido.tipo_precio,
-                            id_puc: this.pedido.id_puc,
+                            id_puc: this.pedido.abonos[0]?.puc_id ?? null,
                             bodega_id: this.pedido.bodega_id,
                             observacion: this.pedido.observacion,
                             observacion_pago: this.pedido.observacion_pago,
@@ -351,6 +444,7 @@
                             total_a_pagar: this.pedido.total_a_pagar,
                             saldo_pendiente: this.pedido.saldo_pendiente,
 
+                            abonos: this.pedido.abonos,
                             detalles: this.pedido.detalles,
                         }
                         console.log('Pedido a enviar:', pedidoSalida);
@@ -416,14 +510,16 @@
                     calcularTotales() {
                         this.pedido.subtotal = getTotal(this.pedido);
                         this.pedido.total_a_pagar = getTotalAPagar(this.pedido);
+                        this.pedido.abono = this.getTotalAbonos();
                         this.pedido.saldo_pendiente = getSaldoPendiente(this.pedido);
-                        this.pedido.cambio = this.getCambio(this.pedido.total_a_pagar, Number(this.pedido.con_cuanto_paga));
+                        this.pedido.cambio = this.getCambio(this.pedido.total_a_pagar, this.pedido.abono);
                         this.totalCantidadProductos = this.pedido.detalles.reduce((acc, d) => acc + (parseFloat(d.cantidad) || 0), 0);
                         console.log('Totales recalculados:', {
                             subtotal: this.pedido.subtotal,
                             total_a_pagar: this.pedido.total_a_pagar,
+                            abono: this.pedido.abono,
                             saldo_pendiente: this.pedido.saldo_pendiente,
-                            con_cuanto_paga: this.pedido.con_cuanto_paga,
+                            total_abonos: this.getTotalAbonos(),
                             cambio: this.pedido.cambio
                         });
                     },

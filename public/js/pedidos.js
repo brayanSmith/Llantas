@@ -7,12 +7,13 @@ function crearPedidoVacio(bodegaSeleccionada, empresa, userId, tipoPrecio) {
         estado_pago: null,
         tipo_pago: "CONTADO",
         tipo_precio: tipoPrecio,
-        puc_id: null,
+        abono_puc_id: null,
         bodega_id: bodegaSeleccionada ?? (empresa ? empresa.bodega_id : null),
         observacion: "",
         observacion_pago: "",
         subtotal: 0,
         abono: 0,
+        con_cuanto_paga: 0,
         descuento: 0,
         flete: 0,
         total_a_pagar: 0,
@@ -20,6 +21,7 @@ function crearPedidoVacio(bodegaSeleccionada, empresa, userId, tipoPrecio) {
         user_id: userId,
         aplica_turno: true,
         turno: null,
+        abonos: [],
         detalles: [],
     };
 }
@@ -32,15 +34,25 @@ function validarRegistros(pedido){
     if (!pedido.tipo_pago) {
         errores.push("Debe seleccionar un tipo de pago.");
     }
-    if(!pedido.id_puc){
-        errores.push("Debe seleccionar un medio de pago.");
-    }
 
     if (!pedido.tipo_precio) {
         errores.push("Debe seleccionar un tipo de precio.");
     }
-    if (!pedido.con_cuanto_paga && pedido.tipo_pago !== 'CONTRA_ENTREGA') {
-        errores.push("Debe ingresar con cuánto paga el cliente.");
+    if (pedido.tipo_pago !== 'CONTRA_ENTREGA') {
+        const abonos = Array.isArray(pedido.abonos) ? pedido.abonos : [];
+        if (abonos.length === 0) {
+            errores.push("Debe agregar al menos un abono.");
+        }
+
+        abonos.forEach((abono, idx) => {
+            if (!abono.puc_id) {
+                errores.push(`Debe seleccionar un medio de pago para el abono ${idx + 1}.`);
+            }
+
+            if (!(parseFloat(abono.monto) > 0)) {
+                errores.push(`El monto del abono ${idx + 1} debe ser mayor a 0.`);
+            }
+        });
     }
 
     if (pedido.detalles.length === 0) {

@@ -24,8 +24,8 @@
                     class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 transition">
                     <td class="px-4">
                         <div>
-                            <x-select-tom-select :options="$productos" idKey="id" textKey="concatenar_codigo_nombre"
-                                selectId="select-producto" placeholder="Seleccione un producto..."
+                            <x-select-searchable :options="$productos" idKey="id" textKey="concatenar_codigo_nombre"
+                                selectId="select-producto-searchable" placeholder="Seleccione un producto..."
                                 x-model="productoIngresado"
                                 @change="productoSeleccionado = getPrecioIndividual(productoIngresado, pedido.tipo_precio); valorIngresado = productoSeleccionado" />
                         </div>
@@ -56,7 +56,7 @@
                                 <span x-text="detalleEditandoIndex !== null ? 'Actualizar' : '+ Agregar'"></span>
                             </button>
                             <button type="button"
-                                @click="detalleEditandoIndex = null, productoIngresado = null, cantidadIngresada = 1, valorIngresado = 0; setTimeout(() => { const sel = document.getElementById('select-producto'); if(sel && sel.tomselect) sel.tomselect.clear(); }, 50)"
+                                @click="detalleEditandoIndex = null, productoIngresado = null, cantidadIngresada = 1, valorIngresado = 0; setTimeout(() => { const sel = document.getElementById('select-producto-searchable'); if(sel) { sel.value = ''; sel.dispatchEvent(new Event('change', { bubbles: true })); } }, 50)"
                                 x-show="detalleEditandoIndex !== null"
                                 class="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded shadow transition text-sm">
                                 Cancelar
