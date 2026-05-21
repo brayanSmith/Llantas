@@ -30,6 +30,14 @@
                     @click="pedido.tipo_pago = 'CONTRA_ENTREGA'">
                     CONTRA ENTREGA
                 </button>
+                <button type="button"
+                    :class="pedido.tipo_pago === 'CREDITO' ?
+                        'bg-blue-600 text-white border-blue-600' :
+                        'text-body bg-neutral-primary-soft border border-default hover:bg-neutral-secondary-medium hover:text-heading'"
+                    class="font-medium leading-5 rounded-e-base text-sm px-3 py-2 focus:outline-none"
+                    @click="pedido.tipo_pago = 'CREDITO'">
+                    CREDITO
+                </button>
             </div>
         </div>
 
@@ -65,11 +73,16 @@
 
         <div x-show="pedido.tipo_pago !== 'CONTRA_ENTREGA'">
             <div class="mt-4 pt-4 border-t border-gray-200 dark:border-neutral-700 space-y-4">
+                <div>
+                    <h3 class="text-sm font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-300">Abonos</h3>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Agrega uno o varios abonos para este pedido.</p>
+                </div>
+
                 {{-- Puc --}}
                 <div class="flex justify-between items-center gap-3">
-                    <x-select-dinamico label="Medio de Pago" placeholder="Seleccione un medio de pago..." model="pedido.abono_puc_id"
-                        x-model="pedido.abono_puc_id" :options="$pucs" idKey="id" textKey="concatenar_subcuenta_concepto"
-                        selectId="select-puc" />
+                    <x-select-searchable :options="$pucs" idKey="id" textKey="concatenar_subcuenta_concepto"
+                        selectId="select-puc-searchable" placeholder="Seleccione un medio de pago..."
+                        x-model="pedido.abono_puc_id" />
                 </div>
 
                 {{-- Con cuanto paga --}}
@@ -97,8 +110,6 @@
                         Agregar abono
                     </button>
                 </div>
-
-
 
                 <div class="space-y-2 max-h-56 overflow-y-auto pr-1">
                     <template x-if="!pedido.abonos || pedido.abonos.length === 0">
@@ -135,8 +146,9 @@
                     </template>
                 </div>
             </div>
+        </div>
 
-            {{-- Cambio --}}
+        {{-- Cambio --}}
             <div class="mt-4 pt-2">
                 <div class="flex justify-between items-center mb-2 text-base font-semibold text-gray-700 dark:text-gray-300">
                     <span>Total abonado:</span>
@@ -159,7 +171,6 @@
                     </span>
                 </div>
             </div>
-        </div>
 
         {{-- Comentario Pago --}}
         <div class="mt-6 pt-6 border-t border-gray-200 dark:border-neutral-700">

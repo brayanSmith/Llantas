@@ -2,8 +2,10 @@
 
 namespace App\Filament\Resources\PedidosMayoristas\Tables;
 
-use App\Filament\Resources\Pedidos\Tables\HasPedidoTable;
 use App\Filament\Resources\Pedidos\Tables\HasDetallePedidoTable;
+use App\Filament\Resources\Pedidos\Tables\HasPedidoFilters;
+use App\Filament\Resources\Pedidos\Tables\HasPedidoTable;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -11,7 +13,6 @@ use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
-use Filament\Actions\Action;
 
 class PedidosMayoristasTable
 {
@@ -41,6 +42,7 @@ class PedidosMayoristasTable
             ])
             ->filters([
                 TrashedFilter::make(),
+                ...HasPedidoFilters::tableFilters(),
             ])
 
              ->recordActions([

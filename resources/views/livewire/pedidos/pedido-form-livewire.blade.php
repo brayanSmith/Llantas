@@ -96,6 +96,7 @@
             productoSeleccionado: null,
             cantidadSeleccionada: 1,
             isLoading: false,
+            ultimaObservacionPagoAutogenerada: '',
             pucs,
             soloLectura,
             mostrarModalPago: mostrarModalPago,
@@ -127,7 +128,10 @@
                 this.pedido.abono_puc_id = this.pedido.abono_puc_id ?? this.pedido.id_puc ?? null;
                 this.pedido.con_cuanto_paga = Number(this.pedido.con_cuanto_paga) || 0;
                 this.pedido.descripcion_abono = this.pedido.descripcion_abono ?? '';
+                this.pedido.observacion_pago = this.pedido.observacion_pago ?? '';
+                this.pedido.detalles = Array.isArray(this.pedido.detalles) ? this.pedido.detalles : [];
                 this.pedido.abonos = this.normalizarAbonos(this.pedido.abonos);
+                this.sincronizarObservacionPagoConAbonos();
 
                 // Recalcular saldo pendiente con el abono correcto
                 this.pedido.abono = this.getTotalAbonos();
@@ -197,6 +201,23 @@
                 const puc = listaPucs.find(item => String(item.id) === String(pucId));
                 return puc ? puc.concatenar_subcuenta_concepto : 'Medio de pago';
             },
+            generarObservacionPagoDesdeAbonos() {
+                return (this.pedido.abonos || [])
+                    .map(abono => (abono.descripcion || '').trim())
+                    .filter(Boolean)
+                    .join('\n');
+            },
+            sincronizarObservacionPagoConAbonos() {
+                const observacionGenerada = this.generarObservacionPagoDesdeAbonos();
+                const observacionActual = (this.pedido.observacion_pago || '').trim();
+                const ultimaObservacion = (this.ultimaObservacionPagoAutogenerada || '').trim();
+
+                if (!observacionActual || observacionActual === ultimaObservacion) {
+                    this.pedido.observacion_pago = observacionGenerada;
+                }
+
+                this.ultimaObservacionPagoAutogenerada = observacionGenerada;
+            },
             agregarAbono() {
                 const pucId = this.pedido.abono_puc_id;
                 const monto = Number(this.pedido.con_cuanto_paga) || 0;
@@ -216,6 +237,7 @@
                     descripcion: this.pedido.descripcion_abono || '',
                 });
 
+                this.sincronizarObservacionPagoConAbonos();
                 this.pedido.abono_puc_id = null;
                 this.pedido.con_cuanto_paga = 0;
                 this.pedido.descripcion_abono = '';
@@ -298,6 +320,7 @@
             //Funcion para Remover Algun Abono
             removeAbono(index) {
                 this.pedido.abonos.splice(index, 1);
+                this.sincronizarObservacionPagoConAbonos();
                 this.calcularTotales();
                 console.log('Estado del objeto pedido al remover abono:', this.pedido);
             },
@@ -313,6 +336,7 @@
                 try {
                     abono.puc_id = this.getPucIdFromAbono(abono);
                     abono.puc_nombre = this.getNombrePuc(abono.puc_id);
+                    this.sincronizarObservacionPagoConAbonos();
                     this.calcularTotales();
                     this.pedido.estado_pago = this.pedido.saldo_pendiente <= 0 ? 'SALDADO' : 'EN_CARTERA';
 
@@ -482,7 +506,8 @@
             },
             //Funcion para Obtener Total General
             getTotal(pedido) {
-                return pedido.detalles.reduce((acc, detalle) => acc + (detalle.subtotal || 0), 0);
+                const detalles = Array.isArray(pedido?.detalles) ? pedido.detalles : [];
+                return detalles.reduce((acc, detalle) => acc + (detalle.subtotal || 0), 0);
             },
 
             getTotalFinal(pedido) {

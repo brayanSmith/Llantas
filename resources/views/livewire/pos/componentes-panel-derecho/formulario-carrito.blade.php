@@ -1,10 +1,18 @@
-<div class="flex-shrink-0 mt-6 space-y-4">
+<div class="shrink-0 mt-6 space-y-4">
     <div class="space-y-2">
         <label for="cliente" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
             Cliente
         </label>
 
-        @include('livewire.partials.searchable-client-select')
+        <x-select-searchable
+            :options="collect($clientes)->map(fn ($cliente) => array_merge($cliente, [
+                'texto_cliente' => trim(($cliente['numero_documento'] ?? '') . ' - ' . ($cliente['razon_social'] ?? '') . ' - ' . ($cliente['ciudad'] ?? '')),
+            ]))->values()->all()"
+            idKey="id"
+            textKey="texto_cliente"
+            selectId="select-cliente-searchable-pos"
+            placeholder="Seleccione un cliente..."
+            x-model="pedido.cliente_id" />
     </div>
 
     {{-- Tipo de Precio y Aplica Turno juntos --}}

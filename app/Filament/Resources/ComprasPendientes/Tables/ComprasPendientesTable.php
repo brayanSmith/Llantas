@@ -29,7 +29,12 @@ class ComprasPendientesTable
                 TrashedFilter::make(),
             ])
             ->recordActions([
-                EditAction::make(),
+                //EditAction::make(),
+                Action::make('edit')
+                ->label('Editar')
+                ->icon('heroicon-o-pencil')
+                ->url(fn($record) => route('filament.admin.resources.compras-pendientes.edit', ['record' => $record->getKey(), 'compra_id' => $record->getKey()]))
+                ->openUrlInNewTab(false),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

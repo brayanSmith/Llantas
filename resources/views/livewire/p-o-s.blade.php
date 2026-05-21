@@ -120,6 +120,7 @@
                     tipoPrecio: tipoPrecio,
                     esAdmin: esAdmin,
                     isLoading: false,
+                    ultimaObservacionPagoAutogenerada: '',
 
 
                     pedido: {
@@ -157,9 +158,13 @@
                             this.pedido.abono_puc_id = this.pedido.abono_puc_id ?? this.pedido.id_puc ?? null;
                             this.pedido.con_cuanto_paga = Number(this.pedido.con_cuanto_paga) || 0;
                             this.pedido.descripcion_abono = this.pedido.descripcion_abono ?? '';
+                            this.pedido.observacion_pago = this.pedido.observacion_pago ?? '';
                             this.totalCantidadProductos = this.pedido.detalles.reduce((acc, d) => acc + (parseFloat(d
                                 .cantidad) || 0), 0);
                         }
+
+                        this.sincronizarObservacionPagoConAbonos();
+
                         // Watcher automático para guardar cualquier cambio en pedido
                         if (typeof this.$watch === 'function') {
                             this.$watch('pedido', value => {
@@ -346,6 +351,25 @@
                         return puc ? puc.concatenar_subcuenta_concepto : 'Medio de pago';
                     },
 
+                    generarObservacionPagoDesdeAbonos() {
+                        return (this.pedido.abonos || [])
+                            .map(abono => (abono.descripcion || '').trim())
+                            .filter(Boolean)
+                            .join('\n');
+                    },
+
+                    sincronizarObservacionPagoConAbonos() {
+                        const observacionGenerada = this.generarObservacionPagoDesdeAbonos();
+                        const observacionActual = (this.pedido.observacion_pago || '').trim();
+                        const ultimaObservacion = (this.ultimaObservacionPagoAutogenerada || '').trim();
+
+                        if (!observacionActual || observacionActual === ultimaObservacion) {
+                            this.pedido.observacion_pago = observacionGenerada;
+                        }
+
+                        this.ultimaObservacionPagoAutogenerada = observacionGenerada;
+                    },
+
                     agregarAbono(mostrarErrores = true) {
                         if (this.pedido.tipo_pago === 'CONTRA_ENTREGA') {
                             return true;
@@ -377,6 +401,7 @@
                         console.log('Pedido despues de agregar abono:', JSON.parse(JSON.stringify(this.pedido)));
                         console.log('Pedido Completo:', this.pedido);
 
+                        this.sincronizarObservacionPagoConAbonos();
                         this.pedido.abono_puc_id = null;
                         this.pedido.con_cuanto_paga = 0;
                         this.pedido.descripcion_abono = '';
@@ -387,6 +412,7 @@
 
                     removerAbono(index) {
                         this.pedido.abonos.splice(index, 1);
+                        this.sincronizarObservacionPagoConAbonos();
                         this.calcularTotales();
                     },
 

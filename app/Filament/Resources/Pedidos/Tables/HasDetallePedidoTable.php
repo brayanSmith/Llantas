@@ -46,6 +46,7 @@ class HasDetallePedidoTable
             TextColumn::make('subtotal')
                 ->label('Subtotal')
                 ->numeric(2, ',', '.'),
+
         ];
     }
 }

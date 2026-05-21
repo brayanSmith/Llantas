@@ -123,7 +123,7 @@ class PedidoFormLivewire extends Component implements HasActions, HasSchemas
             //'tipo_pedido' => $pedido['tipo_pedido'],
             'tipo_pago' => $pedido['tipo_pago'],
             'tipo_precio' => $pedido['tipo_precio'],
-            'id_puc' => collect($pedido['abonos'] ?? [])->pluck('puc_id')->filter()->first() ?? ($pedido['id_puc'] ?? null),
+            //'id_puc' => collect($pedido['abonos'] ?? [])->pluck('puc_id')->filter()->first() ?? ($pedido['id_puc'] ?? null),
             'bodega_id' => $pedido['bodega_id'] ?? null,
             'observacion' => $pedido['observacion'] ?? '',
             'observacion_pago' => $pedido['observacion_pago'] ?? '',

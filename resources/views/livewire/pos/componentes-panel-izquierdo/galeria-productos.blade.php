@@ -98,7 +98,7 @@
                             <div class="flex items-center justify-center md:col-span-3 mt-0 w-auto">
                                 <div class="w-full">
                                     <x-filament::button
-                                        x-show="stock > 0"
+
                                         @click.prevent="productoSeleccionado = product; cantidadSeleccionada = 1; precioSeleccionado = tipoPrecio(pedido.tipo_precio); mostrarModalAgregarProducto = true; accionModalAgregarProducto = 'agregar';"
                                         class="w-full py-2 px-4 font-bold rounded-lg text-xs md:text-base flex items-center justify-center"
                                         color="primary" size="md'">

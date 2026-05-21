@@ -11,6 +11,14 @@ use Filament\Resources\Pages\EditRecord;
 class EditComprasPendientes extends EditRecord
 {
     protected static string $resource = ComprasPendientesResource::class;
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
+    protected function getFormActions(): array
+    {
+        return [];
+    }
 
     protected function getHeaderActions(): array
     {

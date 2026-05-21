@@ -52,7 +52,7 @@ class PedidosTable
             ])
             ->filters([
                 // Filtro por Ruta
-
+                ...HasPedidoFilters::tableFilters(),
 
                 // Filtro por Cliente
                 SelectFilter::make('cliente_id')

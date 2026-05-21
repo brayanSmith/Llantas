@@ -2,6 +2,11 @@
 
 namespace App\Filament\Resources\PedidosOutlets\Tables;
 
+use App\Filament\Resources\Pedidos\Tables\HasDetallePedidoTable;
+use App\Filament\Resources\Pedidos\Tables\HasPedidoFilters;
+use App\Filament\Resources\Pedidos\Tables\HasPedidoTable;
+use App\Filament\Tables\Columns\DescargarPdfColumn;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\ForceDeleteBulkAction;
@@ -9,10 +14,6 @@ use Filament\Actions\RestoreBulkAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
-use App\Filament\Resources\Pedidos\Tables\HasPedidoTable;
-use App\Filament\Resources\Pedidos\Tables\HasDetallePedidoTable;
-use App\Filament\Tables\Columns\DescargarPdfColumn;
-use Filament\Actions\Action;
 
 class PedidosOutletsTable
 {
@@ -32,8 +33,9 @@ class PedidosOutletsTable
                 $query->whereHas('bodega', function ($q) {
                     $q->where('nombre_bodega', 'Outlet');
                 })
-                ->where('tipo_precio', 'DETAL')
-                ->where('estado', 'COMPLETADO');
+
+                //->where('estado', 'COMPLETADO')
+                ->where('tipo_precio', 'DETAL');
                 return $query;
             })
             ->columns([
@@ -45,6 +47,7 @@ class PedidosOutletsTable
             ])
             ->filters([
                 TrashedFilter::make(),
+                ...HasPedidoFilters::tableFilters(),
             ])
             ->recordActions([
                 Action::make('edit')

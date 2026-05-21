@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\PedidosEconomics\Tables;
+namespace App\Filament\Resources\PedidosEnCarteras\Tables;
 
 use App\Filament\Resources\Pedidos\Tables\HasDetallePedidoTable;
 use App\Filament\Resources\Pedidos\Tables\HasPedidoFilters;
@@ -11,10 +11,11 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 
-class PedidosEconomicsTable
+class PedidosEnCarterasTable
 {
     public static function configure(Table $table): Table
     {
@@ -30,30 +31,32 @@ class PedidosEconomicsTable
             ])
             ->modifyQueryUsing(function ($query) {
                 $query->whereHas('bodega', function ($q) {
-                    $q->where('nombre_bodega', 'Economi');
+                    $q->whereIn('nombre_bodega', ['Economi', 'Outlet']);
                 })
-                ->where('tipo_precio', 'DETAL');
+                ->where('estado_pago', 'EN_CARTERA');
                 //->where('estado', 'COMPLETADO');
                 return $query;
             })
             ->columns([
+                //
                 // === Columnas tab Pedidos ===
                 ...array_map(fn ($column) => $column->visible(fn ($livewire) => ($livewire->activeTab ?? 'pedidos') === 'pedidos'), HasPedidoTable::tableColumns()),
 
                 // === Columnas tab Detalles ===
                 ...array_map(fn ($column) => $column->visible(fn ($livewire) => ($livewire->activeTab ?? 'pedidos') === 'detalles'), HasDetallePedidoTable::tableColumns()),
+
             ])
             ->filters([
                 TrashedFilter::make(),
                 ...HasPedidoFilters::tableFilters(),
-            ])
+            ])  //layout: FiltersLayout::AboveContent)
             ->recordActions([
                 Action::make('edit')
                     ->label(fn ($livewire) => ($livewire->activeTab ?? 'pedidos') === 'pedidos' ? 'Editar' : 'Ver Pedido')
                     ->icon(fn ($livewire) => ($livewire->activeTab ?? 'pedidos') === 'pedidos' ? 'heroicon-o-pencil' : 'heroicon-o-eye')
                     ->url(fn ($record, $livewire) => ($livewire->activeTab ?? 'pedidos') === 'detalles'
-                        ? route('filament.admin.resources.pedidos-economics.edit', ['record' => $record->pedido_base_id, 'pedido_id' => $record->pedido_base_id])
-                        : route('filament.admin.resources.pedidos-economics.edit', ['record' => $record->getKey(), 'pedido_id' => $record->getKey()])
+                        ? route('filament.admin.resources.pedidos-en-carteras.edit', ['record' => $record->pedido_base_id, 'pedido_id' => $record->pedido_base_id])
+                        : route('filament.admin.resources.pedidos-en-carteras.edit', ['record' => $record->getKey(), 'pedido_id' => $record->getKey()])
                     )
                     ->openUrlInNewTab(false),
             ])

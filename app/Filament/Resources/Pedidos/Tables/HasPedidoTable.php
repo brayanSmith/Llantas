@@ -14,9 +14,16 @@ class HasPedidoTable
         return [
             DescargarPdfColumn::make('descargar_pdf')
                 ->label('Pdf'),
+
             TextColumn::make('id')
                 ->label('ID')
+                ->searchable()
                 ->sortable(),
+            TextColumn::make('bodega.nombre_bodega')
+                ->label('Bodega')
+                ->searchable()
+                ->sortable(),
+
             TextColumn::make('cliente.razon_social')
                 ->label('Cliente')
                 ->searchable()
@@ -28,6 +35,7 @@ class HasPedidoTable
                 ->toggleable(isToggledHiddenByDefault: false),
             TextColumn::make('estado')
                 ->label('Estado')
+                ->searchable()
                 ->sortable(),
             TextColumn::make('total_a_pagar')
                 ->label('Total a Pagar')
@@ -40,6 +48,14 @@ class HasPedidoTable
                 ->sortable(),
             TextColumn::make('turno')
                 ->label('Turno')
+                ->searchable()
+                ->sortable(),
+            TextColumn::make('observacion')
+                ->label('Observación')
+                ->searchable()
+                ->sortable(),
+            TextColumn::make('observacion_pago')
+                ->label('Observación Pago')
                 ->searchable()
                 ->sortable(),
             TextColumn::make('updated_at')
