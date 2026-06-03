@@ -70,7 +70,8 @@ class PedidosEnCarteraResource extends Resource
             ->whereHas('bodega', function ($q) {
                 $q->whereIn('nombre_bodega', ['Economi', 'Outlet']);
             })
-            ->where('estado_pago', 'EN_CARTERA');
+            ->where('estado_pago', 'EN_CARTERA')
+            ->where('tipo_precio', 'DETAL');
         $count = $query->count();
 
         return $count > 0 ? (string) $count : null;

@@ -68,7 +68,8 @@ class PedidosConsignacionResource extends Resource
     public static function getNavigationBadge(): ?string
     {
         $query = static::getModel()::query()
-        ->where('estado', 'PENDIENTE');
+        ->where('estado_pago', 'EN_CARTERA')
+            ->where('tipo_precio', 'MAYORISTA');
         $count = $query->count();
 
         return $count > 0 ? (string) $count : null;

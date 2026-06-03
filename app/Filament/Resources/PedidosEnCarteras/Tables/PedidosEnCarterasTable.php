@@ -33,8 +33,8 @@ class PedidosEnCarterasTable
                 $query->whereHas('bodega', function ($q) {
                     $q->whereIn('nombre_bodega', ['Economi', 'Outlet']);
                 })
-                ->where('estado_pago', 'EN_CARTERA');
-                //->where('estado', 'COMPLETADO');
+                ->where('estado_pago', 'EN_CARTERA')
+                ->where('tipo_precio', 'DETAL');
                 return $query;
             })
             ->columns([

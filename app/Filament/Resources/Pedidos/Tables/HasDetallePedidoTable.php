@@ -6,17 +6,22 @@ use Filament\Tables\Columns\TextColumn;
 
 class HasDetallePedidoTable
 {
-    public static function tableColumns(): array
+    public static function tableColumns(bool $includeResumenCartera = false): array
+    {
+        return self::detailColumns();
+    }
+
+    public static function detailColumns(): array
     {
         return [
-            TextColumn::make('stock_total')
-                ->label('Stock Total')
-                ->badge()
-                ->color(fn ($state) => $state < 0 ? 'danger' : ($state > 3 ? 'success' : ($state > 0 ? 'warning' : 'danger'))),
             TextColumn::make('pedido_base_id')
                 ->label('Código Pedido')
                 ->searchable(query: fn ($query, $search) => $query->where('pedidos.id', 'like', "%{$search}%"))
                 ->sortable(query: fn ($query, $direction) => $query->orderBy('pedidos.id', $direction)),
+            TextColumn::make('stock_total')
+                ->label('Stock Total')
+                ->badge()
+                ->color(fn ($state) => $state < 0 ? 'danger' : ($state > 3 ? 'success' : ($state > 0 ? 'warning' : 'danger'))),
             TextColumn::make('cliente_nombre')
                 ->label('Cliente')
                 ->getStateUsing(fn ($record) => $record->cliente?->razon_social)
@@ -25,6 +30,18 @@ class HasDetallePedidoTable
             TextColumn::make('producto_nombre')
                 ->label('Producto')
                 ->searchable(query: fn ($query, $search) => $query->where('productos.concatenar_codigo_nombre', 'like', "%{$search}%")),
+            TextColumn::make('consignacion')
+                ->label('Consignación')
+                ->alignCenter()
+                ->badge()
+                ->getStateUsing(fn ($record) => (int) ($record->consignacion ?? 0))
+                ->color(fn ($state) => ((int) $state) > 0 ? 'warning' : 'gray'),
+            TextColumn::make('en_cartera')
+                ->label('En Cartera')
+                ->alignCenter()
+                ->badge()
+                ->getStateUsing(fn ($record) => (int) ($record->en_cartera ?? 0))
+                ->color(fn ($state) => ((int) $state) > 0 ? 'warning' : 'gray'),
             TextColumn::make('fecha')
                 ->label('Fecha')
                 ->date()
@@ -46,7 +63,6 @@ class HasDetallePedidoTable
             TextColumn::make('subtotal')
                 ->label('Subtotal')
                 ->numeric(2, ',', '.'),
-
         ];
     }
 }

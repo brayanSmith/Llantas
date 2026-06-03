@@ -8,7 +8,6 @@ use App\Filament\Resources\Pedidos\Tables\HasPedidoTable;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Tables\Filters\TrashedFilter;
@@ -29,7 +28,8 @@ class PedidosConsignacionsTable
                     ->collapsible(),
             ])
             ->modifyQueryUsing(function ($query) {
-                $query->where('tipo_pago', 'CONTRA_ENTREGA');
+                $query->where('estado_pago', 'EN_CARTERA')
+                      ->where('tipo_precio', 'MAYORISTA');
                 return $query;
             })
             ->columns([
